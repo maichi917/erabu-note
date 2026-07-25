@@ -238,7 +238,7 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:item).permit(:name, :brand_name, :price, :stock_quantity, :favorite, :memo, :image, :usage_frequency)
+    params.require(:item).permit(:name, :brand_name, :price, :stock_quantity, :favorite, :memo, :image, :usage_frequency, :capacity, :capacity_unit)
   end
 
   # 検索・絞り込み・ページ指定のない初期表示のときだけ「もうすぐ無くなりそう」を出す
