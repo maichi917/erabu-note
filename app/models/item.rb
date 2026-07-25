@@ -14,11 +14,16 @@ class Item < ApplicationRecord
     "たまに" => 1
   }.freeze
 
+  # 容量の単位の選択肢
+  CAPACITY_UNITS = %w[ml g kg 枚 個].freeze
+
   validates :name, presence: true, length: { maximum: 100 }
   validates :brand_name, length: { maximum: 100 }
   validates :price, numericality: { only_integer: true, allow_blank: true, greater_than_or_equal_to: 0 }
   validates :stock_quantity, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :usage_frequency, inclusion: { in: USAGE_FREQUENCIES }, allow_blank: true
+  validates :capacity, numericality: { allow_blank: true, greater_than: 0 }
+  validates :capacity_unit, inclusion: { in: CAPACITY_UNITS }, allow_blank: true
   validate :image_content_type
   validate :image_size
 
@@ -99,6 +104,13 @@ class Item < ApplicationRecord
     return if expected_uses.zero?
 
     (price.to_f / expected_uses).round
+  end
+
+  # 容量あたりのコスト（価格 ÷ 容量）。価格または容量が未入力の場合は nil
+  def cost_per_capacity
+    return if price.blank? || capacity.blank?
+
+    (price.to_f / capacity).round(1)
   end
 
   def average_rating

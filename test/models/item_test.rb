@@ -318,6 +318,27 @@ class ItemTest < ActiveSupport::TestCase
     assert_nil item.cost_per_use
   end
 
+  test "cost_per_capacity divides price by capacity" do
+    item = items(:one)
+    item.update!(price: 1000, capacity: 500, capacity_unit: "ml")
+
+    assert_equal 2.0, item.cost_per_capacity
+  end
+
+  test "cost_per_capacity returns nil when price is blank" do
+    item = items(:one)
+    item.update!(price: nil, capacity: 500, capacity_unit: "ml")
+
+    assert_nil item.cost_per_capacity
+  end
+
+  test "cost_per_capacity returns nil when capacity is blank" do
+    item = items(:one)
+    item.update!(price: 1000, capacity: nil)
+
+    assert_nil item.cost_per_capacity
+  end
+
   test "average_rating uses only usage logs with rating" do
     item = items(:one)
     item.start_using!(users(:one), Time.zone.local(2026, 5, 1))
@@ -541,6 +562,30 @@ class ItemTest < ActiveSupport::TestCase
 
     assert_not item.valid?
     assert_includes item.errors[:brand_name], "は100文字以内で入力してください"
+  end
+
+  test "item can be saved without capacity or capacity_unit" do
+    item = items(:one)
+    item.capacity = nil
+    item.capacity_unit = nil
+
+    assert item.valid?
+  end
+
+  test "item rejects capacity of zero or less" do
+    item = items(:one)
+    item.capacity = 0
+
+    assert_not item.valid?
+    assert_includes item.errors[:capacity], "は0より大きい値にしてください"
+  end
+
+  test "item rejects capacity_unit outside the allowed list" do
+    item = items(:one)
+    item.capacity_unit = "L"
+
+    assert_not item.valid?
+    assert_includes item.errors[:capacity_unit], "は一覧にありません"
   end
 
   test "item accepts png image" do

@@ -1431,6 +1431,48 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "dd", text: "未設定"
   end
 
+  test "update changes capacity and capacity_unit" do
+    item = items(:one)
+
+    patch item_path(item), params: {
+      item: {
+        name: item.name,
+        price: item.price,
+        stock_quantity: item.stock_quantity,
+        capacity: "500",
+        capacity_unit: "ml"
+      }
+    }
+
+    assert_redirected_to items_path
+    item.reload
+    assert_equal 500, item.capacity
+    assert_equal "ml", item.capacity_unit
+  end
+
+  test "show displays capacity and cost per capacity" do
+    item = items(:one)
+    item.update!(price: 1000, capacity: 500, capacity_unit: "ml")
+
+    get item_path(item)
+
+    assert_response :success
+    assert_select "dt", text: "容量"
+    assert_includes response.body, "500ml"
+    assert_select "dt", text: "容量あたりコスト"
+    assert_includes response.body, "2.0円/ml"
+  end
+
+  test "show displays unset message when capacity is blank" do
+    item = items(:one)
+
+    get item_path(item)
+
+    assert_response :success
+    assert_select "dt", text: "容量"
+    assert_select "dd", text: "未設定"
+  end
+
   test "update changes brand name" do
     item = items(:one)
 

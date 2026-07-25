@@ -53,6 +53,20 @@
         </div>
 
         <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500">容量</dt>
+          <dd class="mt-1 font-semibold text-slate-800">
+            <%= @item.capacity.present? ? "#{number_with_precision(@item.capacity, precision: 2, strip_insignificant_zeros: true)}#{@item.capacity_unit}" : "未設定" %>
+          </dd>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
+          <dt class="text-xs text-slate-500">容量あたりコスト</dt>
+          <dd class="mt-1 font-semibold text-slate-800">
+            <%= @item.cost_per_capacity.present? ? "#{number_with_delimiter(@item.cost_per_capacity)}円/#{@item.capacity_unit}" : "データなし" %>
+          </dd>
+        </div>
+
+        <div class="rounded-lg bg-slate-50 p-3">
           <dt class="text-xs text-slate-500">使用頻度</dt>
           <dd class="mt-1 font-semibold text-slate-800"><%= @item.usage_frequency.presence || "未設定" %></dd>
         </div>
