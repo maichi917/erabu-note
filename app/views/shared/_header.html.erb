@@ -8,7 +8,17 @@
         <% end %>
 
         <% if user_signed_in? %>
-          <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "btn-secondary px-3 py-1.5" %>
+          <!-- detailsタグは、ブラウザ標準の「クリックで開閉する箱」の機能。JS不要でドロップダウンを作れる -->
+          <details class="relative">
+            <summary class="btn-secondary inline-flex cursor-pointer list-none px-3 py-1.5 [&::-webkit-details-marker]:hidden">
+              <%= current_user.name %>
+            </summary>
+
+            <div class="absolute right-0 z-10 mt-2 w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+              <%= link_to "アカウント編集", edit_user_registration_path, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
+              <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
+            </div>
+          </details>
         <% end %>
       </div>
 
