@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
-  devise_for :users
+  devise_for :users, controllers: { omniauth_callbacks: "users/omniauth_callbacks" }
   root "static_pages#top"
   get "guide", to: "static_pages#guide", as: :guide
   get "terms", to: "static_pages#terms", as: :terms
