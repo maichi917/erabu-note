@@ -1,6 +1,12 @@
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def line
     auth = request.env["omniauth.auth"]
+
+    if current_user
+      link_line_to_current_user(auth)
+      return
+    end
+
     user = User.find_by(line_user_id: auth.uid)
 
     if user
@@ -22,5 +28,17 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
         redirect_to new_user_session_path, alert: "LINEアカウントでの登録に失敗しました"
       end
     end
+  end
+
+  private
+
+  def link_line_to_current_user(auth)
+    if User.exists?(line_user_id: auth.uid)
+      redirect_to edit_user_registration_path, alert: "このLINEアカウントは、すでに別のアカウントと連携しています"
+      return
+    end
+
+    current_user.update!(line_user_id: auth.uid, line_access_token: auth.credentials.token)
+    redirect_to edit_user_registration_path, notice: "LINEアカウントと連携しました"
   end
 end
