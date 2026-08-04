@@ -21,6 +21,8 @@ services:
       - .:/app
     environment:
       - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+      - LINE_CHANNEL_ID=${LINE_CHANNEL_ID}
+      - LINE_CHANNEL_SECRET=${LINE_CHANNEL_SECRET}
 
 volumes:
   db-data:
