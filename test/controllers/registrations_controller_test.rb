@@ -27,6 +27,38 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "updated@example.com", users(:one).email
   end
 
+  test "update without current_password fails for a regular user" do
+    sign_in users(:one)
+
+    patch user_registration_path, params: {
+      user: {
+        name: "更新後の名前",
+        email: "updated@example.com"
+      }
+    }
+
+    users(:one).reload
+    assert_not_equal "更新後の名前", users(:one).name
+  end
+
+  test "update changes name and email without current_password for a LINE-linked user" do
+    user = users(:one)
+    user.update!(line_user_id: "line-uid-123")
+    sign_in user
+
+    patch user_registration_path, params: {
+      user: {
+        name: "LINE更新後の名前",
+        email: "line-updated@example.com"
+      }
+    }
+
+    assert_redirected_to root_path
+    user.reload
+    assert_equal "LINE更新後の名前", user.name
+    assert_equal "line-updated@example.com", user.email
+  end
+
   test "destroy removes the user along with their items, categories, and usage logs" do
     user = users(:one)
     item = items(:one)
