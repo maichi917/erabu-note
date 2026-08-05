@@ -79,5 +79,6 @@ gem "devise-i18n"
 gem "rails-i18n"
 gem "kaminari"
 
-gem "omniauth-line", "~> 0.1.0"
 gem "omniauth-rails_csrf_protection", "~> 2.0"
+
+gem "omniauth-oauth2", "~> 1.9"

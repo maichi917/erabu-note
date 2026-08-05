@@ -15,7 +15,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     else
       user = User.new(
         name: auth.info.name.presence || "LINEユーザー",
-        email: "line-#{auth.uid}@line.invalid",
+        email: "line-#{auth.uid}@#{User::LINE_PLACEHOLDER_EMAIL_DOMAIN}",
         password: Devise.friendly_token[0, 20],
         line_user_id: auth.uid,
         line_access_token: auth.credentials.token
@@ -34,7 +34,8 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def link_line_to_current_user(auth)
     if User.exists?(line_user_id: auth.uid)
-      redirect_to edit_user_registration_path, alert: "このLINEアカウントは、すでに別のアカウントと連携しています"
+      redirect_to edit_user_registration_path,
+                  alert: "このLINEアカウントは、すでに別のアカウントと連携しています。こちらのアカウントに連携したい場合は、まず連携済みのアカウントでログインし、「LINE連携を解除する」を行ってから、もう一度お試しください。"
       return
     end
 

@@ -25,6 +25,9 @@
         <div>
           <%= f.label :email, "メールアドレス", class: "form-label" %>
           <%= f.email_field :email, autocomplete: "email", class: "form-input" %>
+          <% if current_user.placeholder_email? %>
+            <p class="form-help">LINE登録時に自動で作成されたメールアドレスです。ご自身のメールアドレスに変更できます。</p>
+          <% end %>
         </div>
 
         <!-- パスワードフィールド -->
@@ -59,6 +62,25 @@
         <%= f.submit "更新する", class: "btn-primary w-full cursor-pointer" %>
       </div>
     <% end %>
+
+    <!-- LINE連携 -->
+    <div class="border-t border-slate-100 pt-5">
+      <h3 class="form-label">LINE連携</h3>
+      <% if current_user.line_user_id.present? %>
+        <p class="mb-3 text-sm text-slate-500">LINEアカウントと連携済みです。</p>
+        <%= button_to "LINE連携を解除する",
+                       disconnect_line_path,
+                       method: :delete,
+                       data: { turbo_confirm: "LINE連携を解除しますか？" },
+                       class: "btn-secondary w-full cursor-pointer" %>
+      <% else %>
+        <p class="mb-3 text-sm text-slate-500">LINEアカウントと連携すると、次回からLINEでログインできます。</p>
+        <%= button_to "LINEと連携する",
+                       user_line_omniauth_authorize_path,
+                       class: "btn-secondary w-full cursor-pointer",
+                       data: { turbo: false } %>
+      <% end %>
+    </div>
 
     <!-- アカウント削除 -->
     <div class="border-t border-slate-100 pt-5 text-center">

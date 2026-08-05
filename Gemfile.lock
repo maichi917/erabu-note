@@ -262,9 +262,6 @@ GEM
       logger
       rack (>= 2.2.3)
       rack-protection
-    omniauth-line (0.1.0)
-      json (>= 2.3.0)
-      omniauth-oauth2 (~> 1.3)
     omniauth-oauth2 (1.9.0)
       oauth2 (>= 2.0.2, < 3)
       omniauth (~> 2.0)
@@ -424,7 +421,7 @@ GEM
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
     uri (1.1.1)
-    version_gem (1.1.14)
+    version_gem (1.1.15)
     warden (1.2.9)
       rack (>= 2.0.9)
     web-console (4.2.1)
@@ -459,7 +456,7 @@ DEPENDENCIES
   kaminari
   letter_opener_web
   minitest (~> 5.25)
-  omniauth-line (~> 0.1.0)
+  omniauth-oauth2 (~> 1.9)
   omniauth-rails_csrf_protection (~> 2.0)
   pg (~> 1.1)
   puma (>= 5.0)

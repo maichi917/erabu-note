@@ -29,6 +29,11 @@ ja:
       user:
         email: メールアドレス
     errors:
+      models:
+        user:
+          attributes:
+            email:
+              taken: "はすでに使われています。もし以前ご自身で登録したメールアドレスの場合は、そちらのアカウントにログインし、「LINEと連携する」から連携をやり直してください。"
       messages:
         blank: "を入力してください"
         not_a_number: "は数値で入力してください"
