@@ -54,7 +54,11 @@
         <div>
           <%= f.label :current_password, "現在のパスワード", class: "form-label" %>
           <%= f.password_field :current_password, autocomplete: "current-password", class: "form-input" %>
-          <p class="form-help">変更を保存するには、確認のため現在のパスワードを入力してください</p>
+          <% if current_user.line_linked? %>
+            <p class="form-help">LINE連携済みのため、入力は不要です（空欄のままで保存できます）</p>
+          <% else %>
+            <p class="form-help">変更を保存するには、確認のため現在のパスワードを入力してください</p>
+          <% end %>
         </div>
       </div>
 
@@ -66,7 +70,7 @@
     <!-- LINE連携 -->
     <div class="border-t border-slate-100 pt-5">
       <h3 class="form-label">LINE連携</h3>
-      <% if current_user.line_user_id.present? %>
+      <% if current_user.line_linked? %>
         <p class="mb-3 text-sm text-slate-500">LINEアカウントと連携済みです。</p>
         <%= button_to "LINE連携を解除する",
                        disconnect_line_path,

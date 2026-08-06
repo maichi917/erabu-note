@@ -19,4 +19,9 @@ class User < ApplicationRecord
   def placeholder_email?
     email.to_s.end_with?("@#{LINE_PLACEHOLDER_EMAIL_DOMAIN}")
   end
+
+  # LINEアカウントと連携済みかどうか
+  def line_linked?
+    line_user_id.present?
+  end
 end

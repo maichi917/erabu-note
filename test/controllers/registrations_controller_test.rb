@@ -59,6 +59,23 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "line-updated@example.com", user.email
   end
 
+  test "update sets a new password without current_password for a LINE-linked user" do
+    user = users(:one)
+    user.update!(line_user_id: "line-uid-123")
+    sign_in user
+
+    patch user_registration_path, params: {
+      user: {
+        password: "mynewpassword123",
+        password_confirmation: "mynewpassword123"
+      }
+    }
+
+    assert_redirected_to root_path
+    user.reload
+    assert user.valid_password?("mynewpassword123")
+  end
+
   test "destroy removes the user along with their items, categories, and usage logs" do
     user = users(:one)
     item = items(:one)

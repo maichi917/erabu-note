@@ -4,7 +4,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # LINE連携済みユーザーは、本人の知らない自動生成パスワードを持っているため、
   # 現在のパスワード確認をスキップして名前・メールアドレスを更新できるようにする
   def update_resource(resource, params)
-    return super unless resource.line_user_id.present?
+    return super unless resource.line_linked?
 
     params = params.dup
     params.delete(:current_password)
