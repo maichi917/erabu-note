@@ -57,6 +57,9 @@ jobs:
           ruby-version: 3.2.2
           bundler-cache: true
 
+      - name: Install libvips
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libvips
+
       - name: Prepare database
         run: bin/rails db:prepare
 
