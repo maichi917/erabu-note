@@ -145,7 +145,7 @@ https://monolog-note.com/
 
 | 項目 | 技術 |
 | --- | --- |
-| バックエンド | Ruby 3.2.2 / Ruby on Rails 7.1.6 |
+| バックエンド | Ruby 3.2.2 / Ruby on Rails 8.1.3.1 |
 | フロントエンド | Tailwind CSS / Hotwire（Turbo, Stimulus） |
 | データベース | PostgreSQL |
 | 認証 | Devise |
