@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## プロジェクト概要
-Rails 7.1 + PostgreSQL の在庫管理・レビューアプリ。認証は Devise、CSS は Tailwind CSS。Docker Compose で開発する。
+Rails 8.1 + PostgreSQL の在庫管理・レビューアプリ。認証は Devise、CSS は Tailwind CSS。Docker Compose で開発する。
 
 ## コマンド
 - 起動: `docker compose up`
