@@ -10,66 +10,66 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_07_31_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_11_124803) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
-  enable_extension "plpgsql"
 
   create_table "active_storage_attachments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", null: false
-    t.string "record_type", null: false
-    t.datetime "created_at", null: false
-    t.uuid "record_id", null: false
     t.uuid "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.uuid "record_id", null: false
+    t.string "record_type", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
   create_table "active_storage_blobs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "key", null: false
-    t.string "filename", null: false
-    t.string "content_type"
-    t.text "metadata"
-    t.string "service_name", null: false
     t.bigint "byte_size", null: false
     t.string "checksum"
+    t.string "content_type"
     t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
   create_table "active_storage_variant_records", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "variation_digest", null: false
     t.uuid "blob_id", null: false
+    t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
   create_table "categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "user_id", null: false
-    t.string "name", null: false
     t.datetime "created_at", null: false
+    t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
     t.index ["user_id", "name"], name: "index_categories_on_user_id_and_name", unique: true
     t.index ["user_id"], name: "index_categories_on_user_id"
   end
 
   create_table "items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", null: false
-    t.integer "price"
-    t.integer "stock_quantity"
-    t.boolean "favorite", default: false
-    t.text "memo"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.boolean "archived", default: false, null: false
-    t.uuid "user_id", null: false
-    t.uuid "category_id"
     t.string "brand_name"
-    t.date "predicted_finish_on"
-    t.datetime "reminder_first_sent_at"
-    t.datetime "reminder_second_sent_at"
-    t.string "usage_frequency"
     t.decimal "capacity", precision: 8, scale: 2
     t.string "capacity_unit"
+    t.uuid "category_id"
+    t.datetime "created_at", null: false
+    t.boolean "favorite", default: false
+    t.text "memo"
+    t.string "name", null: false
+    t.date "predicted_finish_on"
+    t.integer "price"
+    t.datetime "reminder_first_sent_at"
+    t.datetime "reminder_second_sent_at"
+    t.integer "stock_quantity"
+    t.datetime "updated_at", null: false
+    t.string "usage_frequency"
+    t.uuid "user_id", null: false
     t.index ["archived"], name: "index_items_on_archived"
     t.index ["category_id"], name: "index_items_on_category_id"
     t.index ["predicted_finish_on"], name: "index_items_on_predicted_finish_on"
@@ -77,16 +77,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_31_000000) do
   end
 
   create_table "usage_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.datetime "started_at"
+    t.datetime "created_at", null: false
+    t.text "discontinued_reason"
+    t.string "finish_reason"
     t.datetime "finished_at"
+    t.uuid "item_id", null: false
     t.integer "rating"
     t.text "review"
-    t.datetime "created_at", null: false
+    t.datetime "started_at"
     t.datetime "updated_at", null: false
-    t.uuid "item_id", null: false
     t.uuid "user_id", null: false
-    t.string "finish_reason"
-    t.text "discontinued_reason"
     t.index ["finish_reason"], name: "index_usage_logs_on_finish_reason"
     t.index ["item_id", "finished_at"], name: "index_usage_logs_on_item_id_and_finished_at"
     t.index ["item_id"], name: "index_usage_logs_on_item_id"
@@ -96,16 +96,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_31_000000) do
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", default: "", null: false
+    t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
-    t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "line_user_id"
     t.string "line_access_token"
+    t.string "line_user_id"
+    t.string "name", default: "", null: false
+    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at"
+    t.string "reset_password_token"
+    t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["line_user_id"], name: "index_users_on_line_user_id", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

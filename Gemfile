@@ -3,7 +3,7 @@ source "https://rubygems.org"
 ruby "3.2.2"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.1.6"
+gem "rails", "~> 8.1.3.1"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
@@ -74,7 +74,7 @@ group :test do
 end
 
 gem "tailwindcss-rails"
-gem "devise"
+gem "devise", "~> 5.0.4"
 gem "devise-i18n"
 gem "rails-i18n"
 gem "kaminari"
