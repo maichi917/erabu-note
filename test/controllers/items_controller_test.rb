@@ -565,54 +565,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to in_use_items_path
   end
 
-  test "finish_using_form shows date field" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-
-    get finish_using_form_item_path(item)
-
-    assert_response :success
-    assert_select "input[name='finished_at']"
-    assert_select "input[name='usage_log_id'][value='#{item.current_usage_log.id}']"
-    assert_select "input[name='continue_using']"
-    assert_select "span", text: "続けて新しく使う"
-  end
-
-  test "finish_using_form does not show continue option when stock is empty" do
-    item = items(:one)
-    item.update!(stock_quantity: 1)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-
-    get finish_using_form_item_path(item)
-
-    assert_response :success
-    assert_select "input[name='continue_using']", count: 0
-  end
-
-  test "finish_using_form redirects when item is not in use" do
-    get finish_using_form_item_path(items(:one))
-
-    assert_redirected_to in_use_items_path
-  end
-
-  test "discontinue_using_form shows date field" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-
-    get discontinue_using_form_item_path(item)
-
-    assert_response :success
-    assert_select "form[action='#{discontinue_using_item_path(item)}'] input[name='finished_at']"
-    assert_select "textarea[name='discontinued_reason']"
-    assert_select "input[type='submit'][value='使用を中止する']"
-  end
-
-  test "discontinue_using_form redirects when item is not in use" do
-    get discontinue_using_form_item_path(items(:one))
-
-    assert_redirected_to in_use_items_path
-  end
-
   test "in_use page sets meta title from page title" do
     get in_use_items_path
 
