@@ -3,8 +3,8 @@ class ItemsController < ApplicationController
   before_action :set_categories, only: %i[new create edit update]
   before_action :set_filter_params, only: %i[index in_use used_up discontinued]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
-                                    start_using finish_using_form finish_using
-                                    discontinue_using_form discontinue_using add_stock]
+                                    start_using finish_using
+                                    discontinue_using add_stock]
 
   def index
     @items = current_user.items.visible.includes(:category).order(created_at: :desc)
@@ -156,12 +156,6 @@ class ItemsController < ApplicationController
     redirect_to in_use_items_path, notice: "使用を開始しました"
   end
 
-  def finish_using_form
-    unless @item.using?
-      redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
-    end
-  end
-
   def finish_using
     usage_log =
       if params[:usage_log_id].present?
@@ -196,12 +190,6 @@ class ItemsController < ApplicationController
       end
 
     redirect_to edit_usage_log_path(usage_log), notice: notice
-  end
-
-  def discontinue_using_form
-    unless @item.using?
-      redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
-    end
   end
 
   def discontinue_using

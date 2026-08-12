@@ -12,9 +12,7 @@ Rails.application.routes.draw do
   resources :items, only: %i[index new create show edit update destroy] do
     member do
       patch :start_using
-      get :finish_using_form, path: :finish_using
       patch :finish_using
-      get :discontinue_using_form, path: :discontinue_using
       patch :discontinue_using
       patch :add_stock
       patch :toggle_favorite
