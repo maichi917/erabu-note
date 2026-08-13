@@ -163,7 +163,7 @@
               </div>
 
               <div class="min-w-0 flex-1">
-                <h2 class="brand-font truncate text-lg font-bold text-slate-900"><%= item.name %></h2>
+                <h2 class="brand-font truncate text-sm font-bold text-slate-900 sm:text-lg"><%= item.name %></h2>
                 <% if item.brand_name.present? %>
                   <p class="truncate text-xs font-medium text-emerald-700 sm:text-sm"><%= item.brand_name %></p>
                 <% end %>
@@ -173,22 +173,38 @@
                     <dt class="shrink-0 font-medium text-slate-500">状態</dt>
                     <dd class="min-w-0">
                       <% if item.using? %>
-                        <span class="inline-flex rounded-full bg-amber-100 px-1.5 py-0.5 font-semibold text-amber-800 sm:px-2">使用中</span>
+                        <span class="inline-flex whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-0.5 font-semibold text-amber-800 sm:px-3">使用中</span>
                       <% elsif item.stock_available? %>
-                        <span class="inline-flex rounded-full bg-emerald-50 px-1.5 py-0.5 font-semibold text-emerald-700 sm:px-2">在庫あり</span>
+                        <span class="inline-flex whitespace-nowrap rounded-full bg-emerald-50 px-2.5 py-0.5 font-semibold text-emerald-700 sm:px-3">在庫あり</span>
                       <% else %>
-                        <span class="inline-flex rounded-full border border-red-200 bg-red-50 px-1.5 py-0.5 font-semibold text-red-700 sm:px-2">在庫なし</span>
+                        <span class="inline-flex whitespace-nowrap rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 font-semibold text-red-700 sm:px-3">在庫なし</span>
                       <% end %>
                     </dd>
                   </div>
-                  <div class="flex min-w-0 items-center gap-1">
+                  <div class="hidden min-w-0 items-center gap-1 sm:flex">
                     <dt class="shrink-0 font-medium text-slate-500">カテゴリ</dt>
                     <dd class="min-w-0 truncate <%= item.category.present? ? "text-slate-700" : "text-slate-400" %>">
                       <%= item.category&.name || "未設定" %>
                     </dd>
                   </div>
                   <% if item.using? %>
-                    <div class="flex min-w-0 items-center gap-1">
+                    <div class="hidden min-w-0 items-center gap-1 sm:flex">
+                      <dt class="shrink-0 font-medium text-slate-500">使い始め日</dt>
+                      <dd class="min-w-0 truncate text-slate-700">
+                        <%= format_date(item.current_usage_log.started_at) %>
+                      </dd>
+                    </div>
+                    <div class="hidden min-w-0 items-center gap-1 sm:flex">
+                      <dt class="shrink-0 font-medium text-slate-500">使用日数</dt>
+                      <dd class="min-w-0 truncate text-slate-700">
+                        <% if item.current_usage_log.days_in_use %>
+                          <%= "#{item.current_usage_log.days_in_use}日目" %>
+                        <% else %>
+                          -
+                        <% end %>
+                      </dd>
+                    </div>
+                    <div class="col-span-2 flex min-w-0 items-center gap-1">
                       <dt class="shrink-0 font-medium text-slate-500">使い切り予測</dt>
                       <dd class="min-w-0 truncate <%= item.finish_predicted_soon? ? "font-semibold text-red-600" : "text-emerald-700" %>">
                         <% if item.predicted_finish_date.present? %>
@@ -214,11 +230,14 @@
                 </span>
               </div>
 
-              <div class="grid grid-cols-[4rem_auto] items-stretch gap-1.5 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end sm:gap-2">
+              <div class="grid grid-cols-1 items-stretch gap-1.5 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end sm:gap-2">
                 <div class="grid gap-1.5">
                   <% if item.using? %>
-                    <button type="button" class="btn-danger px-2 py-1.5 text-xs leading-tight sm:px-3 sm:text-sm" data-disclosure-toggle data-disclosure-target="finish-using">
+                    <button type="button" class="btn-primary px-2 py-1.5 text-xs leading-tight sm:px-3 sm:text-sm" data-disclosure-toggle data-disclosure-target="finish-using">
                       使い切る
+                    </button>
+                    <button type="button" class="btn-danger px-2 py-1.5 text-xs leading-tight sm:px-3 sm:text-sm" data-disclosure-toggle data-disclosure-target="discontinue-using">
+                      使用中止
                     </button>
                     <%= render "add_stock_button",
                                button_class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
@@ -241,6 +260,7 @@
 
           <% if item.using? %>
             <%= render "finish_using_modal", item: item %>
+            <%= render "discontinue_using_modal", item: item %>
           <% end %>
 
           <% if item.stock_available? %>
