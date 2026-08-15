@@ -32,6 +32,9 @@
         <div class="grid gap-3">
           <%= link_to "新規登録", new_user_registration_path, class: "btn-primary w-full" %>
           <%= link_to "ログイン", new_user_session_path, class: "btn-secondary w-full" %>
+          <%= button_to "ゲストとして試す", guest_sign_in_path, method: :post,
+                        class: "block w-full cursor-pointer text-center text-sm font-medium text-emerald-700 hover:underline",
+                        form_class: "w-full" %>
         </div>
       <% end %>
     </div>
