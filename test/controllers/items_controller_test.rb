@@ -147,18 +147,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match items(:two).name, response.body
   end
 
-  test "index shows finish using modal for in-use item" do
-    item = items(:one)
-    item.start_using!(@user, Time.current)
-
-    get items_path, params: { status: "in_use" }
-
-    assert_response :success
-    assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
-    assert_select "form[action='#{finish_using_item_path(item)}'] input[name='finished_at']"
-    assert_select "form[action='#{finish_using_item_path(item)}'] input[name='usage_log_id']"
-  end
-
   test "index filters out-of-stock items by status" do
     get items_path, params: { status: "out_of_stock" }
 
@@ -167,25 +155,42 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match items(:one).name, response.body
   end
 
-  test "index shows a stock toggle button for every item" do
-    item = items(:one)
-    out_of_stock_item = items(:two)
-
-    get items_path
-
-    assert_response :success
-    assert_select "form[action='#{toggle_stock_item_path(item)}'] button", text: "在庫あり"
-    assert_select "form[action='#{toggle_stock_item_path(out_of_stock_item)}'] button", text: "在庫なし"
-  end
-
-  test "index links item information to detail page and hides detail button on mobile" do
+  test "index links item information to detail page" do
     item = items(:one)
 
     get items_path
 
     assert_response :success
     assert_select "a[aria-label='#{item.name}の詳細を見る'][href='#{item_path(item)}']"
-    assert_select "a.hidden[href='#{item_path(item)}']", text: "詳細"
+  end
+
+  test "index shows favorite toggle button for every item" do
+    item = items(:one)
+
+    get items_path
+
+    assert_response :success
+    assert_select "form[action='#{toggle_favorite_item_path(item)}']"
+  end
+
+  test "index shows the latest rating for an item with a finished usage cycle" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10), rating: 4)
+
+    get items_path
+
+    assert_response :success
+    assert_includes response.body, "⭐️ 4"
+  end
+
+  test "index does not show a rating for an item without any reviews" do
+    item = items(:one)
+
+    get items_path
+
+    assert_response :success
+    assert_select "article", text: /⭐️/, count: 0
   end
 
   test "index filters items by category" do

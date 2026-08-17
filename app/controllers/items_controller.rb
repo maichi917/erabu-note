@@ -23,6 +23,12 @@ class ItemsController < ApplicationController
 
     @page_title = "アイテム"
     @items = @items.page(params[:page])
+    @latest_ratings_by_item_id = current_user.usage_logs
+                                              .where(item_id: @items.map(&:id))
+                                              .rated
+                                              .order(created_at: :desc)
+                                              .group_by(&:item_id)
+                                              .transform_values { |usage_logs| usage_logs.first.rating }
   end
 
   def used_up
