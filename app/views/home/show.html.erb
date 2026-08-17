@@ -27,6 +27,7 @@
             <% end %>
 
             <div class="mt-2 flex flex-wrap items-center gap-1.5">
+              <%= render "items/favorite_button", item: item, compact: true %>
               <%= render "items/low_stock_button", item: item %>
               <%= link_to "感想を書く", edit_usage_log_path(usage_log), class: "ml-auto inline-flex items-center rounded-full border border-emerald-600 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50" %>
             </div>

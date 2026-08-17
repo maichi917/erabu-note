@@ -122,7 +122,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, favorite_item.name
     assert_no_match items(:two).name, response.body
-    assert_select "a[href='#{items_path(favorite: "1")}']", text: /お気に入り/
+    assert_select "a[href='#{items_path}'][aria-label='お気に入りのみの表示をやめる']"
     assert_select "form[action='#{toggle_favorite_item_path(favorite_item)}']"
   end
 
@@ -247,17 +247,15 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type='hidden'][name='category_id'][value='#{category.id}']"
   end
 
-  test "index shows category links in filter drawer" do
+  test "index shows category options in dropdown" do
     category = categories(:hair_care)
 
     get items_path
 
     assert_response :success
-    assert_select "button[data-disclosure-target='filters']", text: /絞り込み/
-    assert_select "div[data-disclosure-panel='filters']" do
-      assert_select "h3", text: "Category"
-      assert_select "a[href='#{items_path(category_id: category.id)}']", text: category.name
-      assert_select "a[href='#{items_path(category_id: "uncategorized")}']", text: "未設定"
+    assert_select "select[name='category_id']" do
+      assert_select "option", text: category.name
+      assert_select "option", text: "未設定"
     end
   end
 

@@ -30,6 +30,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "今使っているもの"
     assert_select "a[href='#{item_path(item)}']", text: item.name
     assert_select "form[action='#{toggle_low_stock_item_path(item)}']"
+    assert_select "form[action='#{toggle_favorite_item_path(item)}']"
     assert_select "a[href='#{edit_usage_log_path(usage_log)}']", text: "感想を書く"
   end
 
