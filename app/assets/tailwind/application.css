@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  /* ナビゲーションの出し分け用。スマホ下タブバー / PC上部ナビの切り替え幅 */
+  --breakpoint-pc: 860px;
+}
+
 @layer base {
   body {
     font-family: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;

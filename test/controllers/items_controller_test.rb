@@ -34,24 +34,17 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "img[src*='logo-mark'][alt='']"
-    assert_select "details.md\\:hidden", count: 0
-    assert_select "summary", text: /メニュー/, count: 0
-    assert_select "nav[aria-label='スマートフォンメニュー'].md\\:hidden" do
-      assert_select "a.bg-emerald-50[href='#{items_path}']", text: "アイテム"
-      assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
-      assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
-      assert_select "a[href='#{used_up_items_path}']", text: "履歴"
-      assert_select "a[href='#{guide_path}']", text: "使い方"
-      assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー", count: 0
-      assert_select "details[data-menu-group='other']", count: 0
+    assert_select "nav[aria-label='スマートフォンメニュー'].pc\\:hidden" do
+      assert_select "a[href='#{home_path}']", text: "ホーム"
+      assert_select "a[href='#{items_path}']", text: "持ち物"
+      assert_select "a[href='#{reviews_usage_logs_path}']", text: "感想"
+      assert_select "a[href='#{new_item_path}']", text: "登録"
     end
-    assert_select "nav[aria-label='メインメニュー'].md\\:flex" do
-      assert_select "a.bg-emerald-50[href='#{items_path}']", text: "アイテム"
-      assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり", count: 0
-      assert_select "a[href='#{in_use_items_path}']", text: "使用中", count: 0
-      assert_select "a[href='#{used_up_items_path}']", text: "履歴"
-      assert_select "a[href='#{guide_path}']", text: "使い方"
-      assert_select "a[href='#{reviews_usage_logs_path}']", text: "レビュー", count: 0
+    assert_select "nav[aria-label='メインメニュー'].pc\\:flex" do
+      assert_select "a.bg-emerald-50[href='#{items_path}']", text: "持ち物"
+      assert_select "a[href='#{home_path}']", text: "ホーム"
+      assert_select "a[href='#{reviews_usage_logs_path}']", text: "感想"
+      assert_select "a[href='#{new_item_path}']", text: "登録"
     end
   end
 
