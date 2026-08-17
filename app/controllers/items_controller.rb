@@ -15,8 +15,6 @@ class ItemsController < ApplicationController
 
     in_use_item_ids = current_user.usage_logs.in_use.select(:item_id)
     case @selected_status
-    when "available"
-      @items = @items.where(in_stock: true).where.not(id: in_use_item_ids)
     when "in_use"
       @items = @items.where(id: in_use_item_ids)
     when "out_of_stock"

@@ -109,7 +109,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a[href='#{items_path}']", text: "すべて"
-    assert_select "a[href='#{items_path(status: "available")}']", text: "在庫あり"
     assert_select "a[href='#{items_path(status: "in_use")}']", text: "使用中"
     assert_select "a[href='#{items_path(status: "out_of_stock")}']", text: "在庫なし"
   end
@@ -135,14 +134,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to item_path(item)
-  end
-
-  test "index filters available items by status" do
-    get items_path, params: { status: "available" }
-
-    assert_response :success
-    assert_includes response.body, items(:one).name
-    assert_no_match items(:two).name, response.body
   end
 
   test "index filters in-use items by status" do
@@ -276,7 +267,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path, params: { category_id: category.id }
 
     assert_response :success
-    assert_select "a[href='#{items_path(category_id: category.id, status: "available")}']", text: "在庫あり"
+    assert_select "a[href='#{items_path(category_id: category.id, status: "in_use")}']", text: "使用中"
   end
 
   test "index does not show reset link when only category is selected" do
@@ -308,16 +299,14 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     get items_path, params: {
       q: "検索対象",
-      category_id: category.id,
-      status: "available"
+      category_id: category.id
     }
 
     assert_response :success
     assert_select "a[href='#{items_path(
       page: 2,
       q: "検索対象",
-      category_id: category.id,
-      status: "available"
+      category_id: category.id
     )}']"
   end
 

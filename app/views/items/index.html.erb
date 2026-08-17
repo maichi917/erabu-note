@@ -37,12 +37,6 @@
                       "shrink-0 rounded-full px-3 py-1.5 font-semibold transition",
                       @selected_status == "in_use" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
                     ) %>
-        <%= link_to "在庫あり",
-                    items_path(status_filter_params.merge(status: "available")),
-                    class: class_names(
-                      "shrink-0 rounded-full px-3 py-1.5 font-semibold transition",
-                      @selected_status == "available" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
-                    ) %>
         <%= link_to "在庫なし",
                     items_path(status_filter_params.merge(status: "out_of_stock")),
                     class: class_names(
@@ -242,8 +236,6 @@
                     class: "btn-secondary mt-5" %>
       <% else %>
         <p class="mt-4 text-lg">アイテムがありません</p>
-        <p class="mt-2 text-sm">まずは使い切りを記録したいアイテムを登録しましょう。</p>
-        <%= link_to "アイテムを登録する", new_item_path, class: "btn-primary mt-5" %>
       <% end %>
     </div>
   <% end %>
