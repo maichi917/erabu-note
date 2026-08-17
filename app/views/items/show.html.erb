@@ -90,6 +90,8 @@
             <%= render "stock_button", item: @item, full_width: true %>
           </div>
 
+          <%= link_to "感想を書く", edit_usage_log_path(@item.current_usage_log), class: "btn-secondary block w-full text-center" %>
+
           <%= render "finish_using_modal", item: @item %>
         </div>
       <% elsif @item.in_stock? %>

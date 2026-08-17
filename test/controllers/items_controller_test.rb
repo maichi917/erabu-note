@@ -1178,6 +1178,16 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button", text: "使い切り日を入力する", count: 0
   end
 
+  test "show links to review editing for in-use item" do
+    item = items(:one)
+    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+
+    get item_path(item)
+
+    assert_response :success
+    assert_select "a[href='#{edit_usage_log_path(item.current_usage_log)}']", text: "感想を書く"
+  end
+
   test "show highlights out of stock item and shows stock toggle button" do
     item = items(:two)
 

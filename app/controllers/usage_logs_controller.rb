@@ -25,7 +25,7 @@ class UsageLogsController < ApplicationController
 
   def update
     if @usage_log.update(usage_log_params)
-      redirect_to used_up_items_path, notice: "評価とレビューを保存しました"
+      redirect_to item_path(@usage_log.item), notice: "評価とレビューを保存しました"
     else
       render :edit, status: :unprocessable_content
     end
@@ -34,7 +34,7 @@ class UsageLogsController < ApplicationController
   private
 
   def set_usage_log
-    @usage_log = current_user.usage_logs.finished.includes(:item).find(params[:id])
+    @usage_log = current_user.usage_logs.includes(:item).find(params[:id])
   end
 
   def usage_log_params

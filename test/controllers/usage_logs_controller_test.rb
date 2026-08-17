@@ -18,7 +18,38 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name='usage_log[rating]']"
     assert_select "option[value='5']", text: "⭐️ 5"
     assert_select "textarea[name='usage_log[review]']"
-    assert_select "a[href='#{used_up_items_path}']", text: "レビューしない"
+    assert_select "a[href='#{item_path(@item)}']", text: "レビューしない"
+  end
+
+  test "edit allows editing the current in-use usage log" do
+    in_use_item = items(:two)
+    in_use_item.update!(in_stock: true)
+    in_use_item.start_using!(@user, Time.zone.local(2026, 5, 20))
+    in_use_log = in_use_item.current_usage_log
+
+    get edit_usage_log_path(in_use_log)
+
+    assert_response :success
+    assert_select "select[name='usage_log[rating]']"
+  end
+
+  test "update saves rating and review while the item is still in use" do
+    in_use_item = items(:two)
+    in_use_item.update!(in_stock: true)
+    in_use_item.start_using!(@user, Time.zone.local(2026, 5, 20))
+    in_use_log = in_use_item.current_usage_log
+
+    patch usage_log_path(in_use_log), params: {
+      usage_log: {
+        rating: 3,
+        review: "使用中の感想"
+      }
+    }
+
+    assert_redirected_to item_path(in_use_item)
+    assert_equal 3, in_use_log.reload.rating
+    assert_equal "使用中の感想", in_use_log.review
+    assert in_use_log.in_use?
   end
 
   test "show displays usage log detail" do
@@ -233,7 +264,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_redirected_to used_up_items_path
+    assert_redirected_to item_path(@item)
     assert_equal 5, @usage_log.reload.rating
     assert_equal "使いやすい", @usage_log.review
   end
