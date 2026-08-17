@@ -7,7 +7,6 @@ class Item < ApplicationRecord
   validates :name, presence: true, length: { maximum: 100 }
   validates :brand_name, length: { maximum: 100 }
   validates :price, numericality: { only_integer: true, allow_blank: true, greater_than_or_equal_to: 0 }
-  validates :stock_quantity, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :capacity, numericality: { allow_blank: true, greater_than: 0 }
   validates :capacity_unit, inclusion: { in: CAPACITY_UNITS }, allow_blank: true
   validate :image_content_type
@@ -44,14 +43,6 @@ class Item < ApplicationRecord
     current_usage_log.present?
   end
 
-  def stock_available?
-    stock_quantity.to_i.positive?
-  end
-
-  def out_of_stock?
-    stock_quantity.to_i.zero?
-  end
-
   # 容量あたりのコスト（価格 ÷ 容量）。価格または容量が未入力の場合は nil
   def cost_per_capacity
     return if price.blank? || capacity.blank?
@@ -85,14 +76,10 @@ class Item < ApplicationRecord
   end
 
   def start_using!(user, started_at, started_at_unknown: false)
-    transaction do
-      usage_logs.create!(
-        user: user,
-        started_at: started_at_unknown ? nil : (started_at.presence || Time.current)
-      )
-
-      decrement!(:stock_quantity)
-    end
+    usage_logs.create!(
+      user: user,
+      started_at: started_at_unknown ? nil : (started_at.presence || Time.current)
+    )
   end
 
   def finish_using!(finished_at, rating: nil, review: nil)
@@ -101,25 +88,6 @@ class Item < ApplicationRecord
       rating: rating.presence,
       review: review.presence
     )
-  end
-
-  def finish_and_continue_using!(user, usage_log, finished_at)
-    with_lock do
-      usage_log.reload
-      unless usage_log.item_id == id && usage_log.in_use?
-        errors.add(:base, "使用状態が更新されています")
-        raise ActiveRecord::RecordInvalid, self
-      end
-
-      unless stock_available?
-        errors.add(:stock_quantity, "がありません")
-        raise ActiveRecord::RecordInvalid, self
-      end
-
-      continued_at = finished_at.presence || Time.current
-      usage_log.update!(finished_at: continued_at)
-      start_using!(user, continued_at)
-    end
   end
 
   private

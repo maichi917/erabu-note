@@ -157,7 +157,7 @@
                     <dd class="min-w-0">
                       <% if item.using? %>
                         <span class="inline-flex whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-0.5 font-semibold text-amber-800 sm:px-3">使用中</span>
-                      <% elsif item.stock_available? %>
+                      <% elsif item.in_stock? %>
                         <span class="inline-flex whitespace-nowrap rounded-full bg-emerald-50 px-2.5 py-0.5 font-semibold text-emerald-700 sm:px-3">在庫あり</span>
                       <% else %>
                         <span class="inline-flex whitespace-nowrap rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 font-semibold text-red-700 sm:px-3">在庫なし</span>
@@ -196,30 +196,20 @@
             <div class="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
               <%= render "favorite_button", item: item, compact: true %>
 
-              <div class="inline-flex min-w-14 items-baseline justify-center gap-1 rounded-lg bg-slate-50 px-2 py-1 sm:min-w-16 sm:gap-1.5 sm:px-2.5">
-                <span class="text-xs font-medium text-slate-500">在庫</span>
-                <span class="font-sans text-base font-bold leading-none tracking-wide sm:text-lg <%= item.out_of_stock? ? "text-red-700" : "text-slate-900" %>">
-                  <%= item.stock_quantity %>
-                </span>
-              </div>
-
               <div class="grid grid-cols-1 items-stretch gap-1.5 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end sm:gap-2">
                 <div class="grid gap-1.5">
                   <% if item.using? %>
                     <button type="button" class="btn-primary px-2 py-1.5 text-xs leading-tight sm:px-3 sm:text-sm" data-disclosure-toggle data-disclosure-target="finish-using">
                       使い切る
                     </button>
-                    <%= render "add_stock_button",
-                               button_class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
-                  <% elsif item.stock_available? %>
+                    <%= render "stock_button", item: item %>
+                  <% elsif item.in_stock? %>
                     <button type="button" class="btn-primary px-2 py-1.5 text-xs leading-tight sm:px-3 sm:text-sm" data-disclosure-toggle data-disclosure-target="start-using">
                       使い始める
                     </button>
-                    <%= render "add_stock_button",
-                               button_class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
+                    <%= render "stock_button", item: item %>
                   <% else %>
-                    <%= render "add_stock_button",
-                               button_class: "inline-flex items-center justify-center rounded-lg bg-yellow-500 px-2 py-1.5 text-center text-xs font-semibold leading-tight text-white transition hover:bg-amber-600 sm:px-3 sm:py-2 sm:text-sm" %>
+                    <%= render "stock_button", item: item %>
                   <% end %>
                 </div>
 
@@ -232,11 +222,9 @@
             <%= render "finish_using_modal", item: item %>
           <% end %>
 
-          <% if item.stock_available? %>
+          <% if item.in_stock? %>
             <%= render "start_using_modal", item: item %>
           <% end %>
-
-          <%= render "add_stock_modal", item: item %>
         </article>
       <% end %>
     </div>

@@ -25,7 +25,7 @@
 
         <% if @item.using? %>
           <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">使用中</span>
-        <% elsif @item.stock_available? %>
+        <% elsif @item.in_stock? %>
           <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">在庫あり</span>
         <% else %>
           <span class="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">在庫なし</span>
@@ -51,13 +51,6 @@
           <dt class="text-xs text-slate-500">容量あたりコスト</dt>
           <dd class="mt-1 font-semibold text-slate-800">
             <%= @item.cost_per_capacity.present? ? "#{number_with_delimiter(@item.cost_per_capacity)}円/#{@item.capacity_unit}" : "データなし" %>
-          </dd>
-        </div>
-
-        <div class="rounded-lg bg-slate-50 p-3">
-          <dt class="text-xs text-slate-500">在庫数</dt>
-          <dd class="mt-1 font-semibold <%= @item.out_of_stock? ? "text-red-700" : "text-slate-800" %>">
-            <%= @item.stock_quantity %>
           </dd>
         </div>
 
@@ -94,19 +87,17 @@
             <button type="button" class="btn-danger w-full" data-disclosure-toggle data-disclosure-target="finish-using">
               使い切る
             </button>
-            <%= render "add_stock_button",
-                       button_class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
+            <%= render "stock_button", item: @item, full_width: true %>
           </div>
 
           <%= render "finish_using_modal", item: @item %>
         </div>
-      <% elsif @item.stock_available? %>
+      <% elsif @item.in_stock? %>
         <div class="grid gap-2 sm:grid-cols-2">
           <button type="button" class="btn-primary w-full" data-disclosure-toggle data-disclosure-target="start-using">
             使い始める
           </button>
-          <%= render "add_stock_button",
-                     button_class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
+          <%= render "stock_button", item: @item, full_width: true %>
         </div>
 
         <%= render "start_using_modal", item: @item %>
@@ -115,12 +106,9 @@
           <p class="text-sm font-medium text-red-700">
             在庫がないため、使用を開始できません。
           </p>
-          <%= render "add_stock_button",
-                     button_class: "inline-flex w-full items-center justify-center rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600" %>
+          <%= render "stock_button", item: @item, full_width: true %>
         </div>
       <% end %>
-
-      <%= render "add_stock_modal", item: @item %>
     </div>
 
     <div class="border-t border-slate-100 pt-5">

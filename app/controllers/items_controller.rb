@@ -3,7 +3,7 @@ class ItemsController < ApplicationController
   before_action :set_categories, only: %i[new create edit update]
   before_action :set_filter_params, only: %i[index in_use used_up]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
-                                    start_using finish_using add_stock]
+                                    start_using finish_using toggle_stock]
 
   def index
     @items = current_user.items.visible.includes(:category).order(created_at: :desc)
@@ -16,11 +16,11 @@ class ItemsController < ApplicationController
     in_use_item_ids = current_user.usage_logs.in_use.select(:item_id)
     case @selected_status
     when "available"
-      @items = @items.where("stock_quantity > 0").where.not(id: in_use_item_ids)
+      @items = @items.where(in_stock: true).where.not(id: in_use_item_ids)
     when "in_use"
       @items = @items.where(id: in_use_item_ids)
     when "out_of_stock"
-      @items = @items.where(stock_quantity: 0).where.not(id: in_use_item_ids)
+      @items = @items.where(in_stock: false).where.not(id: in_use_item_ids)
     end
 
     @page_title = "アイテム"
@@ -129,7 +129,7 @@ class ItemsController < ApplicationController
       return
     end
 
-    unless @item.stock_available?
+    unless @item.in_stock?
       redirect_to items_path, alert: "在庫がありません"
       return
     end
@@ -151,38 +151,15 @@ class ItemsController < ApplicationController
       return
     end
 
-    continue_using = ActiveModel::Type::Boolean.new.cast(params[:continue_using])
+    @item.finish_using!(params[:finished_at])
 
-    if continue_using
-      begin
-        @item.finish_and_continue_using!(current_user, usage_log, params[:finished_at])
-      rescue ActiveRecord::RecordInvalid
-        redirect_to in_use_items_path, alert: "在庫または使用状態が更新されたため、続けて使用を開始できませんでした"
-        return
-      end
-    else
-      @item.finish_using!(params[:finished_at])
-    end
-
-    notice =
-      if continue_using
-        "アイテムを使い切り、次の使用を開始しました"
-      else
-        "アイテムを使い切りました🎉"
-      end
-
-    redirect_to edit_usage_log_path(usage_log), notice: notice
+    redirect_to edit_usage_log_path(usage_log), notice: "アイテムを使い切りました🎉"
   end
 
-  def add_stock
-    quantity = params[:quantity].to_i
+  def toggle_stock
+    @item.update!(in_stock: !@item.in_stock?)
 
-    if quantity.positive?
-      @item.increment!(:stock_quantity, quantity)
-      redirect_back fallback_location: items_path, notice: "在庫を追加しました"
-    else
-      redirect_back fallback_location: items_path, alert: "追加する個数を入力してください"
-    end
+    redirect_back fallback_location: items_path
   end
 
   private
@@ -192,7 +169,7 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:item).permit(:name, :brand_name, :price, :stock_quantity, :favorite, :memo, :image, :capacity, :capacity_unit)
+    params.require(:item).permit(:name, :brand_name, :price, :favorite, :memo, :image, :capacity, :capacity_unit)
   end
 
   def assign_category

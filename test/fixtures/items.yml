@@ -2,7 +2,7 @@ one:
   user: one
   name: 化粧水
   price: 1200
-  stock_quantity: 2
+  in_stock: true
   favorite: false
   archived: false
 
@@ -10,7 +10,7 @@ two:
   user: one
   name: 乳液
   price: 1800
-  stock_quantity: 0
+  in_stock: false
   favorite: false
   archived: false
 # column: value

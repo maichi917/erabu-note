@@ -58,9 +58,9 @@
                 </div>
 
                 <div>
-                  <dt class="text-xs text-slate-500">在庫数</dt>
-                  <dd class="mt-1 font-semibold <%= item.out_of_stock? ? "text-red-700" : "text-slate-700" %>">
-                    <%= item.stock_quantity %>
+                  <dt class="text-xs text-slate-500">在庫</dt>
+                  <dd class="mt-1 font-semibold <%= item.in_stock? ? "text-slate-700" : "text-red-700" %>">
+                    <%= item.in_stock? ? "あり" : "なし" %>
                   </dd>
                 </div>
               </dl>
@@ -73,12 +73,11 @@
             </button>
 
             <div class="mt-3 flex flex-wrap items-center justify-end gap-3">
-              <%= render "add_stock_button" %>
+              <%= render "stock_button", item: item %>
               <%= link_to "詳細を見る", item_path(item), class: "btn-secondary px-3 py-1.5" %>
             </div>
           </div>
 
-          <%= render "add_stock_modal", item: item %>
           <%= render "finish_using_modal", item: item %>
         </article>
       <% end %>

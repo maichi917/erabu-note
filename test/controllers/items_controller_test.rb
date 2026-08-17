@@ -9,7 +9,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   test "index searches current user's items by partial name" do
     other_user_item = users(:two).items.create!(
       name: "化粧水 他ユーザー",
-      stock_quantity: 1
+      in_stock: true
     )
 
     get items_path, params: { q: "化粧" }
@@ -56,9 +56,9 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "autocomplete returns matching item names for current user" do
-    @user.items.create!(name: "化粧水A", stock_quantity: 1)
-    @user.items.create!(name: "化粧水B", stock_quantity: 1)
-    @user.items.create!(name: "歯ブラシ", stock_quantity: 1)
+    @user.items.create!(name: "化粧水A", in_stock: true)
+    @user.items.create!(name: "化粧水B", in_stock: true)
+    @user.items.create!(name: "歯ブラシ", in_stock: true)
 
     get autocomplete_items_path, params: { q: "化粧" }
 
@@ -70,7 +70,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "autocomplete excludes other user's items" do
-    users(:two).items.create!(name: "化粧水X", stock_quantity: 1)
+    users(:two).items.create!(name: "化粧水X", in_stock: true)
 
     get autocomplete_items_path, params: { q: "化粧" }
 
@@ -79,7 +79,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "autocomplete limits results to 10" do
-    12.times { |i| @user.items.create!(name: "検索アイテム#{i}", stock_quantity: 1) }
+    12.times { |i| @user.items.create!(name: "検索アイテム#{i}", in_stock: true) }
 
     get autocomplete_items_path, params: { q: "検索アイテム" }
 
@@ -88,7 +88,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "autocomplete returns empty array for query shorter than 2 characters" do
-    @user.items.create!(name: "化粧水", stock_quantity: 1)
+    @user.items.create!(name: "化粧水", in_stock: true)
 
     get autocomplete_items_path, params: { q: "化" }
 
@@ -105,13 +105,10 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index highlights out of stock item" do
-    item = items(:two)
-
     get items_path
 
     assert_response :success
     assert_select "span.bg-red-50", text: "在庫なし"
-    assert_select "span.font-bold.text-red-700", text: item.stock_quantity.to_s
   end
 
   test "index shows status filters" do
@@ -186,16 +183,15 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match items(:one).name, response.body
   end
 
-  test "index shows add stock modal for every item" do
+  test "index shows a stock toggle button for every item" do
     item = items(:one)
     out_of_stock_item = items(:two)
 
     get items_path
 
     assert_response :success
-    assert_select "button[data-disclosure-target='add-stock']", text: "在庫を追加"
-    assert_select "form[action='#{add_stock_item_path(item)}'] input[name='quantity']"
-    assert_select "form[action='#{add_stock_item_path(out_of_stock_item)}'] input[name='quantity']"
+    assert_select "form[action='#{toggle_stock_item_path(item)}'] button", text: "在庫あり"
+    assert_select "form[action='#{toggle_stock_item_path(out_of_stock_item)}'] button", text: "在庫なし"
   end
 
   test "index links item information to detail page and hides detail button on mobile" do
@@ -248,7 +244,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     other_category = other_user.categories.create!(name: "他ユーザーカテゴリ")
     other_item = other_user.items.create!(
       name: "他ユーザーアイテム",
-      stock_quantity: 1,
+      in_stock: true,
       category: other_category
     )
 
@@ -312,7 +308,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     11.times do |number|
       @user.items.create!(
         name: "検索対象#{number}",
-        stock_quantity: 1,
+        in_stock: true,
         category: category
       )
     end
@@ -340,7 +336,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to in_use_items_path
-    assert_equal 1, item.reload.stock_quantity
+    assert item.reload.in_stock?
   end
 
   test "start_using with started_at_unknown creates usage log without started_at" do
@@ -362,7 +358,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to items_path
-    assert_equal 0, item.reload.stock_quantity
+    assert_not item.reload.in_stock?
   end
 
   test "start_using does not create usage log when item is already in use" do
@@ -374,29 +370,18 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to items_path
-    assert_equal 1, item.reload.stock_quantity
+    assert item.reload.in_stock?
   end
 
-  test "add_stock increases stock quantity" do
-    item = items(:two)
+  test "toggle_stock switches item in_stock state" do
+    item = items(:one)
+    assert item.in_stock?
 
-    assert_difference -> { item.reload.stock_quantity }, 3 do
-      patch add_stock_item_path(item), params: { quantity: 3 }
-    end
+    patch toggle_stock_item_path(item)
+    assert_not item.reload.in_stock?
 
-    assert_redirected_to items_path
-    assert_equal "在庫を追加しました", flash[:notice]
-  end
-
-  test "add_stock does not change stock quantity when quantity is invalid" do
-    item = items(:two)
-
-    assert_no_difference -> { item.reload.stock_quantity } do
-      patch add_stock_item_path(item), params: { quantity: 0 }
-    end
-
-    assert_redirected_to items_path
-    assert_equal "追加する個数を入力してください", flash[:alert]
+    patch toggle_stock_item_path(item)
+    assert item.reload.in_stock?
   end
 
   test "finish_using finishes current usage log and redirects to used-up page" do
@@ -414,68 +399,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_nil usage_log.review
   end
 
-  test "finish_using starts next stock when continue_using is selected" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    usage_log = item.current_usage_log
-
-    assert_difference -> { item.usage_logs.count }, 1 do
-      patch finish_using_item_path(item), params: {
-        finished_at: "2026-05-12",
-        usage_log_id: usage_log.id,
-        continue_using: "1"
-      }
-    end
-
-    assert_redirected_to edit_usage_log_path(usage_log)
-    assert_equal "アイテムを使い切り、次の使用を開始しました", flash[:notice]
-    assert_equal 0, item.reload.stock_quantity
-    assert_equal Time.zone.local(2026, 5, 12), usage_log.reload.finished_at
-    assert_equal Time.zone.local(2026, 5, 12), item.current_usage_log.started_at
-  end
-
-  test "finish_using does not change usage log when continue_using is selected without stock" do
-    item = items(:one)
-    item.update!(stock_quantity: 1)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    usage_log = item.current_usage_log
-
-    assert_no_difference -> { item.usage_logs.count } do
-      patch finish_using_item_path(item), params: {
-        finished_at: "2026-05-12",
-        usage_log_id: usage_log.id,
-        continue_using: "1"
-      }
-    end
-
-    assert_redirected_to in_use_items_path
-    assert_equal 0, item.reload.stock_quantity
-    assert_nil usage_log.reload.finished_at
-    assert item.using?
-  end
-
-  test "finish_using does not consume another stock when the same form is submitted twice" do
-    item = items(:one)
-    item.update!(stock_quantity: 3)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    usage_log = item.current_usage_log
-    params = {
-      finished_at: "2026-05-12",
-      usage_log_id: usage_log.id,
-      continue_using: "1"
-    }
-
-    patch finish_using_item_path(item), params: params
-
-    assert_no_difference -> { item.usage_logs.count } do
-      patch finish_using_item_path(item), params: params
-    end
-
-    assert_redirected_to in_use_items_path
-    assert_equal 1, item.reload.stock_quantity
-    assert_equal 1, item.usage_logs.in_use.count
-  end
-
   test "in_use page sets meta title from page title" do
     get in_use_items_path
 
@@ -491,10 +414,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get in_use_items_path
 
     assert_response :success
-    assert_select "dt", text: "在庫数"
-    assert_select "button[data-disclosure-target='add-stock']", text: "在庫を追加"
-    assert_select "form[action='#{add_stock_item_path(item)}'] input[name='quantity']"
-    assert_includes response.body, "現在の在庫数"
     assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
     assert_select "form[action='#{finish_using_item_path(item)}'] input[name='finished_at']"
     assert_select "form[action='#{finish_using_item_path(item)}'] input[name='usage_log_id']"
@@ -505,7 +424,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     matching_item = items(:one)
     matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1)
+    other_item.update!(in_stock: true)
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
 
     get in_use_items_path, params: { q: "化粧" }
@@ -530,7 +449,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     matching_item.update!(category: categories(:hair_care))
     matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1, category: categories(:skin_care))
+    other_item.update!(in_stock: true, category: categories(:skin_care))
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
 
     get in_use_items_path, params: { category_id: categories(:hair_care).id }
@@ -543,7 +462,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   test "in_use page combines item name and category filters" do
     items(:one).update!(category: categories(:hair_care))
     items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
-    items(:two).update!(stock_quantity: 1, category: categories(:hair_care))
+    items(:two).update!(in_stock: true, category: categories(:hair_care))
     items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
 
     get in_use_items_path, params: {
@@ -560,7 +479,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   test "in_use page filters usage logs for uncategorized items" do
     items(:one).update!(category: categories(:hair_care))
     items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
-    items(:two).update!(stock_quantity: 1)
+    items(:two).update!(in_stock: true)
     items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
 
     get in_use_items_path, params: { category_id: "uncategorized" }
@@ -596,7 +515,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
     item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4)
-    item.update!(stock_quantity: 1)
     item.start_using!(@user, Time.zone.local(2026, 5, 20))
     item.finish_using!(Time.zone.local(2026, 5, 25), rating: 5)
 
@@ -612,7 +530,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
     matching_item.finish_using!(Time.zone.local(2026, 5, 12))
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1)
+    other_item.update!(in_stock: true)
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13))
 
@@ -638,7 +556,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     11.times do |number|
       item = @user.items.create!(
         name: "検索対象#{number}",
-        stock_quantity: 1
+        in_stock: true
       )
       item.start_using!(@user, Time.zone.local(2026, 5, 10))
       item.finish_using!(Time.zone.local(2026, 5, 12))
@@ -656,7 +574,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
     matching_item.finish_using!(Time.zone.local(2026, 5, 12))
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1, category: categories(:skin_care))
+    other_item.update!(in_stock: true, category: categories(:skin_care))
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13))
 
@@ -673,7 +591,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     items(:one).update!(category: categories(:hair_care))
     items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
     items(:one).finish_using!(Time.zone.local(2026, 5, 12))
-    items(:two).update!(stock_quantity: 1, category: categories(:hair_care))
+    items(:two).update!(in_stock: true, category: categories(:hair_care))
     items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
     items(:two).finish_using!(Time.zone.local(2026, 5, 13))
 
@@ -692,7 +610,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     items(:one).update!(category: categories(:hair_care))
     items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
     items(:one).finish_using!(Time.zone.local(2026, 5, 12))
-    items(:two).update!(stock_quantity: 1)
+    items(:two).update!(in_stock: true)
     items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
     items(:two).finish_using!(Time.zone.local(2026, 5, 13))
 
@@ -708,7 +626,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     rated_item.start_using!(@user, Time.zone.local(2026, 5, 10))
     rated_item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4)
     unrated_item = items(:two)
-    unrated_item.update!(stock_quantity: 1)
+    unrated_item.update!(in_stock: true)
     unrated_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     unrated_item.finish_using!(Time.zone.local(2026, 5, 13))
 
@@ -731,7 +649,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
     matching_item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4)
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1)
+    other_item.update!(in_stock: true)
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
 
@@ -752,7 +670,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       review: "また使いたい"
     )
     no_review_item = items(:two)
-    no_review_item.update!(stock_quantity: 1)
+    no_review_item.update!(in_stock: true)
     no_review_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     no_review_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
 
@@ -788,7 +706,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     11.times do |number|
       item = @user.items.create!(
         name: "検索対象#{number}",
-        stock_quantity: 1,
+        in_stock: true,
         category: category
       )
       item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -812,7 +730,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     11.times do |number|
       item = @user.items.create!(
         name: "レビュー検索対象#{number}",
-        stock_quantity: 1
+        in_stock: true
       )
       item.start_using!(@user, Time.zone.local(2026, 5, 10))
       item.finish_using!(
@@ -898,19 +816,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-submit-loading]", text: "アイテム情報を更新しています..."
   end
 
-  test "edit page has stock quantity stepper" do
-    item = items(:one)
-
-    get edit_item_path(item)
-
-    assert_response :success
-    assert_select "label[for='item_stock_quantity']", text: "在庫数"
-    assert_select "[data-stock-stepper]"
-    assert_select "button[data-stock-stepper-action='decrement'][aria-label='在庫数を1減らす']", text: "-"
-    assert_select "input[name='item[stock_quantity]'][min='0'][step='1'][value='#{item.stock_quantity}'][data-stock-stepper-input]"
-    assert_select "button[data-stock-stepper-action='increment'][aria-label='在庫数を1増やす']", text: "+"
-  end
-
   test "edit page image input supports camera capture" do
     get edit_item_path(items(:one))
 
@@ -947,7 +852,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
         item: {
           name: "シャンプー",
           price: 1200,
-          stock_quantity: 1,
           category_id: category.id
         }
       }
@@ -964,8 +868,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
         item: {
           name: "シャンプー",
           brand_name: "ものログ製薬",
-          price: 1200,
-          stock_quantity: 1
+          price: 1200
         }
       }
     end
@@ -981,8 +884,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
         item: {
           name: "無印アイテム",
           brand_name: "",
-          price: 500,
-          stock_quantity: 1
+          price: 500
         }
       }
     end
@@ -999,7 +901,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
           item: {
             name: "歯ブラシ",
             price: 300,
-            stock_quantity: 2,
             new_category_name: "日用品"
           }
         }
@@ -1018,7 +919,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
           item: {
             name: "長いカテゴリのアイテム",
             price: 300,
-            stock_quantity: 2,
             new_category_name: "あ" * 21
           }
         }
@@ -1037,7 +937,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       item: {
         name: item.name,
         price: item.price,
-        stock_quantity: item.stock_quantity,
         category_id: category.id
       }
     }
@@ -1053,7 +952,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       item: {
         name: item.name,
         price: item.price,
-        stock_quantity: item.stock_quantity,
         capacity: "500",
         capacity_unit: "ml"
       }
@@ -1095,28 +993,12 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       item: {
         name: item.name,
         brand_name: "ものログコスメ",
-        price: item.price,
-        stock_quantity: item.stock_quantity
+        price: item.price
       }
     }
 
     assert_redirected_to items_path
     assert_equal "ものログコスメ", item.reload.brand_name
-  end
-
-  test "update changes stock quantity" do
-    item = items(:one)
-
-    patch item_path(item), params: {
-      item: {
-        name: item.name,
-        price: item.price,
-        stock_quantity: 4
-      }
-    }
-
-    assert_redirected_to items_path
-    assert_equal 4, item.reload.stock_quantity
   end
 
   test "update creates new category and assigns it to item" do
@@ -1127,7 +1009,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
         item: {
           name: item.name,
           price: item.price,
-          stock_quantity: item.stock_quantity,
           new_category_name: "メイク"
         }
       }
@@ -1146,7 +1027,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       item: {
         name: item.name,
         price: item.price,
-        stock_quantity: item.stock_quantity,
         new_category_name: category.name
       }
     }
@@ -1163,7 +1043,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       item: {
         name: item.name,
         price: item.price,
-        stock_quantity: item.stock_quantity,
         new_category_name: ""
       }
     }
@@ -1181,7 +1060,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
           item: {
             name: "トリートメント",
             price: 900,
-            stock_quantity: 1,
             new_category_name: category.name
           }
         }
@@ -1201,7 +1079,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
         item: {
           name: "他ユーザーカテゴリのアイテム",
           price: 300,
-          stock_quantity: 1,
           category_id: category.id
         }
       }
@@ -1234,7 +1111,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     9.times do |number|
       @user.items.create!(
         name: "ページネーション確認#{number}",
-        stock_quantity: 1
+        in_stock: true
       )
     end
 
@@ -1251,7 +1128,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show does not allow accessing another user's item" do
-    other_user_item = users(:two).items.create!(name: "他人のアイテム", stock_quantity: 1)
+    other_user_item = users(:two).items.create!(name: "他人のアイテム", in_stock: true)
 
     get item_path(other_user_item)
 
@@ -1290,26 +1167,23 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button", text: "使い切り日を入力する", count: 0
   end
 
-  test "show highlights out of stock item and shows add stock modal" do
+  test "show highlights out of stock item and shows stock toggle button" do
     item = items(:two)
 
     get item_path(item)
 
     assert_response :success
     assert_select "span.bg-red-50", text: "在庫なし"
-    assert_select "dd.text-red-700", text: item.stock_quantity.to_s
-    assert_select "button[data-disclosure-target='add-stock']", text: "在庫を追加"
-    assert_select "form[action='#{add_stock_item_path(item)}'] input[name='quantity']"
+    assert_select "form[action='#{toggle_stock_item_path(item)}'] button", text: "在庫なし"
   end
 
-  test "show shows add stock modal for item with stock" do
+  test "show shows stock toggle button for item with stock" do
     item = items(:one)
 
     get item_path(item)
 
     assert_response :success
-    assert_select "button[data-disclosure-target='add-stock']", text: "在庫を追加"
-    assert_select "form[action='#{add_stock_item_path(item)}'] input[name='quantity']"
+    assert_select "form[action='#{toggle_stock_item_path(item)}'] button", text: "在庫あり"
   end
 
   test "update with invalid image rerenders edit page" do
@@ -1319,7 +1193,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       item: {
         name: item.name,
         price: item.price,
-        stock_quantity: item.stock_quantity,
         image: fixture_file_upload("test_file.txt", "text/plain")
       }
     }

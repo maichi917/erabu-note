@@ -66,7 +66,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
   test "reviews does not show other user's usage logs" do
     other_user = users(:two)
-    other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
+    other_item = other_user.items.create!(name: "他のアイテム", in_stock: true)
     other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
     other_item.finish_using!(Time.zone.local(2026, 5, 12), rating: 5, review: "他ユーザー")
 
@@ -80,7 +80,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
   test "reviews searches rated usage logs by item name" do
     @usage_log.update!(rating: 4, review: "また使いたい")
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1)
+    other_item.update!(in_stock: true)
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(
       Time.zone.local(2026, 5, 13),
@@ -109,7 +109,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     @item.update!(category: categories(:hair_care))
     @usage_log.update!(rating: 4)
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1, category: categories(:skin_care))
+    other_item.update!(in_stock: true, category: categories(:skin_care))
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
 
@@ -126,7 +126,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     @item.update!(category: categories(:hair_care))
     @usage_log.update!(rating: 4)
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1, category: categories(:hair_care))
+    other_item.update!(in_stock: true, category: categories(:hair_care))
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
 
@@ -144,7 +144,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
   test "reviews filters usage logs by rating" do
     @usage_log.update!(rating: 4, review: "また使いたい")
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1)
+    other_item.update!(in_stock: true)
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
 
@@ -180,7 +180,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     @item.update!(category: categories(:hair_care))
     @usage_log.update!(rating: 4)
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1)
+    other_item.update!(in_stock: true)
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
 
@@ -196,7 +196,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     11.times do |number|
       item = @user.items.create!(
         name: "検索対象#{number}",
-        stock_quantity: 1,
+        in_stock: true,
         category: category
       )
       item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -253,7 +253,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
   test "other user's usage log cannot be edited" do
     other_user = users(:two)
-    other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
+    other_item = other_user.items.create!(name: "他のアイテム", in_stock: true)
     other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
     other_item.finish_using!(Time.zone.local(2026, 5, 12))
     other_usage_log = other_item.usage_logs.finished.first
@@ -265,7 +265,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
   test "other user's usage log cannot be shown" do
     other_user = users(:two)
-    other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
+    other_item = other_user.items.create!(name: "他のアイテム", in_stock: true)
     other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
     other_item.finish_using!(Time.zone.local(2026, 5, 12))
     other_usage_log = other_item.usage_logs.finished.first

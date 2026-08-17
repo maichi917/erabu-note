@@ -15,21 +15,6 @@
         <%= date_field_tag :finished_at, Date.current, class: "form-input bg-white" %>
       </div>
 
-      <% if item.stock_available? %>
-        <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-          <%= check_box_tag :continue_using,
-                            "1",
-                            false,
-                            class: "mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" %>
-          <span>
-            <span class="block font-semibold text-emerald-900">続けて新しく使う</span>
-            <span class="mt-1 block text-sm leading-relaxed text-emerald-800">
-              在庫を1個減らし、使い切り日と同じ日から次の使用を開始します。
-            </span>
-          </span>
-        </label>
-      <% end %>
-
       <div class="grid gap-2">
         <%= submit_tag "使い切る", class: "btn-danger w-full cursor-pointer" %>
         <button type="button" class="btn-secondary w-full" data-disclosure-cancel>
