@@ -53,4 +53,41 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_match "他ユーザーのアイテム", response.body
   end
+
+  test "home shows highly rated and poorly rated items separately" do
+    user = users(:one)
+    sign_in user
+
+    good_item = items(:one)
+    good_item.start_using!(user, Time.zone.local(2026, 5, 1))
+    good_item.finish_using!(Time.zone.local(2026, 5, 10), rating: 5, review: "また使いたい")
+
+    bad_item = items(:two)
+    bad_item.update!(in_stock: true)
+    bad_item.start_using!(user, Time.zone.local(2026, 5, 1))
+    bad_item.finish_using!(Time.zone.local(2026, 5, 5), rating: 1, review: "合わなかった")
+
+    get home_path
+
+    assert_response :success
+    assert_select "h3", text: "よかったもの"
+    assert_select "h3", text: "イマイチだったもの"
+    assert_select "a[href='#{item_path(good_item)}']", text: good_item.name
+    assert_select "a[href='#{item_path(bad_item)}']", text: bad_item.name
+  end
+
+  test "home does not show middling ratings in good or bad sections" do
+    user = users(:one)
+    sign_in user
+
+    item = items(:one)
+    item.start_using!(user, Time.zone.local(2026, 5, 1))
+    item.finish_using!(Time.zone.local(2026, 5, 10), rating: 3)
+
+    get home_path
+
+    assert_response :success
+    assert_includes response.body, "まだ高評価のレビューがありません"
+    assert_includes response.body, "まだ低評価のレビューがありません"
+  end
 end
