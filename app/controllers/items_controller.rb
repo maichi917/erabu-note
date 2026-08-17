@@ -3,7 +3,7 @@ class ItemsController < ApplicationController
   before_action :set_categories, only: %i[new create edit update]
   before_action :set_filter_params, only: %i[index in_use used_up]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
-                                    start_using finish_using toggle_stock]
+                                    start_using finish_using toggle_stock toggle_low_stock]
 
   def index
     @items = current_user.items.visible.includes(:category).order(created_at: :desc)
@@ -158,6 +158,12 @@ class ItemsController < ApplicationController
 
   def toggle_stock
     @item.update!(in_stock: !@item.in_stock?)
+
+    redirect_back fallback_location: items_path
+  end
+
+  def toggle_low_stock
+    @item.update!(low_stock_flagged: !@item.low_stock_flagged?)
 
     redirect_back fallback_location: items_path
   end

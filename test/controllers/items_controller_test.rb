@@ -384,6 +384,17 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert item.reload.in_stock?
   end
 
+  test "toggle_low_stock switches item low_stock_flagged state" do
+    item = items(:one)
+    assert_not item.low_stock_flagged?
+
+    patch toggle_low_stock_item_path(item)
+    assert item.reload.low_stock_flagged?
+
+    patch toggle_low_stock_item_path(item)
+    assert_not item.reload.low_stock_flagged?
+  end
+
   test "finish_using finishes current usage log and redirects to used-up page" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))

@@ -17,6 +17,7 @@ Rails.application.routes.draw do
       patch :start_using
       patch :finish_using
       patch :toggle_stock
+      patch :toggle_low_stock
       patch :toggle_favorite
       delete :image, action: :destroy_image
     end

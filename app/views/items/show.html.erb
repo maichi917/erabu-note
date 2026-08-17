@@ -109,6 +109,10 @@
           <%= render "stock_button", item: @item, full_width: true %>
         </div>
       <% end %>
+
+      <div class="mt-3">
+        <%= render "low_stock_button", item: @item %>
+      </div>
     </div>
 
     <div class="border-t border-slate-100 pt-5">
