@@ -52,14 +52,14 @@ class User < ApplicationRecord
     # 使用中
     moisturizer = items.create!(
       name: "モイストバランス ローション", brand_name: "kinari", category: skin_care,
-      price: 1200, stock_quantity: 1, capacity: 120, capacity_unit: "ml", usage_frequency: "毎日"
+      price: 1200, stock_quantity: 1, capacity: 120, capacity_unit: "ml"
     )
     moisturizer.usage_logs.create!(user: self, started_at: 10.days.ago)
 
     # 使い切り済み（レビューあり）
     shampoo = items.create!(
       name: "シルクリペア シャンプー", brand_name: "botanica", category: hair_care,
-      price: 1500, stock_quantity: 0, capacity: 400, capacity_unit: "ml", usage_frequency: "朝晩"
+      price: 1500, stock_quantity: 0, capacity: 400, capacity_unit: "ml"
     )
     shampoo.usage_logs.create!(
       user: self, started_at: 60.days.ago, finished_at: 10.days.ago,

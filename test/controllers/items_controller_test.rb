@@ -21,41 +21,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match other_user_item.name, response.body
   end
 
-  test "index shows finish predicted soon section" do
-    item = items(:one)
-    item.update!(stock_quantity: 2)
-    item.start_using!(@user, 10.days.ago)
-    item.finish_using!(3.days.ago)
-    item.start_using!(@user, Time.current)
-
-    get items_path
-
-    assert_response :success
-    assert_select "section[aria-label='もうすぐ無くなりそうなアイテム']" do
-      assert_select "span", text: item.name
-    end
-  end
-
-  test "index does not show finish predicted soon section when filtering" do
-    item = items(:one)
-    item.update!(stock_quantity: 2)
-    item.start_using!(@user, 10.days.ago)
-    item.finish_using!(3.days.ago)
-    item.start_using!(@user, Time.current)
-
-    get items_path, params: { q: item.name }
-
-    assert_response :success
-    assert_select "section[aria-label='もうすぐ無くなりそうなアイテム']", count: 0
-  end
-
-  test "index does not show finish predicted soon section without matching items" do
-    get items_path
-
-    assert_response :success
-    assert_select "section[aria-label='もうすぐ無くなりそうなアイテム']", count: 0
-  end
-
   test "index keeps search query and shows reset link" do
     get items_path, params: { q: "化粧" }
 
@@ -211,31 +176,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
     assert_select "form[action='#{finish_using_item_path(item)}'] input[name='finished_at']"
     assert_select "form[action='#{finish_using_item_path(item)}'] input[name='usage_log_id']"
-  end
-
-  test "index shows predicted finish date for in-use item with used-up history" do
-    item = items(:one)
-    item.update!(stock_quantity: 2)
-    item.start_using!(@user, Time.zone.local(2026, 5, 1))
-    item.finish_using!(Time.zone.local(2026, 5, 10))
-    item.start_using!(@user, Time.zone.local(2026, 6, 1))
-
-    get items_path
-
-    assert_response :success
-    assert_includes response.body, "使い切り予測"
-    assert_includes response.body, "6/10ごろ"
-  end
-
-  test "index shows unavailable prediction message for in-use item without used-up history" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 6, 1))
-
-    get items_path
-
-    assert_response :success
-    assert_includes response.body, "使い切り予測"
-    assert_includes response.body, "データなし"
   end
 
   test "index filters out-of-stock items by status" do
@@ -1346,43 +1286,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal category, item.reload.category
   end
 
-  test "update changes usage frequency" do
-    item = items(:one)
-
-    patch item_path(item), params: {
-      item: {
-        name: item.name,
-        price: item.price,
-        stock_quantity: item.stock_quantity,
-        usage_frequency: "毎日"
-      }
-    }
-
-    assert_redirected_to items_path
-    assert_equal "毎日", item.reload.usage_frequency
-  end
-
-  test "show displays usage frequency" do
-    item = items(:one)
-    item.update!(usage_frequency: "朝晩")
-
-    get item_path(item)
-
-    assert_response :success
-    assert_select "dt", text: "使用頻度"
-    assert_includes response.body, "朝晩"
-  end
-
-  test "show displays unset message when usage frequency is blank" do
-    item = items(:one)
-
-    get item_path(item)
-
-    assert_response :success
-    assert_select "dt", text: "使用頻度"
-    assert_select "dd", text: "未設定"
-  end
-
   test "update changes capacity and capacity_unit" do
     item = items(:one)
 
@@ -1616,33 +1519,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "ものログ製薬"
   end
 
-  test "show displays average rating and rating count" do
-    item = items(:one)
-    item.update!(stock_quantity: 3)
-    item.start_using!(@user, Time.zone.local(2026, 5, 1))
-    item.finish_using!(Time.zone.local(2026, 5, 10), rating: 5, review: "よかった")
-    item.start_using!(@user, Time.zone.local(2026, 5, 20))
-    item.finish_using!(Time.zone.local(2026, 5, 24), rating: 3)
-    item.start_using!(@user, Time.zone.local(2026, 6, 1))
-    item.finish_using!(Time.zone.local(2026, 6, 5))
-
-    get item_path(item)
-
-    assert_response :success
-    assert_includes response.body, "平均評価"
-    assert_includes response.body, "4.0（2件）"
-  end
-
-  test "show displays unrated message when item has no ratings" do
-    item = items(:one)
-
-    get item_path(item)
-
-    assert_response :success
-    assert_includes response.body, "平均評価"
-    assert_includes response.body, "未評価"
-  end
-
   test "show uses consistent finish using button label for in-use item" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -1652,32 +1528,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
     assert_select "button", text: "使い切り日を入力する", count: 0
-  end
-
-  test "show displays predicted finish date for in-use item with used-up history" do
-    item = items(:one)
-    item.update!(stock_quantity: 2)
-    item.start_using!(@user, Time.zone.local(2026, 5, 1))
-    item.finish_using!(Time.zone.local(2026, 5, 10))
-    item.start_using!(@user, Time.zone.local(2026, 6, 1))
-
-    get item_path(item)
-
-    assert_response :success
-    assert_includes response.body, "使い切り予測"
-    assert_includes response.body, "2026/6/10ごろ"
-    assert_includes response.body, "平均10日"
-  end
-
-  test "show displays unavailable prediction message when history is missing" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 6, 1))
-
-    get item_path(item)
-
-    assert_response :success
-    assert_includes response.body, "使い切り予測"
-    assert_includes response.body, "使い切り履歴が足りないため、まだ予測できません。"
   end
 
   test "show highlights out of stock item and shows add stock modal" do

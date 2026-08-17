@@ -1,19 +1,6 @@
 class Item < ApplicationRecord
   attr_accessor :new_category_name, :remove_category
 
-  # 使用頻度の選択肢。ユーザーには選択肢のまま見せ、厳密な回数入力は求めない
-  USAGE_FREQUENCIES = %w[毎日 朝晩 週に数回 たまに その他].freeze
-
-  # コスパ計算用の「週あたり想定使用回数」の目安（ユーザーには非表示）。
-  # 選択式のまま計算に使えるようにするための内部マッピング。
-  # 「その他」は回数を仮定できないため意図的に含めず、1日あたりコストにフォールバックする
-  USAGE_FREQUENCY_WEEKLY_COUNTS = {
-    "毎日" => 7,
-    "朝晩" => 14,
-    "週に数回" => 3,
-    "たまに" => 1
-  }.freeze
-
   # 容量の単位の選択肢
   CAPACITY_UNITS = %w[ml g kg 枚 個].freeze
 
@@ -21,7 +8,6 @@ class Item < ApplicationRecord
   validates :brand_name, length: { maximum: 100 }
   validates :price, numericality: { only_integer: true, allow_blank: true, greater_than_or_equal_to: 0 }
   validates :stock_quantity, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :usage_frequency, inclusion: { in: USAGE_FREQUENCIES }, allow_blank: true
   validates :capacity, numericality: { allow_blank: true, greater_than: 0 }
   validates :capacity_unit, inclusion: { in: CAPACITY_UNITS }, allow_blank: true
   validate :image_content_type
@@ -66,113 +52,11 @@ class Item < ApplicationRecord
     stock_quantity.to_i.zero?
   end
 
-  def average_usage_days
-    durations = usage_logs
-                .finished
-                .used_up_history
-                .where.not(started_at: nil)
-                .map(&:usage_days)
-                .select(&:positive?)
-
-    return if durations.blank?
-
-    (durations.sum.to_f / durations.size).round
-  end
-
-  # 1日あたりのコスト（価格 ÷ 平均使用日数）。価格または平均使用日数が無ければ nil
-  def cost_per_day
-    return if price.blank?
-
-    average_days = average_usage_days
-    return if average_days.blank?
-
-    (price.to_f / average_days).round
-  end
-
-  # 1回あたりのコスト。使用頻度が「その他」・未設定、または平均使用日数が
-  # 不明な場合は nil（呼び出し側は cost_per_day にフォールバックする）
-  def cost_per_use
-    return if price.blank?
-
-    weekly_count = USAGE_FREQUENCY_WEEKLY_COUNTS[usage_frequency]
-    return if weekly_count.blank?
-
-    average_days = average_usage_days
-    return if average_days.blank?
-
-    expected_uses = average_days.to_f / 7 * weekly_count
-    return if expected_uses.zero?
-
-    (price.to_f / expected_uses).round
-  end
-
   # 容量あたりのコスト（価格 ÷ 容量）。価格または容量が未入力の場合は nil
   def cost_per_capacity
     return if price.blank? || capacity.blank?
 
     (price.to_f / capacity).round(1)
-  end
-
-  def average_rating
-    ratings = usage_logs.rated.pluck(:rating)
-    return if ratings.blank?
-
-    (ratings.sum.to_f / ratings.size).round(1)
-  end
-
-  def rating_count
-    usage_logs.rated.count
-  end
-
-  # 「もうすぐ無くなりそう」とみなす予測日までの日数
-  FINISH_PREDICTED_SOON_DAYS = 7
-
-  # 購入リマインダーの通知タイミング（予測日までの残り日数）
-  REMINDER_FIRST_DAYS = 7
-  REMINDER_SECOND_DAYS = 3
-
-  # 1回目のリマインダー対象（予測日まで7日以内・未送信）
-  scope :reminder_first_due, -> {
-    where.not(predicted_finish_on: nil)
-         .where(predicted_finish_on: ..(Date.current + REMINDER_FIRST_DAYS.days))
-         .where(reminder_first_sent_at: nil)
-  }
-  # 2回目のリマインダー対象（予測日まで3日以内・未送信）
-  scope :reminder_second_due, -> {
-    where.not(predicted_finish_on: nil)
-         .where(predicted_finish_on: ..(Date.current + REMINDER_SECOND_DAYS.days))
-         .where(reminder_second_sent_at: nil)
-  }
-
-  # 使い切り予測日（キャッシュされたカラムを返す）
-  def predicted_finish_date
-    predicted_finish_on
-  end
-
-  # 使い切り予測日を再計算してカラムに保存する。使用履歴の変更時に呼ばれる。
-  # 予測日が変わったら、新しいサイクルとしてリマインダーの送信記録もリセットする
-  def refresh_predicted_finish_on!
-    new_prediction = calculate_predicted_finish_on
-    return if new_prediction == predicted_finish_on
-
-    update_columns(
-      predicted_finish_on: new_prediction,
-      reminder_first_sent_at: nil,
-      reminder_second_sent_at: nil
-    )
-  end
-
-  # 使い切り予測日が近い（7日以内。予測日を過ぎている場合も含む）かどうか
-  def finish_predicted_soon?
-    predicted_finish_on.present? &&
-      predicted_finish_on <= Date.current + FINISH_PREDICTED_SOON_DAYS.days
-  end
-
-  # 予測日が近いアイテムを予測日の早い順で返す
-  def self.finish_predicted_soon
-    where.not(predicted_finish_on: nil)
-         .where(predicted_finish_on: ..(Date.current + FINISH_PREDICTED_SOON_DAYS.days))
-         .order(:predicted_finish_on)
   end
 
   # カテゴリを割り当てる。新規カテゴリ名があれば作成して設定し、
@@ -251,17 +135,6 @@ class Item < ApplicationRecord
   end
 
   private
-
-  # 使用履歴から使い切り予測日を計算する。予測できない場合は nil
-  def calculate_predicted_finish_on
-    return unless using?
-    return if current_usage_log.started_at.blank?
-
-    average_days = average_usage_days
-    return if average_days.blank?
-
-    current_usage_log.started_at.to_date + (average_days - 1).days
-  end
 
   def image_content_type
     return unless image.attached?

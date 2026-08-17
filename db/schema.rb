@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_11_124803) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_17_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -62,17 +62,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_124803) do
     t.boolean "favorite", default: false
     t.text "memo"
     t.string "name", null: false
-    t.date "predicted_finish_on"
     t.integer "price"
-    t.datetime "reminder_first_sent_at"
-    t.datetime "reminder_second_sent_at"
     t.integer "stock_quantity"
     t.datetime "updated_at", null: false
-    t.string "usage_frequency"
     t.uuid "user_id", null: false
     t.index ["archived"], name: "index_items_on_archived"
     t.index ["category_id"], name: "index_items_on_category_id"
-    t.index ["predicted_finish_on"], name: "index_items_on_predicted_finish_on"
     t.index ["user_id"], name: "index_items_on_user_id"
   end
 

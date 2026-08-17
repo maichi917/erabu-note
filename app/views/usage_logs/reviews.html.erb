@@ -67,8 +67,6 @@
     <div class="grid gap-3">
       <% @usage_logs.each do |usage_log| %>
         <% item = usage_log.item %>
-        <% average_rating = @average_ratings_by_item_id[item.id]&.round(1) %>
-        <% rating_count = @rating_counts_by_item_id[item.id].to_i %>
 
         <article class="border-b border-slate-200 bg-white py-3 shadow-none sm:rounded-lg sm:border sm:p-4 sm:shadow-sm">
           <div class="flex items-center gap-3">
@@ -99,17 +97,6 @@
                   <dt class="text-xs font-medium text-slate-500">今回の評価</dt>
                   <dd class="font-semibold text-yellow-500">
                     <%= star_rating(usage_log.rating) %>
-                  </dd>
-                </div>
-                <div class="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 text-slate-700">
-                  <dt class="text-xs font-medium text-slate-500">平均</dt>
-                  <dd>
-                    <% if average_rating.present? %>
-                      <span class="text-yellow-500"><%= star_rating(average_rating) %></span>
-                      <span class="ml-1"><%= average_rating %>（<%= rating_count %>件）</span>
-                    <% else %>
-                      <span class="text-slate-400">未評価</span>
-                    <% end %>
                   </dd>
                 </div>
               </dl>

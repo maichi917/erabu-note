@@ -26,7 +26,6 @@ class ItemsController < ApplicationController
 
     @page_title = "アイテム"
     @items = @items.page(params[:page])
-    @finish_predicted_soon_items = current_user.items.visible.finish_predicted_soon if default_item_list?
   end
 
   def in_use
@@ -106,8 +105,6 @@ class ItemsController < ApplicationController
   end
 
   def show
-    @average_rating = @item.average_rating
-    @rating_count = @item.rating_count
   end
 
   def edit
@@ -226,13 +223,7 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:item).permit(:name, :brand_name, :price, :stock_quantity, :favorite, :memo, :image, :usage_frequency, :capacity, :capacity_unit)
-  end
-
-  # 検索・絞り込み・ページ指定のない初期表示のときだけ「もうすぐ無くなりそう」を出す
-  def default_item_list?
-    @search_query.blank? && @selected_category_id.blank? &&
-      @selected_status.blank? && @selected_favorite.blank? && params[:page].blank?
+    params.require(:item).permit(:name, :brand_name, :price, :stock_quantity, :favorite, :memo, :image, :capacity, :capacity_unit)
   end
 
   def assign_category

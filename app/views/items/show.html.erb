@@ -41,18 +41,6 @@
         </div>
 
         <div class="rounded-lg bg-slate-50 p-3">
-          <% if @item.cost_per_use.present? %>
-            <dt class="text-xs text-slate-500">1回あたりコスト</dt>
-            <dd class="mt-1 font-semibold text-slate-800"><%= number_with_delimiter(@item.cost_per_use) %>円/回</dd>
-          <% else %>
-            <dt class="text-xs text-slate-500">1日あたりコスト</dt>
-            <dd class="mt-1 font-semibold text-slate-800">
-              <%= @item.cost_per_day.present? ? "#{number_with_delimiter(@item.cost_per_day)}円/日" : "データなし" %>
-            </dd>
-          <% end %>
-        </div>
-
-        <div class="rounded-lg bg-slate-50 p-3">
           <dt class="text-xs text-slate-500">容量</dt>
           <dd class="mt-1 font-semibold text-slate-800">
             <%= @item.capacity.present? ? "#{number_with_precision(@item.capacity, precision: 2, strip_insignificant_zeros: true)}#{@item.capacity_unit}" : "未設定" %>
@@ -64,11 +52,6 @@
           <dd class="mt-1 font-semibold text-slate-800">
             <%= @item.cost_per_capacity.present? ? "#{number_with_delimiter(@item.cost_per_capacity)}円/#{@item.capacity_unit}" : "データなし" %>
           </dd>
-        </div>
-
-        <div class="rounded-lg bg-slate-50 p-3">
-          <dt class="text-xs text-slate-500">使用頻度</dt>
-          <dd class="mt-1 font-semibold text-slate-800"><%= @item.usage_frequency.presence || "未設定" %></dd>
         </div>
 
         <div class="rounded-lg bg-slate-50 p-3">
@@ -86,18 +69,6 @@
         <div class="rounded-lg bg-slate-50 p-3">
           <dt class="text-xs text-slate-500">ブランド名</dt>
           <dd class="mt-1 font-semibold text-slate-800"><%= @item.brand_name.presence || "未設定" %></dd>
-        </div>
-
-        <div class="rounded-lg bg-slate-50 p-3">
-          <dt class="text-xs text-slate-500">平均評価</dt>
-          <dd class="mt-1 font-semibold text-slate-800">
-            <% if @average_rating.present? %>
-              <span class="text-yellow-500"><%= star_rating(@average_rating) %></span>
-              <span class="ml-1"><%= @average_rating %>（<%= @rating_count %>件）</span>
-            <% else %>
-              未評価
-            <% end %>
-          </dd>
         </div>
       </dl>
     </div>
@@ -119,21 +90,6 @@
           <p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
             このアイテムは使用中です。
           </p>
-          <div class="rounded-lg bg-emerald-50 px-3 py-3 text-sm text-emerald-800">
-            <p class="text-xs font-semibold text-emerald-700">使い切り予測</p>
-            <% if @item.predicted_finish_date.present? %>
-              <p class="mt-1 font-semibold">
-                <%= @item.predicted_finish_date.strftime("%Y/%-m/%-d") %>ごろ
-              </p>
-              <p class="mt-1 text-xs leading-5">
-                過去の使い切り履歴から、平均<%= @item.average_usage_days %>日で使い切る見込みです。
-              </p>
-            <% else %>
-              <p class="mt-1 text-xs leading-5">
-                使い切り履歴が足りないため、まだ予測できません。
-              </p>
-            <% end %>
-          </div>
           <div class="grid gap-2 sm:grid-cols-2">
             <button type="button" class="btn-danger w-full" data-disclosure-toggle data-disclosure-target="finish-using">
               使い切る
