@@ -10,7 +10,6 @@ Rails 8.1 + PostgreSQL の在庫管理・レビューアプリ。認証は Devis
 - テスト: `docker compose exec web bin/rails test`
 - テスト（単一）: `docker compose exec web bin/rails test test/models/item_test.rb`
 - Railsコンソール: `docker compose exec web bin/rails console`
-- 購入リマインダー送信（本番はcronで1日1回実行）: `docker compose exec web bin/rails reminders:deliver`
 - Rubocop（コードスタイルチェック）: `docker compose exec web bundle exec rubocop`
 - Rubocop（自動修正）: `docker compose exec web bundle exec rubocop -a`
 

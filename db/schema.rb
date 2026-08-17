@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_11_124803) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_17_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -60,26 +60,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_124803) do
     t.uuid "category_id"
     t.datetime "created_at", null: false
     t.boolean "favorite", default: false
+    t.boolean "in_stock", default: true, null: false
+    t.boolean "low_stock_flagged", default: false, null: false
     t.text "memo"
     t.string "name", null: false
-    t.date "predicted_finish_on"
     t.integer "price"
-    t.datetime "reminder_first_sent_at"
-    t.datetime "reminder_second_sent_at"
-    t.integer "stock_quantity"
     t.datetime "updated_at", null: false
-    t.string "usage_frequency"
     t.uuid "user_id", null: false
     t.index ["archived"], name: "index_items_on_archived"
     t.index ["category_id"], name: "index_items_on_category_id"
-    t.index ["predicted_finish_on"], name: "index_items_on_predicted_finish_on"
     t.index ["user_id"], name: "index_items_on_user_id"
   end
 
   create_table "usage_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.text "discontinued_reason"
-    t.string "finish_reason"
     t.datetime "finished_at"
     t.uuid "item_id", null: false
     t.integer "rating"
@@ -87,7 +81,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_124803) do
     t.datetime "started_at"
     t.datetime "updated_at", null: false
     t.uuid "user_id", null: false
-    t.index ["finish_reason"], name: "index_usage_logs_on_finish_reason"
     t.index ["item_id", "finished_at"], name: "index_usage_logs_on_item_id_and_finished_at"
     t.index ["item_id"], name: "index_usage_logs_on_item_id"
     t.index ["item_id"], name: "index_usage_logs_on_item_id_where_in_use", unique: true, where: "(finished_at IS NULL)"

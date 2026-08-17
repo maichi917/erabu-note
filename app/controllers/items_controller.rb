@@ -1,10 +1,9 @@
 class ItemsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_categories, only: %i[new create edit update]
-  before_action :set_filter_params, only: %i[index in_use used_up discontinued]
+  before_action :set_filter_params, only: %i[index in_use used_up]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
-                                    start_using finish_using
-                                    discontinue_using add_stock]
+                                    start_using finish_using toggle_stock toggle_low_stock]
 
   def index
     @items = current_user.items.visible.includes(:category).order(created_at: :desc)
@@ -17,16 +16,15 @@ class ItemsController < ApplicationController
     in_use_item_ids = current_user.usage_logs.in_use.select(:item_id)
     case @selected_status
     when "available"
-      @items = @items.where("stock_quantity > 0").where.not(id: in_use_item_ids)
+      @items = @items.where(in_stock: true).where.not(id: in_use_item_ids)
     when "in_use"
       @items = @items.where(id: in_use_item_ids)
     when "out_of_stock"
-      @items = @items.where(stock_quantity: 0).where.not(id: in_use_item_ids)
+      @items = @items.where(in_stock: false).where.not(id: in_use_item_ids)
     end
 
     @page_title = "アイテム"
     @items = @items.page(params[:page])
-    @finish_predicted_soon_items = current_user.items.visible.finish_predicted_soon if default_item_list?
   end
 
   def in_use
@@ -47,7 +45,6 @@ class ItemsController < ApplicationController
     @selected_review_status = params[:review_status].to_s
     @usage_logs = current_user.usage_logs
                               .finished
-                              .used_up_history
                               .by_item_name(@search_query)
                               .by_item_category(@selected_category_id)
                               .by_rating(@selected_rating)
@@ -59,21 +56,8 @@ class ItemsController < ApplicationController
                               .page(params[:page])
     @used_up_counts_by_item_id = current_user.usage_logs
                                              .finished
-                                             .used_up_history
                                              .group(:item_id)
                                              .count
-  end
-
-  def discontinued
-    @page_title = "使用中止"
-    @usage_logs = current_user.usage_logs
-                              .finished
-                              .discontinued
-                              .by_item_name(@search_query)
-                              .by_item_category(@selected_category_id)
-                              .includes(:item)
-                              .order(finished_at: :desc)
-                              .page(params[:page])
   end
 
   # 検索欄のオートコンプリート候補（アイテム名）をJSONで返す
@@ -106,8 +90,6 @@ class ItemsController < ApplicationController
   end
 
   def show
-    @average_rating = @item.average_rating
-    @rating_count = @item.rating_count
   end
 
   def edit
@@ -147,7 +129,7 @@ class ItemsController < ApplicationController
       return
     end
 
-    unless @item.stock_available?
+    unless @item.in_stock?
       redirect_to items_path, alert: "在庫がありません"
       return
     end
@@ -169,54 +151,21 @@ class ItemsController < ApplicationController
       return
     end
 
-    continue_using = ActiveModel::Type::Boolean.new.cast(params[:continue_using])
+    @item.finish_using!(params[:finished_at])
 
-    if continue_using
-      begin
-        @item.finish_and_continue_using!(current_user, usage_log, params[:finished_at])
-      rescue ActiveRecord::RecordInvalid
-        redirect_to in_use_items_path, alert: "在庫または使用状態が更新されたため、続けて使用を開始できませんでした"
-        return
-      end
-    else
-      @item.finish_using!(params[:finished_at])
-    end
-
-    notice =
-      if continue_using
-        "アイテムを使い切り、次の使用を開始しました"
-      else
-        "アイテムを使い切りました🎉"
-      end
-
-    redirect_to edit_usage_log_path(usage_log), notice: notice
+    redirect_to edit_usage_log_path(usage_log), notice: "アイテムを使い切りました🎉"
   end
 
-  def discontinue_using
-    usage_log = @item.current_usage_log
+  def toggle_stock
+    @item.update!(in_stock: !@item.in_stock?)
 
-    if usage_log.blank?
-      redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
-      return
-    end
-
-    @item.discontinue_using!(
-      params[:finished_at],
-      discontinued_reason: params[:discontinued_reason]
-    )
-
-    redirect_to in_use_items_path, notice: "使用を中止しました"
+    redirect_back fallback_location: items_path
   end
 
-  def add_stock
-    quantity = params[:quantity].to_i
+  def toggle_low_stock
+    @item.update!(low_stock_flagged: !@item.low_stock_flagged?)
 
-    if quantity.positive?
-      @item.increment!(:stock_quantity, quantity)
-      redirect_back fallback_location: items_path, notice: "在庫を追加しました"
-    else
-      redirect_back fallback_location: items_path, alert: "追加する個数を入力してください"
-    end
+    redirect_back fallback_location: items_path
   end
 
   private
@@ -226,13 +175,7 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:item).permit(:name, :brand_name, :price, :stock_quantity, :favorite, :memo, :image, :usage_frequency, :capacity, :capacity_unit)
-  end
-
-  # 検索・絞り込み・ページ指定のない初期表示のときだけ「もうすぐ無くなりそう」を出す
-  def default_item_list?
-    @search_query.blank? && @selected_category_id.blank? &&
-      @selected_status.blank? && @selected_favorite.blank? && params[:page].blank?
+    params.require(:item).permit(:name, :brand_name, :price, :favorite, :memo, :image, :capacity, :capacity_unit)
   end
 
   def assign_category

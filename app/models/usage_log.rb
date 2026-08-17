@@ -1,17 +1,9 @@
 class UsageLog < ApplicationRecord
-  normalizes :discontinued_reason, with: ->(reason) { reason.presence }
-
-  enum :finish_reason, {
-    used_up: "used_up",
-    discontinued: "discontinued"
-  }, validate: { allow_nil: true }
-
   belongs_to :item
   belongs_to :user
 
   scope :in_use, -> { where(finished_at: nil) }
   scope :finished, -> { where.not(finished_at: nil) }
-  scope :used_up_history, -> { where(finish_reason: [ finish_reasons[:used_up], nil ]) }
   scope :rated, -> { where.not(rating: nil) }
   scope :by_rating, ->(rating) {
     return all if rating.blank?
@@ -56,14 +48,9 @@ class UsageLog < ApplicationRecord
   }
 
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true
-  validates :discontinued_reason, length: { maximum: 500 }, allow_blank: true
 
   validate :finished_at_must_be_after_started_at
   validate :review_requires_rating
-
-  # 使用履歴が変わったら、アイテムの使い切り予測日キャッシュを再計算する
-  after_save :refresh_item_prediction
-  after_destroy :refresh_item_prediction
 
   def in_use?
     finished_at.nil?
@@ -88,10 +75,6 @@ class UsageLog < ApplicationRecord
   end
 
   private
-
-  def refresh_item_prediction
-    item.refresh_predicted_finish_on!
-  end
 
   def finished_at_must_be_after_started_at
     return if started_at.blank? || finished_at.blank?

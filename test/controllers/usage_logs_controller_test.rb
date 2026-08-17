@@ -18,7 +18,38 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name='usage_log[rating]']"
     assert_select "option[value='5']", text: "⭐️ 5"
     assert_select "textarea[name='usage_log[review]']"
-    assert_select "a[href='#{used_up_items_path}']", text: "レビューしない"
+    assert_select "a[href='#{item_path(@item)}']", text: "レビューしない"
+  end
+
+  test "edit allows editing the current in-use usage log" do
+    in_use_item = items(:two)
+    in_use_item.update!(in_stock: true)
+    in_use_item.start_using!(@user, Time.zone.local(2026, 5, 20))
+    in_use_log = in_use_item.current_usage_log
+
+    get edit_usage_log_path(in_use_log)
+
+    assert_response :success
+    assert_select "select[name='usage_log[rating]']"
+  end
+
+  test "update saves rating and review while the item is still in use" do
+    in_use_item = items(:two)
+    in_use_item.update!(in_stock: true)
+    in_use_item.start_using!(@user, Time.zone.local(2026, 5, 20))
+    in_use_log = in_use_item.current_usage_log
+
+    patch usage_log_path(in_use_log), params: {
+      usage_log: {
+        rating: 3,
+        review: "使用中の感想"
+      }
+    }
+
+    assert_redirected_to item_path(in_use_item)
+    assert_equal 3, in_use_log.reload.rating
+    assert_equal "使用中の感想", in_use_log.review
+    assert in_use_log.in_use?
   end
 
   test "show displays usage log detail" do
@@ -46,37 +77,6 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{edit_usage_log_path(@usage_log)}']", text: "編集"
   end
 
-  test "reviews shows item average rating and rating count" do
-    @item.update!(stock_quantity: 2)
-    @usage_log.update!(rating: 4, review: "また使いたい")
-    @item.start_using!(@user, Time.zone.local(2026, 5, 20))
-    @item.finish_using!(Time.zone.local(2026, 5, 25), rating: 5)
-
-    get reviews_usage_logs_path
-
-    assert_response :success
-    assert_includes response.body, "平均"
-    assert_includes response.body, "4.5"
-    assert_includes response.body, "2件"
-  end
-
-  test "reviews average rating does not include other user's ratings" do
-    @usage_log.update!(rating: 4, review: "また使いたい")
-    other_user = users(:two)
-    other_item = other_user.items.create!(
-      name: @item.name,
-      stock_quantity: 1
-    )
-    other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
-    other_item.finish_using!(Time.zone.local(2026, 5, 12), rating: 1)
-
-    get reviews_usage_logs_path
-
-    assert_response :success
-    assert_includes response.body, "4.0（1件）"
-    refute_includes response.body, "2.5（"
-  end
-
   test "reviews shows rated usage log without review as no review" do
     @usage_log.update!(rating: 4, review: "")
 
@@ -97,7 +97,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
   test "reviews does not show other user's usage logs" do
     other_user = users(:two)
-    other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
+    other_item = other_user.items.create!(name: "他のアイテム", in_stock: true)
     other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
     other_item.finish_using!(Time.zone.local(2026, 5, 12), rating: 5, review: "他ユーザー")
 
@@ -111,7 +111,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
   test "reviews searches rated usage logs by item name" do
     @usage_log.update!(rating: 4, review: "また使いたい")
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1)
+    other_item.update!(in_stock: true)
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(
       Time.zone.local(2026, 5, 13),
@@ -140,7 +140,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     @item.update!(category: categories(:hair_care))
     @usage_log.update!(rating: 4)
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1, category: categories(:skin_care))
+    other_item.update!(in_stock: true, category: categories(:skin_care))
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
 
@@ -157,7 +157,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     @item.update!(category: categories(:hair_care))
     @usage_log.update!(rating: 4)
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1, category: categories(:hair_care))
+    other_item.update!(in_stock: true, category: categories(:hair_care))
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
 
@@ -175,7 +175,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
   test "reviews filters usage logs by rating" do
     @usage_log.update!(rating: 4, review: "また使いたい")
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1)
+    other_item.update!(in_stock: true)
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
 
@@ -211,7 +211,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     @item.update!(category: categories(:hair_care))
     @usage_log.update!(rating: 4)
     other_item = items(:two)
-    other_item.update!(stock_quantity: 1)
+    other_item.update!(in_stock: true)
     other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
     other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
 
@@ -227,7 +227,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     11.times do |number|
       item = @user.items.create!(
         name: "検索対象#{number}",
-        stock_quantity: 1,
+        in_stock: true,
         category: category
       )
       item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -264,7 +264,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
       }
     }
 
-    assert_redirected_to used_up_items_path
+    assert_redirected_to item_path(@item)
     assert_equal 5, @usage_log.reload.rating
     assert_equal "使いやすい", @usage_log.review
   end
@@ -284,7 +284,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
   test "other user's usage log cannot be edited" do
     other_user = users(:two)
-    other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
+    other_item = other_user.items.create!(name: "他のアイテム", in_stock: true)
     other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
     other_item.finish_using!(Time.zone.local(2026, 5, 12))
     other_usage_log = other_item.usage_logs.finished.first
@@ -296,7 +296,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
   test "other user's usage log cannot be shown" do
     other_user = users(:two)
-    other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
+    other_item = other_user.items.create!(name: "他のアイテム", in_stock: true)
     other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
     other_item.finish_using!(Time.zone.local(2026, 5, 12))
     other_usage_log = other_item.usage_logs.finished.first
@@ -304,94 +304,5 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     get usage_log_path(other_usage_log)
 
     assert_response :not_found
-  end
-
-  test "edit_discontinued_reason shows reason form" do
-    usage_log = create_discontinued_usage_log
-
-    get edit_discontinued_reason_usage_log_path(usage_log)
-
-    assert_response :success
-    assert_select "textarea[name='usage_log[discontinued_reason]']"
-    assert_select "a[href='#{usage_log_path(usage_log)}']", text: "戻る"
-  end
-
-  test "show has discontinued reason edit link" do
-    usage_log = create_discontinued_usage_log
-
-    get usage_log_path(usage_log)
-
-    assert_response :success
-    assert_select "a[href='#{edit_discontinued_reason_usage_log_path(usage_log)}']", text: "理由を編集"
-  end
-
-  test "update_discontinued_reason adds reason" do
-    usage_log = create_discontinued_usage_log
-
-    patch update_discontinued_reason_usage_log_path(usage_log), params: {
-      usage_log: {
-        discontinued_reason: "香りが苦手だった"
-      }
-    }
-
-    assert_redirected_to usage_log_path(usage_log)
-    assert_equal "香りが苦手だった", usage_log.reload.discontinued_reason
-  end
-
-  test "update_discontinued_reason changes reason" do
-    usage_log = create_discontinued_usage_log(discontinued_reason: "肌に合わなかった")
-
-    patch update_discontinued_reason_usage_log_path(usage_log), params: {
-      usage_log: {
-        discontinued_reason: "香りが苦手だった"
-      }
-    }
-
-    assert_redirected_to usage_log_path(usage_log)
-    assert_equal "香りが苦手だった", usage_log.reload.discontinued_reason
-  end
-
-  test "update_discontinued_reason clears reason" do
-    usage_log = create_discontinued_usage_log(discontinued_reason: "肌に合わなかった")
-
-    patch update_discontinued_reason_usage_log_path(usage_log), params: {
-      usage_log: {
-        discontinued_reason: ""
-      }
-    }
-
-    assert_redirected_to usage_log_path(usage_log)
-    assert_nil usage_log.reload.discontinued_reason
-  end
-
-  test "used up usage log cannot edit discontinued reason" do
-    get edit_discontinued_reason_usage_log_path(@usage_log)
-
-    assert_response :not_found
-  end
-
-  test "other user's usage log cannot edit discontinued reason" do
-    other_user = users(:two)
-    other_item = other_user.items.create!(name: "他のアイテム", stock_quantity: 1)
-    other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
-    other_item.discontinue_using!(Time.zone.local(2026, 5, 12))
-    other_usage_log = other_item.usage_logs.finished.first
-
-    get edit_discontinued_reason_usage_log_path(other_usage_log)
-
-    assert_response :not_found
-  end
-
-  private
-
-  def create_discontinued_usage_log(discontinued_reason: nil)
-    item = items(:two)
-    item.update!(stock_quantity: 1)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    item.discontinue_using!(
-      Time.zone.local(2026, 5, 12),
-      discontinued_reason: discontinued_reason
-    )
-    item.usage_logs.finished.discontinued.first
   end
 end
