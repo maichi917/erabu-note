@@ -6,7 +6,7 @@ class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
       post guest_sign_in_path
     end
 
-    assert_redirected_to items_path
+    assert_redirected_to home_path
     guest = User.guests.order(created_at: :desc).first
     assert guest.guest?
     assert_equal 4, guest.items.count
@@ -19,6 +19,6 @@ class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
       post guest_sign_in_path
     end
 
-    assert_redirected_to items_path
+    assert_redirected_to home_path
   end
 end

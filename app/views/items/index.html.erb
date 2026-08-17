@@ -12,10 +12,7 @@
                category_id: @selected_category_id.presence,
                status: @selected_status.presence,
                favorite: @selected_favorite.presence
-             ),
-             action_path: new_item_path,
-             action_label: "アイテム登録",
-             action_class: "btn-primary h-10 shrink-0" %>
+             ) %>
 
   <div class="mb-4 space-y-3">
     <% status_filter_params = {

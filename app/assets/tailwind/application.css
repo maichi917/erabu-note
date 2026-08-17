@@ -1,14 +1,23 @@
 @import "tailwindcss";
 
+@theme {
+  /* ナビゲーションの出し分け用。スマホ下タブバー / PC上部ナビの切り替え幅 */
+  --breakpoint-pc: 860px;
+}
+
 @layer base {
   body {
-    font-family: "Zen Kaku Gothic New", "Hiragino Sans", system-ui, sans-serif;
+    font-family: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
   }
 }
 
 @layer components {
   .brand-font {
-    font-family: "Kiwi Maru", "Zen Kaku Gothic New", system-ui, sans-serif;
+    font-family: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+  }
+
+  .logo-font {
+    font-family: "Palette Mosaic", "Zen Kaku Gothic New", system-ui, sans-serif;
   }
 
   .ui-container {

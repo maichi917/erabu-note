@@ -1,50 +1,48 @@
 <header class="border-b border-emerald-100 bg-white/95 shadow-sm">
-  <div class="mx-auto w-full max-w-5xl px-4 py-5">
-    <div class="flex flex-col gap-3">
-      <div class="flex items-center justify-between gap-3">
-        <%= link_to root_path, class: "brand-font inline-flex items-center gap-2 text-3xl font-bold text-emerald-700 transition hover:text-emerald-800" do %>
-          <%= image_tag "logo-mark.svg", alt: "", class: "h-9 w-9 shrink-0" %>
-          <span>ものログ</span>
-        <% end %>
+  <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-4">
+    <%= link_to root_path, class: "logo-font inline-flex items-center gap-2 text-3xl font-bold text-emerald-700 transition hover:text-emerald-800" do %>
+      <%= image_tag "logo-mark.svg", alt: "", class: "h-9 w-9 shrink-0" %>
+      <span>えらぶノート</span>
+    <% end %>
 
-        <% if user_signed_in? %>
-          <!-- detailsタグは、ブラウザ標準の「クリックで開閉する箱」の機能。JS不要でドロップダウンを作れる -->
-          <details class="relative">
-            <summary class="btn-secondary inline-flex cursor-pointer list-none px-3 py-1.5 [&::-webkit-details-marker]:hidden">
-              <%= current_user.name %>
-            </summary>
+    <% if user_signed_in? %>
+      <% active_nav_class = "rounded-md bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100" %>
+      <% inactive_nav_class = "rounded-md px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-100" %>
+      <% home_active = controller_name == "home" %>
+      <% items_active = controller_name == "items" && !%w[new create].include?(action_name) %>
+      <% reviews_active = controller_name == "usage_logs" %>
+      <% register_active = controller_name == "items" && %w[new create].include?(action_name) %>
 
-            <div class="absolute right-0 z-10 mt-2 w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-              <%= link_to "アカウント編集", edit_user_registration_path, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
-              <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
-            </div>
-          </details>
-        <% end %>
-      </div>
+      <nav class="hidden items-center gap-2 text-sm pc:flex" aria-label="メインメニュー">
+        <%= link_to "ホーム", home_path, class: home_active ? active_nav_class : inactive_nav_class %>
+        <%= link_to "持ち物", items_path, class: items_active ? active_nav_class : inactive_nav_class %>
+        <%= link_to "感想", reviews_usage_logs_path, class: reviews_active ? active_nav_class : inactive_nav_class %>
+        <%= link_to "登録", new_item_path, class: register_active ? active_nav_class : inactive_nav_class %>
+      </nav>
 
-      <% if user_signed_in? %>
-        <% active_nav_class = "rounded-md bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100" %>
-        <% inactive_nav_class = "rounded-md bg-slate-100 px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-200" %>
-        <% item_index_page = controller_name == "items" && action_name == "index" %>
-        <% history_nav_active = controller_name == "items" && action_name == "used_up" %>
-        <% reviews_active = controller_name == "usage_logs" && action_name == "reviews" %>
-        <% history_active = history_nav_active || reviews_active %>
-        <% guide_active = controller_name == "static_pages" && action_name == "guide" %>
+      <!-- detailsタグは、ブラウザ標準の「クリックで開閉する箱」の機能。JS不要でドロップダウンを作れる -->
+      <details class="relative">
+        <summary class="btn-secondary inline-flex cursor-pointer list-none px-3 py-1.5 [&::-webkit-details-marker]:hidden">
+          <%= current_user.name %>
+        </summary>
 
-        <nav class="grid grid-cols-3 gap-2 text-center text-sm md:hidden" aria-label="スマートフォンメニュー">
-          <%= link_to "アイテム", items_path, class: item_index_page ? active_nav_class : inactive_nav_class %>
-          <%= link_to "履歴", used_up_items_path, class: history_active ? active_nav_class : inactive_nav_class %>
-          <%= link_to "使い方", guide_path, class: guide_active ? active_nav_class : inactive_nav_class %>
-        </nav>
-
-        <nav class="hidden items-start justify-between gap-2 text-sm md:flex" aria-label="メインメニュー">
-          <div class="flex gap-2">
-            <%= link_to "アイテム", items_path, class: item_index_page ? active_nav_class : inactive_nav_class %>
-            <%= link_to "履歴", used_up_items_path, class: history_active ? active_nav_class : inactive_nav_class %>
-          </div>
-          <%= link_to "使い方", guide_path, class: guide_active ? active_nav_class : inactive_nav_class %>
-        </nav>
-      <% end %>
-    </div>
+        <div class="absolute right-0 z-10 mt-2 w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+          <%= link_to "アカウント編集", edit_user_registration_path, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
+          <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
+        </div>
+      </details>
+    <% end %>
   </div>
 </header>
+
+<% if user_signed_in? %>
+  <% active_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-1.5 font-medium text-emerald-700" %>
+  <% inactive_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-1.5 font-medium text-slate-500" %>
+
+  <nav class="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-emerald-100 bg-white/95 px-2 py-1 text-center text-xs shadow-[0_-1px_4px_rgba(0,0,0,0.06)] pc:hidden" aria-label="スマートフォンメニュー">
+    <%= link_to "ホーム", home_path, class: home_active ? active_tab_class : inactive_tab_class %>
+    <%= link_to "持ち物", items_path, class: items_active ? active_tab_class : inactive_tab_class %>
+    <%= link_to "感想", reviews_usage_logs_path, class: reviews_active ? active_tab_class : inactive_tab_class %>
+    <%= link_to "登録", new_item_path, class: register_active ? active_tab_class : inactive_tab_class %>
+  </nav>
+<% end %>

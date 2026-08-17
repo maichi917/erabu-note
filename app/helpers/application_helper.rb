@@ -1,6 +1,6 @@
 module ApplicationHelper
-  DEFAULT_META_TITLE = "ものログ".freeze
-  DEFAULT_META_DESCRIPTION = "在庫とレビューを記録して、次の買い物でもう迷わない。日用品のストックと使用感をまとめて管理できるアプリです。".freeze
+  DEFAULT_META_TITLE = "えらぶノート".freeze
+  DEFAULT_META_DESCRIPTION = "感想を残しておけば、好きなものがもっと見つかって、次の買い物が楽になる。".freeze
   DEFAULT_OG_IMAGE = "ogp.png".freeze
 
   def meta_title
