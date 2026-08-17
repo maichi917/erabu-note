@@ -1,6 +1,14 @@
 require "test_helper"
 
 class StaticPagesControllerTest < ActionDispatch::IntegrationTest
+  test "ログイン済みユーザーがトップページにアクセスするとホームにリダイレクトされる" do
+    sign_in users(:one)
+
+    get root_path
+
+    assert_redirected_to home_path
+  end
+
   test "トップページにOGPとX Cardを設定している" do
     get root_path
 
