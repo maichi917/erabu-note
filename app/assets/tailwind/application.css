@@ -2,13 +2,17 @@
 
 @layer base {
   body {
-    font-family: "Zen Kaku Gothic New", "Hiragino Sans", system-ui, sans-serif;
+    font-family: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
   }
 }
 
 @layer components {
   .brand-font {
-    font-family: "Kiwi Maru", "Zen Kaku Gothic New", system-ui, sans-serif;
+    font-family: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+  }
+
+  .logo-font {
+    font-family: "Palette Mosaic", "Zen Kaku Gothic New", system-ui, sans-serif;
   }
 
   .ui-container {

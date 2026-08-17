@@ -5,11 +5,11 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "title", "ものログ"
+    assert_select "title", "えらぶノート"
     assert_select "meta[name='description'][content]"
     assert_select "meta[property='og:type'][content='website']"
-    assert_select "meta[property='og:site_name'][content='ものログ']"
-    assert_select "meta[property='og:title'][content='ものログ']"
+    assert_select "meta[property='og:site_name'][content='えらぶノート']"
+    assert_select "meta[property='og:title'][content='えらぶノート']"
     assert_select "meta[property='og:description'][content]"
     assert_select "meta[property='og:url'][content='http://www.example.com/']"
     assert_select "meta[property='og:image'][content]"
@@ -17,7 +17,7 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "meta[property='og:image:height'][content='630']"
     assert_select "meta[property='og:locale'][content='ja_JP']"
     assert_select "meta[name='twitter:card'][content='summary_large_image']"
-    assert_select "meta[name='twitter:title'][content='ものログ']"
+    assert_select "meta[name='twitter:title'][content='えらぶノート']"
     assert_select "meta[name='twitter:description'][content]"
     assert_select "meta[name='twitter:image'][content]"
     assert_select "link[rel='icon'][href='/favicon.ico'][sizes='any']"

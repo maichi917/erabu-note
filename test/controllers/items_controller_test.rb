@@ -414,8 +414,8 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get in_use_items_path
 
     assert_response :success
-    assert_select "title", text: "使用中アイテム | ものログ"
-    assert_select "meta[property='og:title'][content='使用中アイテム | ものログ']"
+    assert_select "title", text: "使用中アイテム | えらぶノート"
+    assert_select "meta[property='og:title'][content='使用中アイテム | えらぶノート']"
   end
 
   test "in_use page shows finish using modal in item card" do
