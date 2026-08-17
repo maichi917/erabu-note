@@ -16,18 +16,4 @@ class ApplicationHelperTest < ActionView::TestCase
   test "star_rating rounds a decimal rating before rendering" do
     assert_equal %(★★★★<span class="text-slate-300">☆</span>), star_rating(3.6)
   end
-
-  test "category_filter_class highlights the selected category" do
-    assert_equal(
-      "rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white",
-      category_filter_class("1", "1")
-    )
-  end
-
-  test "category_filter_class returns the default style for other categories" do
-    assert_equal(
-      "rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50",
-      category_filter_class("1", "2")
-    )
-  end
 end

@@ -156,14 +156,11 @@
       </div>
 
       <div class="ui-card space-y-4">
-        <h2 class="brand-font text-xl font-bold text-slate-900">履歴ページ</h2>
+        <h2 class="brand-font text-xl font-bold text-slate-900">感想を振り返るページ</h2>
         <p class="text-sm leading-7 text-slate-600">
-          使い切ったものやレビュー済みのものを見返す場所です。次に買うものを決めるときにも使えます。
+          過去に残した評価・レビューを見返す場所です。次に買うものを決めるときにも使えます。
         </p>
-        <div class="flex flex-wrap gap-2">
-          <%= link_to "履歴を見る", used_up_items_path, class: "btn-secondary" %>
-          <%= link_to "レビューを見る", reviews_usage_logs_path, class: "btn-secondary" %>
-        </div>
+        <%= link_to "レビューを見る", reviews_usage_logs_path, class: "btn-secondary" %>
       </div>
     </section>
   </div>

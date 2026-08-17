@@ -1,7 +1,7 @@
 class ItemsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_categories, only: %i[new create edit update]
-  before_action :set_filter_params, only: %i[index in_use used_up]
+  before_action :set_filter_params, only: %i[index]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
                                     start_using finish_using toggle_stock toggle_low_stock]
 
@@ -15,8 +15,6 @@ class ItemsController < ApplicationController
 
     in_use_item_ids = current_user.usage_logs.in_use.select(:item_id)
     case @selected_status
-    when "available"
-      @items = @items.where(in_stock: true).where.not(id: in_use_item_ids)
     when "in_use"
       @items = @items.where(id: in_use_item_ids)
     when "out_of_stock"
@@ -25,39 +23,12 @@ class ItemsController < ApplicationController
 
     @page_title = "アイテム"
     @items = @items.page(params[:page])
-  end
-
-  def in_use
-    @page_title = "使用中アイテム"
-    @usage_logs = current_user.usage_logs
-                              .in_use
-                              .by_item_name(@search_query)
-                              .by_item_category(@selected_category_id)
-                              .includes(:item)
-                              .order(started_at: :desc)
-                              .page(params[:page])
-  end
-
-  def used_up
-    @page_title = "使い切り"
-    @selected_rating = params[:rating].to_s
-    @selected_rating_status = params[:rating_status].to_s
-    @selected_review_status = params[:review_status].to_s
-    @usage_logs = current_user.usage_logs
-                              .finished
-                              .by_item_name(@search_query)
-                              .by_item_category(@selected_category_id)
-                              .by_rating(@selected_rating)
-                              .by_rating_status(@selected_rating_status)
-                              .by_review_status(@selected_review_status)
-                              .latest_per_item
-                              .includes(:item)
-                              .order(finished_at: :desc)
-                              .page(params[:page])
-    @used_up_counts_by_item_id = current_user.usage_logs
-                                             .finished
-                                             .group(:item_id)
-                                             .count
+    @latest_ratings_by_item_id = current_user.usage_logs
+                                              .where(item_id: @items.map(&:id))
+                                              .rated
+                                              .order(created_at: :desc)
+                                              .group_by(&:item_id)
+                                              .transform_values { |usage_logs| usage_logs.first.rating }
   end
 
   # 検索欄のオートコンプリート候補（アイテム名）をJSONで返す
@@ -135,7 +106,7 @@ class ItemsController < ApplicationController
     end
 
     @item.start_using!(current_user, params[:started_at], started_at_unknown: params[:started_at_unknown].present?)
-    redirect_to in_use_items_path, notice: "使用を開始しました"
+    redirect_to items_path(status: "in_use"), notice: "使用を開始しました"
   end
 
   def finish_using
@@ -147,7 +118,7 @@ class ItemsController < ApplicationController
       end
 
     if usage_log.blank?
-      redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
+      redirect_to items_path(status: "in_use"), alert: "使用中のアイテムがありません"
       return
     end
 
