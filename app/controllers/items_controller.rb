@@ -1,7 +1,7 @@
 class ItemsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_categories, only: %i[new create edit update]
-  before_action :set_filter_params, only: %i[index used_up]
+  before_action :set_filter_params, only: %i[index]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
                                     start_using finish_using toggle_stock toggle_low_stock]
 
@@ -29,28 +29,6 @@ class ItemsController < ApplicationController
                                               .order(created_at: :desc)
                                               .group_by(&:item_id)
                                               .transform_values { |usage_logs| usage_logs.first.rating }
-  end
-
-  def used_up
-    @page_title = "使い切り"
-    @selected_rating = params[:rating].to_s
-    @selected_rating_status = params[:rating_status].to_s
-    @selected_review_status = params[:review_status].to_s
-    @usage_logs = current_user.usage_logs
-                              .finished
-                              .by_item_name(@search_query)
-                              .by_item_category(@selected_category_id)
-                              .by_rating(@selected_rating)
-                              .by_rating_status(@selected_rating_status)
-                              .by_review_status(@selected_review_status)
-                              .latest_per_item
-                              .includes(:item)
-                              .order(finished_at: :desc)
-                              .page(params[:page])
-    @used_up_counts_by_item_id = current_user.usage_logs
-                                             .finished
-                                             .group(:item_id)
-                                             .count
   end
 
   # 検索欄のオートコンプリート候補（アイテム名）をJSONで返す
