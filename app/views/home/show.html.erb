@@ -7,7 +7,7 @@
     <h2 class="brand-font text-lg font-bold text-slate-900">今使っているもの</h2>
 
     <% if @in_use_usage_logs.any? %>
-      <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-3 pc:grid-cols-[repeat(auto-fill,minmax(170px,1fr))] pc:gap-4">
+      <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-2.5 pc:grid-cols-[repeat(auto-fill,minmax(170px,1fr))]">
         <% @in_use_usage_logs.each do |usage_log| %>
           <% item = usage_log.item %>
 
@@ -49,34 +49,32 @@
   <section class="mt-8">
     <h2 class="brand-font text-lg font-bold text-slate-900">よかったもの・イマイチだったもの</h2>
 
-    <div class="mt-3 grid gap-6 md:grid-cols-2">
-      <div>
-        <h3 class="text-sm font-bold text-emerald-700">よかったもの</h3>
+    <div class="mt-3">
+      <h3 class="text-sm font-bold text-emerald-700">よかったもの</h3>
 
-        <% if @good_usage_logs.any? %>
-          <div class="mt-2 grid gap-2">
-            <% @good_usage_logs.each do |usage_log| %>
-              <%= render "review_summary", usage_log: usage_log %>
-            <% end %>
-          </div>
-        <% else %>
-          <p class="mt-2 text-sm text-slate-500">まだ高評価のレビューがありません</p>
-        <% end %>
-      </div>
+      <% if @good_usage_logs.any? %>
+        <div class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
+          <% @good_usage_logs.each do |usage_log| %>
+            <%= render "review_summary", usage_log: usage_log %>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="mt-2 text-sm text-slate-500">まだ高評価のレビューがありません</p>
+      <% end %>
+    </div>
 
-      <div>
-        <h3 class="text-sm font-bold text-red-700">イマイチだったもの</h3>
+    <div class="mt-4">
+      <h3 class="text-sm font-bold text-red-700">イマイチだったもの</h3>
 
-        <% if @bad_usage_logs.any? %>
-          <div class="mt-2 grid gap-2">
-            <% @bad_usage_logs.each do |usage_log| %>
-              <%= render "review_summary", usage_log: usage_log %>
-            <% end %>
-          </div>
-        <% else %>
-          <p class="mt-2 text-sm text-slate-500">まだ低評価のレビューがありません</p>
-        <% end %>
-      </div>
+      <% if @bad_usage_logs.any? %>
+        <div class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
+          <% @bad_usage_logs.each do |usage_log| %>
+            <%= render "review_summary", usage_log: usage_log %>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="mt-2 text-sm text-slate-500">まだ低評価のレビューがありません</p>
+      <% end %>
     </div>
   </section>
 </div>
