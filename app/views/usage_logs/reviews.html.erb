@@ -1,4 +1,4 @@
-<div class="ui-container-wide" data-disclosure>
+<div class="ui-container-wide">
   <%= render "shared/search_form",
              url: reviews_usage_logs_path,
              query: @search_query,
@@ -12,53 +12,24 @@
                rating: @selected_rating.presence
              ) %>
 
-  <div class="mb-4">
-    <%= render "shared/filter_button" %>
-  </div>
+  <!-- selectのchangeイベントでフォームを送信すると、選ぶだけで絞り込めるドロップダウンになる -->
+  <%= form_with url: reviews_usage_logs_path, method: :get, local: true, class: "mb-4 flex flex-wrap items-center gap-2" do %>
+    <%= hidden_field_tag :q, @search_query.presence %>
 
-  <%= render "shared/filter_drawer",
-             title_id: "review-filters-title",
-             reset_path: reviews_usage_logs_path(q: @search_query.presence) do %>
-        <section>
-          <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">Category</h3>
-    <% category_filter_params = {
-      q: @search_query.presence,
-      rating: @selected_rating.presence
-    } %>
-          <div class="grid gap-2">
-            <%= link_to "すべて",
-                        reviews_usage_logs_path(category_filter_params),
-                        class: category_filter_class(@selected_category_id, nil) %>
-            <% @categories.each do |category| %>
-              <%= link_to category.name,
-                          reviews_usage_logs_path(category_filter_params.merge(category_id: category.id)),
-                          class: category_filter_class(@selected_category_id, category.id) %>
-            <% end %>
-            <%= link_to "未設定",
-                        reviews_usage_logs_path(category_filter_params.merge(category_id: "uncategorized")),
-                        class: category_filter_class(@selected_category_id, "uncategorized") %>
-          </div>
-        </section>
+    <select name="category_id" onchange="this.form.requestSubmit()" class="form-input h-9 w-auto text-sm">
+      <option value="">カテゴリ: すべて</option>
+      <% @categories.each do |category| %>
+        <option value="<%= category.id %>" <%= "selected" if @selected_category_id == category.id.to_s %>><%= category.name %></option>
+      <% end %>
+      <option value="uncategorized" <%= "selected" if @selected_category_id == "uncategorized" %>>未設定</option>
+    </select>
 
-        <section>
-          <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">Rating</h3>
-    <% rating_filter_params = {
-      q: @search_query.presence,
-      category_id: @selected_category_id.presence
-    } %>
-          <div class="grid gap-2">
-            <%= link_to "すべて",
-                        reviews_usage_logs_path(rating_filter_params),
-                        class: category_filter_class(@selected_rating, nil) %>
-            <% 5.downto(1) do |rating| %>
-              <%= link_to reviews_usage_logs_path(rating_filter_params.merge(rating: rating)),
-                          class: category_filter_class(@selected_rating, rating) do %>
-                <span aria-hidden="true">⭐️</span>
-                <span class="font-sans font-bold"><%= rating %></span>
-              <% end %>
-            <% end %>
-          </div>
-        </section>
+    <select name="rating" onchange="this.form.requestSubmit()" class="form-input h-9 w-auto text-sm">
+      <option value="">評価: すべて</option>
+      <% 5.downto(1) do |rating| %>
+        <option value="<%= rating %>" <%= "selected" if @selected_rating == rating.to_s %>>⭐️ <%= rating %></option>
+      <% end %>
+    </select>
   <% end %>
 
   <% if @usage_logs.any? %>
