@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_17_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_17_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -73,8 +73,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_17_000002) do
 
   create_table "usage_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.text "discontinued_reason"
-    t.string "finish_reason"
     t.datetime "finished_at"
     t.uuid "item_id", null: false
     t.integer "rating"
@@ -82,7 +80,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_17_000002) do
     t.datetime "started_at"
     t.datetime "updated_at", null: false
     t.uuid "user_id", null: false
-    t.index ["finish_reason"], name: "index_usage_logs_on_finish_reason"
     t.index ["item_id", "finished_at"], name: "index_usage_logs_on_item_id_and_finished_at"
     t.index ["item_id"], name: "index_usage_logs_on_item_id"
     t.index ["item_id"], name: "index_usage_logs_on_item_id_where_in_use", unique: true, where: "(finished_at IS NULL)"

@@ -431,7 +431,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "アイテムを使い切り、次の使用を開始しました", flash[:notice]
     assert_equal 0, item.reload.stock_quantity
     assert_equal Time.zone.local(2026, 5, 12), usage_log.reload.finished_at
-    assert_equal "used_up", usage_log.finish_reason
     assert_equal Time.zone.local(2026, 5, 12), item.current_usage_log.started_at
   end
 
@@ -477,34 +476,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, item.usage_logs.in_use.count
   end
 
-  test "discontinue_using discontinues current usage log and redirects to in-use page" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-
-    patch discontinue_using_item_path(item), params: {
-      finished_at: "2026-05-11",
-      discontinued_reason: "肌に合わなかった"
-    }
-
-    usage_log = item.usage_logs.finished.first
-    assert_redirected_to in_use_items_path
-    assert_equal Time.zone.local(2026, 5, 11), usage_log.finished_at
-    assert_equal "discontinued", usage_log.finish_reason
-    assert_equal "肌に合わなかった", usage_log.discontinued_reason
-    assert_nil usage_log.rating
-    assert_nil usage_log.review
-  end
-
-  test "discontinue_using redirects when item is not in use" do
-    item = items(:one)
-
-    patch discontinue_using_item_path(item), params: {
-      finished_at: "2026-05-11"
-    }
-
-    assert_redirected_to in_use_items_path
-  end
-
   test "in_use page sets meta title from page title" do
     get in_use_items_path
 
@@ -527,19 +498,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
     assert_select "form[action='#{finish_using_item_path(item)}'] input[name='finished_at']"
     assert_select "form[action='#{finish_using_item_path(item)}'] input[name='usage_log_id']"
-    assert_select "button[data-disclosure-cancel]", text: "キャンセル"
-  end
-
-  test "in_use page shows discontinue using modal in item card" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-
-    get in_use_items_path
-
-    assert_response :success
-    assert_select "button[data-disclosure-target='discontinue-using']", text: "使用を中止する"
-    assert_select "form[action='#{discontinue_using_item_path(item)}'] input[name='finished_at']"
-    assert_select "form[action='#{discontinue_using_item_path(item)}'] textarea[name='discontinued_reason']"
     assert_select "button[data-disclosure-cancel]", text: "キャンセル"
   end
 
@@ -634,191 +592,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "1回"
   end
 
-  test "used_up page does not show discontinued usage logs" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    item.discontinue_using!(Time.zone.local(2026, 5, 12))
-
-    get used_up_items_path
-
-    assert_response :success
-    assert_includes response.body, "使い切り履歴がありません"
-    assert_no_match item.name, response.body
-  end
-
-  test "discontinued page shows discontinued usage logs" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    item.discontinue_using!(Time.zone.local(2026, 5, 12))
-
-    get discontinued_items_path
-
-    assert_response :success
-    assert_includes response.body, item.name
-    assert_includes response.body, "使用中止"
-    assert_includes response.body, "使用期間"
-    assert_includes response.body, "理由は未入力です"
-    assert_select "a[href='#{usage_log_path(item.usage_logs.finished.first)}']", text: "詳細"
-  end
-
-  test "discontinued page shows discontinued reason when present" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    item.discontinue_using!(
-      Time.zone.local(2026, 5, 12),
-      discontinued_reason: "香りが苦手だった"
-    )
-
-    get discontinued_items_path
-
-    assert_response :success
-    assert_includes response.body, "使用中止理由"
-    assert_includes response.body, "香りが苦手だった"
-  end
-
-  test "discontinued page paginates usage logs with ten logs per page" do
-    11.times do |number|
-      item = @user.items.create!(
-        name: "使用中止ページ確認#{number}",
-        stock_quantity: 1
-      )
-      item.start_using!(@user, Time.zone.local(2026, 5, 10))
-      item.discontinue_using!(Time.zone.local(2026, 5, 12))
-    end
-
-    get discontinued_items_path
-
-    assert_response :success
-    assert_select "article", count: 10
-    assert_select "a[href='#{discontinued_items_path(page: 2)}']"
-
-    get discontinued_items_path(page: 2)
-
-    assert_response :success
-    assert_select "article", count: 1
-  end
-
-  test "discontinued page searches discontinued logs by item name" do
-    matching_item = items(:one)
-    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    matching_item.discontinue_using!(Time.zone.local(2026, 5, 12))
-    other_item = items(:two)
-    other_item.update!(stock_quantity: 1)
-    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
-    other_item.discontinue_using!(Time.zone.local(2026, 5, 13))
-
-    get discontinued_items_path, params: { q: "化粧" }
-
-    assert_response :success
-    assert_select "a.bg-emerald-600[href='#{discontinued_items_path}']", text: "使用中止"
-    assert_includes response.body, matching_item.name
-    assert_no_match other_item.name, response.body
-    assert_select "input[name='q'][value='化粧']"
-    assert_select "a[href='#{discontinued_items_path}']", text: "リセット"
-  end
-
-  test "discontinued page shows a message when search has no results" do
-    get discontinued_items_path, params: { q: "存在しないアイテム" }
-
-    assert_response :success
-    assert_includes response.body, "条件に合う使用中止履歴がありません"
-    assert_select "a[href='#{discontinued_items_path}']", text: "検索条件をリセット"
-  end
-
-  test "discontinued page keeps search query in pagination links" do
-    11.times do |number|
-      item = @user.items.create!(
-        name: "検索対象#{number}",
-        stock_quantity: 1
-      )
-      item.start_using!(@user, Time.zone.local(2026, 5, 10))
-      item.discontinue_using!(Time.zone.local(2026, 5, 12))
-    end
-
-    get discontinued_items_path, params: { q: "検索対象" }
-
-    assert_response :success
-    assert_select "a[href='#{discontinued_items_path(page: 2, q: "検索対象")}']"
-  end
-
-  test "discontinued page filters usage logs by item category" do
-    matching_item = items(:one)
-    matching_item.update!(category: categories(:hair_care))
-    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    matching_item.discontinue_using!(Time.zone.local(2026, 5, 12))
-    other_item = items(:two)
-    other_item.update!(stock_quantity: 1, category: categories(:skin_care))
-    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
-    other_item.discontinue_using!(Time.zone.local(2026, 5, 13))
-
-    get discontinued_items_path, params: { category_id: categories(:hair_care).id }
-
-    assert_response :success
-    assert_includes response.body, matching_item.name
-    assert_no_match other_item.name, response.body
-    assert_select "a.bg-emerald-600[href='#{discontinued_items_path(category_id: categories(:hair_care).id)}']", text: categories(:hair_care).name
-    assert_select "a[href='#{discontinued_items_path(category_id: "uncategorized")}']", text: "未設定"
-  end
-
-  test "discontinued page combines item name and category filters" do
-    items(:one).update!(category: categories(:hair_care))
-    items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
-    items(:one).discontinue_using!(Time.zone.local(2026, 5, 12))
-    items(:two).update!(stock_quantity: 1, category: categories(:hair_care))
-    items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
-    items(:two).discontinue_using!(Time.zone.local(2026, 5, 13))
-
-    get discontinued_items_path, params: {
-      q: "化粧",
-      category_id: categories(:hair_care).id
-    }
-
-    assert_response :success
-    assert_includes response.body, items(:one).name
-    assert_no_match items(:two).name, response.body
-    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
-  end
-
-  test "discontinued page filters usage logs for uncategorized items" do
-    items(:one).update!(category: categories(:hair_care))
-    items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
-    items(:one).discontinue_using!(Time.zone.local(2026, 5, 12))
-    items(:two).update!(stock_quantity: 1)
-    items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
-    items(:two).discontinue_using!(Time.zone.local(2026, 5, 13))
-
-    get discontinued_items_path, params: { category_id: "uncategorized" }
-
-    assert_response :success
-    assert_includes response.body, items(:two).name
-    assert_no_match items(:one).name, response.body
-  end
-
-  test "discontinued page keeps search and category filters in pagination links" do
-    category = categories(:hair_care)
-    11.times do |number|
-      item = @user.items.create!(
-        name: "検索対象#{number}",
-        stock_quantity: 1,
-        category: category
-      )
-      item.start_using!(@user, Time.zone.local(2026, 5, 10))
-      item.discontinue_using!(Time.zone.local(2026, 5, 12))
-    end
-
-    get discontinued_items_path, params: {
-      q: "検索対象",
-      category_id: category.id
-    }
-
-    assert_response :success
-    assert_select "a[href='#{discontinued_items_path(
-      page: 2,
-      q: "検索対象",
-      category_id: category.id
-    )}']"
-  end
-
   test "used_up page shows one card per item with used up count" do
     item = items(:one)
     item.start_using!(@user, Time.zone.local(2026, 5, 10))
@@ -832,19 +605,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "article", count: 1
     assert_includes response.body, "2回"
-  end
-
-  test "used_up page shows legacy finished logs without finish reason" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4)
-    item.usage_logs.finished.first.update!(finish_reason: nil)
-
-    get used_up_items_path
-
-    assert_response :success
-    assert_includes response.body, item.name
-    assert_includes response.body, "1回"
   end
 
   test "used_up page searches used up logs by item name" do

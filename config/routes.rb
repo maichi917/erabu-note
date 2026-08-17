@@ -16,7 +16,6 @@ Rails.application.routes.draw do
     member do
       patch :start_using
       patch :finish_using
-      patch :discontinue_using
       patch :add_stock
       patch :toggle_favorite
       delete :image, action: :destroy_image
@@ -24,18 +23,12 @@ Rails.application.routes.draw do
 
     collection do
       get :used_up
-      get :discontinued
       get :in_use
       get :autocomplete
     end
   end
 
   resources :usage_logs, only: %i[show edit update] do
-    member do
-      get :edit_discontinued_reason
-      patch :update_discontinued_reason
-    end
-
     collection do
       get :reviews
     end

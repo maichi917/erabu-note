@@ -118,7 +118,6 @@ class ItemTest < ActiveSupport::TestCase
     usage_log = item.usage_logs.finished.first
     assert_not item.using?
     assert_equal Time.zone.local(2026, 5, 12), usage_log.finished_at
-    assert_equal "used_up", usage_log.finish_reason
     assert_equal 5, usage_log.rating
     assert_equal "使いやすい", usage_log.review
   end
@@ -158,7 +157,6 @@ class ItemTest < ActiveSupport::TestCase
     current_log = item.current_usage_log
     assert_equal 0, item.reload.stock_quantity
     assert_equal continued_at, finished_log.finished_at
-    assert_equal "used_up", finished_log.finish_reason
     assert_equal continued_at, current_log.started_at
     assert_equal users(:one), current_log.user
   end
@@ -209,24 +207,6 @@ class ItemTest < ActiveSupport::TestCase
 
     assert_equal 1, item.reload.stock_quantity
     assert_equal 1, item.usage_logs.in_use.count
-  end
-
-  test "discontinue_using! discontinues current usage log" do
-    item = items(:one)
-    item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
-
-    item.discontinue_using!(
-      Time.zone.local(2026, 5, 11),
-      discontinued_reason: "肌に合わなかった"
-    )
-
-    usage_log = item.usage_logs.finished.first
-    assert_not item.using?
-    assert_equal Time.zone.local(2026, 5, 11), usage_log.finished_at
-    assert_equal "discontinued", usage_log.finish_reason
-    assert_equal "肌に合わなかった", usage_log.discontinued_reason
-    assert_nil usage_log.rating
-    assert_nil usage_log.review
   end
 
   test "cost_per_capacity divides price by capacity" do

@@ -1,10 +1,9 @@
 class ItemsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_categories, only: %i[new create edit update]
-  before_action :set_filter_params, only: %i[index in_use used_up discontinued]
+  before_action :set_filter_params, only: %i[index in_use used_up]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
-                                    start_using finish_using
-                                    discontinue_using add_stock]
+                                    start_using finish_using add_stock]
 
   def index
     @items = current_user.items.visible.includes(:category).order(created_at: :desc)
@@ -46,7 +45,6 @@ class ItemsController < ApplicationController
     @selected_review_status = params[:review_status].to_s
     @usage_logs = current_user.usage_logs
                               .finished
-                              .used_up_history
                               .by_item_name(@search_query)
                               .by_item_category(@selected_category_id)
                               .by_rating(@selected_rating)
@@ -58,21 +56,8 @@ class ItemsController < ApplicationController
                               .page(params[:page])
     @used_up_counts_by_item_id = current_user.usage_logs
                                              .finished
-                                             .used_up_history
                                              .group(:item_id)
                                              .count
-  end
-
-  def discontinued
-    @page_title = "使用中止"
-    @usage_logs = current_user.usage_logs
-                              .finished
-                              .discontinued
-                              .by_item_name(@search_query)
-                              .by_item_category(@selected_category_id)
-                              .includes(:item)
-                              .order(finished_at: :desc)
-                              .page(params[:page])
   end
 
   # 検索欄のオートコンプリート候補（アイテム名）をJSONで返す
@@ -187,22 +172,6 @@ class ItemsController < ApplicationController
       end
 
     redirect_to edit_usage_log_path(usage_log), notice: notice
-  end
-
-  def discontinue_using
-    usage_log = @item.current_usage_log
-
-    if usage_log.blank?
-      redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
-      return
-    end
-
-    @item.discontinue_using!(
-      params[:finished_at],
-      discontinued_reason: params[:discontinued_reason]
-    )
-
-    redirect_to in_use_items_path, notice: "使用を中止しました"
   end
 
   def add_stock

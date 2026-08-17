@@ -98,7 +98,6 @@ class Item < ApplicationRecord
   def finish_using!(finished_at, rating: nil, review: nil)
     current_usage_log.update!(
       finished_at: finished_at.presence || Time.current,
-      finish_reason: :used_up,
       rating: rating.presence,
       review: review.presence
     )
@@ -118,20 +117,9 @@ class Item < ApplicationRecord
       end
 
       continued_at = finished_at.presence || Time.current
-      usage_log.update!(
-        finished_at: continued_at,
-        finish_reason: :used_up
-      )
+      usage_log.update!(finished_at: continued_at)
       start_using!(user, continued_at)
     end
-  end
-
-  def discontinue_using!(finished_at, discontinued_reason: nil)
-    current_usage_log.update!(
-      finished_at: finished_at.presence || Time.current,
-      finish_reason: :discontinued,
-      discontinued_reason: discontinued_reason.presence
-    )
   end
 
   private

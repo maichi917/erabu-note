@@ -63,17 +63,17 @@ class User < ApplicationRecord
     )
     shampoo.usage_logs.create!(
       user: self, started_at: 60.days.ago, finished_at: 10.days.ago,
-      finish_reason: "used_up", rating: 4, review: "泡立ちが良く、香りも好みでした"
+      rating: 4, review: "泡立ちが良く、香りも好みでした"
     )
 
-    # 使用中止
+    # 使い切り済み（低評価のレビュー）
     serum = items.create!(
       name: "グロウセラム", brand_name: "clear lab", category: skin_care,
       price: 3000, stock_quantity: 0, capacity: 30, capacity_unit: "ml"
     )
     serum.usage_logs.create!(
       user: self, started_at: 40.days.ago, finished_at: 20.days.ago,
-      finish_reason: "discontinued", discontinued_reason: "肌に合わなかった"
+      rating: 1, review: "肌に合わなかった。次は買わない。"
     )
 
     # 未使用・在庫あり
