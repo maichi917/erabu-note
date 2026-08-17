@@ -36,8 +36,8 @@
 </header>
 
 <% if user_signed_in? %>
-  <% active_tab_class = "flex flex-1 flex-col items-center gap-0.5 rounded-md py-1.5 font-medium text-emerald-700" %>
-  <% inactive_tab_class = "flex flex-1 flex-col items-center gap-0.5 rounded-md py-1.5 font-medium text-slate-500" %>
+  <% active_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-1.5 font-medium text-emerald-700" %>
+  <% inactive_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-1.5 font-medium text-slate-500" %>
 
   <nav class="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-emerald-100 bg-white/95 px-2 py-1 text-center text-xs shadow-[0_-1px_4px_rgba(0,0,0,0.06)] pc:hidden" aria-label="スマートフォンメニュー">
     <%= link_to "ホーム", home_path, class: home_active ? active_tab_class : inactive_tab_class %>

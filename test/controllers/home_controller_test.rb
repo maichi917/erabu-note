@@ -76,6 +76,35 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{item_path(bad_item)}']", text: bad_item.name
   end
 
+  test "home shows at most 4 in-use items with a link to see more" do
+    user = users(:one)
+    sign_in user
+
+    5.times do |number|
+      item = user.items.create!(name: "使用中アイテム#{number}", in_stock: true)
+      item.start_using!(user, Time.zone.local(2026, 5, 10))
+    end
+
+    get home_path
+
+    assert_response :success
+    assert_select "article", count: 4
+    assert_select "a[href='#{in_use_items_path}']", text: "もっと見る >>"
+  end
+
+  test "home does not show the more link when 4 or fewer items are in use" do
+    user = users(:one)
+    sign_in user
+
+    item = items(:one)
+    item.start_using!(user, Time.zone.local(2026, 5, 10))
+
+    get home_path
+
+    assert_response :success
+    assert_select "a[href='#{in_use_items_path}']", text: "もっと見る >>", count: 0
+  end
+
   test "home does not show middling ratings in good or bad sections" do
     user = users(:one)
     sign_in user
