@@ -36,7 +36,7 @@
 
       <% if @in_use_usage_logs_count > @in_use_usage_logs.size %>
         <div class="mt-3 text-right">
-          <%= link_to "もっと見る >>", in_use_items_path, class: "text-sm font-medium text-emerald-700 hover:underline" %>
+          <%= link_to "もっと見る >>", items_path(status: "in_use"), class: "text-sm font-medium text-emerald-700 hover:underline" %>
         </div>
       <% end %>
     <% else %>

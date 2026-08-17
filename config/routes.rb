@@ -25,7 +25,6 @@ Rails.application.routes.draw do
 
     collection do
       get :used_up
-      get :in_use
       get :autocomplete
     end
   end

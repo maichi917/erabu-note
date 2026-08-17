@@ -317,7 +317,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       patch start_using_item_path(item), params: { started_at: "2026-05-12" }
     end
 
-    assert_redirected_to in_use_items_path
+    assert_redirected_to items_path(status: "in_use")
     assert item.reload.in_stock?
   end
 
@@ -328,7 +328,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       patch start_using_item_path(item), params: { started_at: "2026-05-12", started_at_unknown: "1" }
     end
 
-    assert_redirected_to in_use_items_path
+    assert_redirected_to items_path(status: "in_use")
     assert_nil item.reload.current_usage_log.started_at
   end
 
@@ -390,107 +390,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal Time.zone.local(2026, 5, 12), usage_log.finished_at
     assert_nil usage_log.rating
     assert_nil usage_log.review
-  end
-
-  test "in_use page sets meta title from page title" do
-    get in_use_items_path
-
-    assert_response :success
-    assert_select "title", text: "使用中アイテム | えらぶノート"
-    assert_select "meta[property='og:title'][content='使用中アイテム | えらぶノート']"
-  end
-
-  test "in_use page shows finish using modal in item card" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-
-    get in_use_items_path
-
-    assert_response :success
-    assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
-    assert_select "form[action='#{finish_using_item_path(item)}'] input[name='finished_at']"
-    assert_select "form[action='#{finish_using_item_path(item)}'] input[name='usage_log_id']"
-    assert_select "button[data-disclosure-cancel]", text: "キャンセル"
-  end
-
-  test "in_use page searches current user's usage logs by item name" do
-    matching_item = items(:one)
-    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    other_item = items(:two)
-    other_item.update!(in_stock: true)
-    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
-
-    get in_use_items_path, params: { q: "化粧" }
-
-    assert_response :success
-    assert_includes response.body, matching_item.name
-    assert_no_match other_item.name, response.body
-    assert_select "input[name='q'][value='化粧']"
-    assert_select "a[href='#{in_use_items_path}']", text: "リセット"
-  end
-
-  test "in_use page shows a message when search has no results" do
-    get in_use_items_path, params: { q: "存在しないアイテム" }
-
-    assert_response :success
-    assert_includes response.body, "条件に合う使用中アイテムがありません"
-    assert_select "a[href='#{in_use_items_path}']", text: "検索条件をリセット"
-  end
-
-  test "in_use page filters usage logs by item category" do
-    matching_item = items(:one)
-    matching_item.update!(category: categories(:hair_care))
-    matching_item.start_using!(@user, Time.zone.local(2026, 5, 10))
-    other_item = items(:two)
-    other_item.update!(in_stock: true, category: categories(:skin_care))
-    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
-
-    get in_use_items_path, params: { category_id: categories(:hair_care).id }
-
-    assert_response :success
-    assert_includes response.body, matching_item.name
-    assert_no_match other_item.name, response.body
-  end
-
-  test "in_use page combines item name and category filters" do
-    items(:one).update!(category: categories(:hair_care))
-    items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
-    items(:two).update!(in_stock: true, category: categories(:hair_care))
-    items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
-
-    get in_use_items_path, params: {
-      q: "化粧",
-      category_id: categories(:hair_care).id
-    }
-
-    assert_response :success
-    assert_includes response.body, items(:one).name
-    assert_no_match items(:two).name, response.body
-    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
-  end
-
-  test "in_use page filters usage logs for uncategorized items" do
-    items(:one).update!(category: categories(:hair_care))
-    items(:one).start_using!(@user, Time.zone.local(2026, 5, 10))
-    items(:two).update!(in_stock: true)
-    items(:two).start_using!(@user, Time.zone.local(2026, 5, 11))
-
-    get in_use_items_path, params: { category_id: "uncategorized" }
-
-    assert_response :success
-    assert_includes response.body, items(:two).name
-    assert_no_match items(:one).name, response.body
-  end
-
-  test "in_use page shows category tags for current user only" do
-    other_category = users(:two).categories.create!(name: "他ユーザーカテゴリ")
-
-    get in_use_items_path
-
-    assert_response :success
-    assert_select "a", text: categories(:hair_care).name
-    assert_select "a", text: "未分類"
-    assert_select "a", text: other_category.name, count: 0
   end
 
   test "used_up page shows used up count" do

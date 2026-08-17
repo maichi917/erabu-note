@@ -89,7 +89,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "article", count: 4
-    assert_select "a[href='#{in_use_items_path}']", text: "もっと見る >>"
+    assert_select "a[href='#{items_path(status: "in_use")}']", text: "もっと見る >>"
   end
 
   test "home does not show the more link when 4 or fewer items are in use" do
@@ -102,7 +102,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select "a[href='#{in_use_items_path}']", text: "もっと見る >>", count: 0
+    assert_select "a[href='#{items_path(status: "in_use")}']", text: "もっと見る >>", count: 0
   end
 
   test "home does not show middling ratings in good or bad sections" do

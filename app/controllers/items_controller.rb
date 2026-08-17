@@ -1,7 +1,7 @@
 class ItemsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_categories, only: %i[new create edit update]
-  before_action :set_filter_params, only: %i[index in_use used_up]
+  before_action :set_filter_params, only: %i[index used_up]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
                                     start_using finish_using toggle_stock toggle_low_stock]
 
@@ -23,17 +23,6 @@ class ItemsController < ApplicationController
 
     @page_title = "アイテム"
     @items = @items.page(params[:page])
-  end
-
-  def in_use
-    @page_title = "使用中アイテム"
-    @usage_logs = current_user.usage_logs
-                              .in_use
-                              .by_item_name(@search_query)
-                              .by_item_category(@selected_category_id)
-                              .includes(:item)
-                              .order(started_at: :desc)
-                              .page(params[:page])
   end
 
   def used_up
@@ -133,7 +122,7 @@ class ItemsController < ApplicationController
     end
 
     @item.start_using!(current_user, params[:started_at], started_at_unknown: params[:started_at_unknown].present?)
-    redirect_to in_use_items_path, notice: "使用を開始しました"
+    redirect_to items_path(status: "in_use"), notice: "使用を開始しました"
   end
 
   def finish_using
@@ -145,7 +134,7 @@ class ItemsController < ApplicationController
       end
 
     if usage_log.blank?
-      redirect_to in_use_items_path, alert: "使用中のアイテムがありません"
+      redirect_to items_path(status: "in_use"), alert: "使用中のアイテムがありません"
       return
     end
 
