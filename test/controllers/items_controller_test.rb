@@ -483,6 +483,55 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name='item[brand_name]'][maxlength='100']"
   end
 
+  test "new page has an optional review section" do
+    get new_item_path
+
+    assert_response :success
+    assert_select "button[data-star-rating-star]", count: 5
+    assert_select "textarea[name='item[review]']"
+  end
+
+  test "edit page has an optional review section with current values" do
+    item = items(:one)
+    item.update!(rating: 3, review: "まあまあ")
+
+    get edit_item_path(item)
+
+    assert_response :success
+    assert_select "input[type='hidden'][name='item[rating]'][value='3']"
+    assert_select "textarea[name='item[review]']", text: "まあまあ"
+  end
+
+  test "create saves rating and review" do
+    assert_difference -> { @user.items.count }, 1 do
+      post items_path, params: {
+        item: {
+          name: "シャンプー",
+          price: 1200,
+          rating: 5,
+          review: "とても良かった"
+        }
+      }
+    end
+
+    item = @user.items.order(:created_at).last
+    assert_equal 5, item.rating
+    assert_equal "とても良かった", item.review
+  end
+
+  test "create fails when review is present without rating" do
+    assert_no_difference -> { @user.items.count } do
+      post items_path, params: {
+        item: {
+          name: "シャンプー",
+          review: "感想だけ書いた"
+        }
+      }
+    end
+
+    assert_response :unprocessable_content
+  end
+
   test "create assigns selected category to item" do
     category = categories(:hair_care)
 
@@ -813,6 +862,19 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "form[action='#{update_review_item_path(item)}'] input[type='hidden'][name='item[rating]'][value='4']"
+    assert_select "form[action='#{update_review_item_path(item)}'] button[data-star-rating-star]", count: 5
+    assert_select "form[action='#{update_review_item_path(item)}'] textarea[name='item[review]']", text: "よかった"
+  end
+
+  test "edit_review shows a minimal page with just the review form" do
+    item = items(:one)
+    item.update!(rating: 4, review: "よかった", brand_name: "ものログ製薬")
+
+    get edit_review_item_path(item)
+
+    assert_response :success
+    assert_includes response.body, item.name
+    assert_select "p.text-emerald-700", text: "ものログ製薬"
     assert_select "form[action='#{update_review_item_path(item)}'] button[data-star-rating-star]", count: 5
     assert_select "form[action='#{update_review_item_path(item)}'] textarea[name='item[review]']", text: "よかった"
   end

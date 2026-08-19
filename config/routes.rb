@@ -20,6 +20,7 @@ Rails.application.routes.draw do
       patch :archive
       patch :unarchive
       # updateアクションだとカテゴリが更新されないので、感想の更新専用アクションを作る
+      get :edit_review
       patch :update_review
       delete :image, action: :destroy_image
     end
