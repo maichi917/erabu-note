@@ -113,6 +113,21 @@
       <%= f.text_area :memo, rows: "5", class: "form-input" %>
     </div>
 
+    <!-- 感想（任意） -->
+    <div class="space-y-4 border-t border-slate-100 pt-6">
+      <div>
+        <h2 class="form-label">感想（任意）</h2>
+        <p class="form-help">使ってみてから登録・編集する場合は、ここに書けます。あとからいつでも書き換えられます。</p>
+      </div>
+
+      <%= render "star_rating_input", form: f %>
+
+      <div>
+        <%= f.label :review, "感想", class: "form-label" %>
+        <%= f.text_area :review, rows: "4", class: "form-input", placeholder: "使ってみた感想は任意です" %>
+      </div>
+    </div>
+
     <!-- ボタン群 -->
     <div class="alert-info hidden text-center" data-submit-loading>
       <%= item.persisted? ? "アイテム情報を更新しています..." : "アイテムを登録しています..." %>

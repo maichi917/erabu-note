@@ -3,7 +3,7 @@ class ItemsController < ApplicationController
   before_action :set_categories, only: %i[new create edit update]
   before_action :set_filter_params, only: %i[index]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
-                                    toggle_low_stock archive unarchive update_review]
+                                    toggle_low_stock archive unarchive edit_review update_review]
 
   def index
     @selected_status = params[:status].to_s
@@ -105,6 +105,9 @@ class ItemsController < ApplicationController
     @item.update!(low_stock_flagged: !@item.low_stock_flagged?)
 
     redirect_back fallback_location: items_path
+  end
+
+  def edit_review
   end
 
   def update_review

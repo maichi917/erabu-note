@@ -1,0 +1,16 @@
+<div class="ui-container">
+  <div class="space-y-5">
+    <h1 class="brand-font text-center text-2xl font-bold text-slate-900">感想を書く</h1>
+
+    <div class="text-center">
+      <% if @item.brand_name.present? %>
+        <p class="text-sm font-medium text-emerald-700"><%= @item.brand_name %></p>
+      <% end %>
+      <p class="brand-font mt-1 text-lg font-bold text-slate-900"><%= @item.name %></p>
+    </div>
+
+    <%= render "review_form", item: @item %>
+
+    <%= link_to "ホームに戻る", home_path, class: "block text-center text-sm text-slate-500 underline-offset-4 hover:underline" %>
+  </div>
+</div>

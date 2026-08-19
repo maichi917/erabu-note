@@ -22,7 +22,6 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     item = items(:one)
     item.start_using!(user, Time.zone.local(2026, 5, 10))
-    usage_log = item.current_usage_log
 
     get home_path
 
@@ -31,7 +30,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{item_path(item)}']", text: item.name
     assert_select "form[action='#{toggle_low_stock_item_path(item)}']"
     assert_select "form[action='#{toggle_favorite_item_path(item)}']"
-    assert_select "a[href='#{edit_usage_log_path(usage_log)}']", text: "感想を書く"
+    assert_select "a[href='#{edit_review_item_path(item)}']", text: "感想を書く"
   end
 
   test "home shows empty state when nothing is in use" do
