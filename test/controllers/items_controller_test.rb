@@ -97,33 +97,58 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{items_path}']", text: "検索条件をリセット"
   end
 
-  test "index highlights out of stock item" do
-    get items_path
-
-    assert_response :success
-    assert_select "span.bg-red-50", text: "在庫なし"
-  end
-
   test "index shows status filters" do
     get items_path
 
     assert_response :success
     assert_select "a[href='#{items_path}']", text: "すべて"
-    assert_select "a[href='#{items_path(status: "in_use")}']", text: "使用中"
-    assert_select "a[href='#{items_path(status: "out_of_stock")}']", text: "在庫なし"
+    assert_select "a[href='#{items_path(status: "favorite")}']", text: "♡ よく使うもの"
+    assert_select "a[href='#{items_path(status: "low_stock")}']", text: "なくなりそうなもの"
+    assert_select "a[href='#{items_path(status: "archived")}']", text: "手放したもの"
   end
 
   test "index filters favorite items" do
     favorite_item = items(:one)
     favorite_item.update!(favorite: true)
 
-    get items_path, params: { favorite: "1" }
+    get items_path, params: { status: "favorite" }
 
     assert_response :success
     assert_includes response.body, favorite_item.name
     assert_no_match items(:two).name, response.body
-    assert_select "a[href='#{items_path}'][aria-label='お気に入りのみの表示をやめる']"
-    assert_select "form[action='#{toggle_favorite_item_path(favorite_item)}']"
+  end
+
+  test "index filters low stock items by status" do
+    low_stock_item = items(:one)
+    low_stock_item.update!(low_stock_flagged: true)
+
+    get items_path, params: { status: "low_stock" }
+
+    assert_response :success
+    assert_includes response.body, low_stock_item.name
+    assert_no_match items(:two).name, response.body
+  end
+
+  test "index shows archived items only on the archived tab, with a restore link" do
+    archived_item = items(:two)
+    archived_item.update!(archived: true)
+
+    get items_path, params: { status: "archived" }
+
+    assert_response :success
+    assert_includes response.body, archived_item.name
+    assert_no_match items(:one).name, response.body
+    assert_select "a[href='#{unarchive_item_path(archived_item)}']", text: "リストに戻す"
+    assert_select "a[href='#{item_path(archived_item, anchor: "review")}']", text: "感想を書く"
+  end
+
+  test "index does not show archived items on the all tab" do
+    items(:two).update!(archived: true)
+
+    get items_path
+
+    assert_response :success
+    assert_no_match items(:two).name, response.body
   end
 
   test "toggle_favorite switches item favorite state" do
@@ -134,25 +159,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to item_path(item)
-  end
-
-  test "index filters in-use items by status" do
-    item = items(:one)
-    item.start_using!(@user, Time.current)
-
-    get items_path, params: { status: "in_use" }
-
-    assert_response :success
-    assert_includes response.body, item.name
-    assert_no_match items(:two).name, response.body
-  end
-
-  test "index filters out-of-stock items by status" do
-    get items_path, params: { status: "out_of_stock" }
-
-    assert_response :success
-    assert_includes response.body, items(:two).name
-    assert_no_match items(:one).name, response.body
   end
 
   test "index links item information to detail page" do
@@ -173,10 +179,9 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{toggle_favorite_item_path(item)}']"
   end
 
-  test "index shows the latest rating for an item with a finished usage cycle" do
+  test "index shows the item's rating" do
     item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 1))
-    item.finish_using!(Time.zone.local(2026, 5, 10), rating: 4)
+    item.update!(rating: 4)
 
     get items_path
 
@@ -191,6 +196,28 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "article", text: /⭐️/, count: 0
+  end
+
+  test "index shows brand name above the item name for each row" do
+    item = items(:one)
+    item.update!(brand_name: "ものログ製薬")
+
+    get items_path
+
+    assert_response :success
+    assert_select "article p.text-emerald-700", text: "ものログ製薬"
+    assert response.body.index("ものログ製薬") < response.body.index(">#{item.name}<")
+  end
+
+  test "index shows low stock toggle, review link, and archive link for a visible item" do
+    item = items(:one)
+
+    get items_path
+
+    assert_response :success
+    assert_select "article form[action='#{toggle_low_stock_item_path(item)}']"
+    assert_select "article a[href='#{item_path(item, anchor: "review")}']", text: "感想を書く"
+    assert_select "article a[href='#{archive_item_path(item)}']", text: "手放す"
   end
 
   test "index filters items by category" do
@@ -270,7 +297,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path, params: { category_id: category.id }
 
     assert_response :success
-    assert_select "a[href='#{items_path(category_id: category.id, status: "in_use")}']", text: "使用中"
+    assert_select "a[href='#{items_path(category_id: category.id, status: "favorite")}']", text: "♡ よく使うもの"
   end
 
   test "index does not show reset link when only category is selected" do

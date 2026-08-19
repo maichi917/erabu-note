@@ -6,29 +6,26 @@ class ItemsController < ApplicationController
                                     toggle_low_stock archive unarchive update_review]
 
   def index
-    @items = current_user.items.visible.includes(:category).order(created_at: :desc)
     @selected_status = params[:status].to_s
-    @selected_favorite = params[:favorite].to_s
-    @items = @items.by_name(@search_query)
-                   .by_category(@selected_category_id)
-    @items = @items.where(favorite: true) if @selected_favorite == "1"
+    @items =
+      case @selected_status
+      when "favorite"
+        current_user.items.visible.where(favorite: true)
+      when "low_stock"
+        current_user.items.visible.where(low_stock_flagged: true)
+      when "archived"
+        current_user.items.archived
+      else
+        current_user.items.visible
+      end
 
-    in_use_item_ids = current_user.usage_logs.in_use.select(:item_id)
-    case @selected_status
-    when "in_use"
-      @items = @items.where(id: in_use_item_ids)
-    when "out_of_stock"
-      @items = @items.where(in_stock: false).where.not(id: in_use_item_ids)
-    end
+    @items = @items.includes(:category)
+                   .order(created_at: :desc)
+                   .by_name(@search_query)
+                   .by_category(@selected_category_id)
 
     @page_title = "アイテム"
     @items = @items.page(params[:page])
-    @latest_ratings_by_item_id = current_user.usage_logs
-                                              .where(item_id: @items.map(&:id))
-                                              .rated
-                                              .order(created_at: :desc)
-                                              .group_by(&:item_id)
-                                              .transform_values { |usage_logs| usage_logs.first.rating }
   end
 
   # 検索欄のオートコンプリート候補（アイテム名）をJSONで返す
