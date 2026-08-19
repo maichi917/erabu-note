@@ -9,8 +9,10 @@ class Item < ApplicationRecord
   validates :price, numericality: { only_integer: true, allow_blank: true, greater_than_or_equal_to: 0 }
   validates :capacity, numericality: { allow_blank: true, greater_than: 0 }
   validates :capacity_unit, inclusion: { in: CAPACITY_UNITS }, allow_blank: true
+  validates :rating, inclusion: { in: 1..5 }, allow_nil: true
   validate :image_content_type
   validate :image_size
+  validate :review_requires_rating
 
   belongs_to :user
   belongs_to :category, optional: true
@@ -75,6 +77,16 @@ class Item < ApplicationRecord
     true
   end
 
+  # 手放す。感想が消えないようアーカイブ扱いにし、「なくなりそう」「よく使うもの」は自動でオフに戻す
+  def archive!
+    update!(archived: true, low_stock_flagged: false, favorite: false)
+  end
+
+  # 「手放した」タブから戻す。favoriteには連動させない
+  def unarchive!
+    update!(archived: false)
+  end
+
   def start_using!(user, started_at, started_at_unknown: false)
     usage_logs.create!(
       user: user,
@@ -91,6 +103,12 @@ class Item < ApplicationRecord
   end
 
   private
+
+  def review_requires_rating
+    return if review.blank? || rating.present?
+
+    errors.add(:base, "レビューを入力する場合、星評価は必須です")
+  end
 
   def image_content_type
     return unless image.attached?

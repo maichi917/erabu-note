@@ -313,60 +313,47 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     )}']"
   end
 
-  test "start_using creates usage log and redirects to in-use page" do
+  test "archive archives item and clears low_stock_flagged and favorite" do
     item = items(:one)
+    item.update!(low_stock_flagged: true, favorite: true)
 
-    assert_difference -> { item.usage_logs.count }, 1 do
-      patch start_using_item_path(item), params: { started_at: "2026-05-12" }
-    end
+    patch archive_item_path(item)
 
-    assert_redirected_to items_path(status: "in_use")
-    assert item.reload.in_stock?
-  end
-
-  test "start_using with started_at_unknown creates usage log without started_at" do
-    item = items(:one)
-
-    assert_difference -> { item.usage_logs.count }, 1 do
-      patch start_using_item_path(item), params: { started_at: "2026-05-12", started_at_unknown: "1" }
-    end
-
-    assert_redirected_to items_path(status: "in_use")
-    assert_nil item.reload.current_usage_log.started_at
-  end
-
-  test "start_using does not create usage log when stock is empty" do
-    item = items(:two)
-
-    assert_no_difference -> { item.usage_logs.count } do
-      patch start_using_item_path(item), params: { started_at: "2026-05-12" }
-    end
-
+    item.reload
+    assert item.archived?
+    assert_not item.low_stock_flagged?
+    assert_not item.favorite?
     assert_redirected_to items_path
-    assert_not item.reload.in_stock?
   end
 
-  test "start_using does not create usage log when item is already in use" do
+  test "unarchive restores item without restoring favorite" do
     item = items(:one)
-    item.start_using!(@user, Time.current)
+    item.update!(archived: true, favorite: false)
 
-    assert_no_difference -> { item.usage_logs.count } do
-      patch start_using_item_path(item), params: { started_at: "2026-05-12" }
-    end
+    patch unarchive_item_path(item)
 
-    assert_redirected_to items_path
-    assert item.reload.in_stock?
+    assert_not item.reload.archived?
+    assert_not item.favorite?
   end
 
-  test "toggle_stock switches item in_stock state" do
+  test "update_review saves rating and review" do
     item = items(:one)
-    assert item.in_stock?
 
-    patch toggle_stock_item_path(item)
-    assert_not item.reload.in_stock?
+    patch update_review_item_path(item), params: { item: { rating: 4, review: "よかった" } }
 
-    patch toggle_stock_item_path(item)
-    assert item.reload.in_stock?
+    item.reload
+    assert_equal 4, item.rating
+    assert_equal "よかった", item.review
+    assert_redirected_to item_path(item)
+  end
+
+  test "update_review rejects review without rating" do
+    item = items(:one)
+
+    patch update_review_item_path(item), params: { item: { rating: "", review: "よかった" } }
+
+    assert_nil item.reload.review
+    assert_redirected_to item_path(item)
   end
 
   test "toggle_low_stock switches item low_stock_flagged state" do
@@ -378,21 +365,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     patch toggle_low_stock_item_path(item)
     assert_not item.reload.low_stock_flagged?
-  end
-
-  test "finish_using finishes current usage log and redirects to used-up page" do
-    item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
-
-    patch finish_using_item_path(item), params: {
-      finished_at: "2026-05-12"
-    }
-
-    usage_log = item.usage_logs.finished.first
-    assert_redirected_to edit_usage_log_path(usage_log)
-    assert_equal Time.zone.local(2026, 5, 12), usage_log.finished_at
-    assert_nil usage_log.rating
-    assert_nil usage_log.review
   end
 
   test "destroy_image removes attached image and redirects to edit page" do
@@ -785,55 +757,46 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, categories(:hair_care).name
   end
 
-  test "show shows item brand name" do
+  test "show shows item brand name above the item name" do
     item = items(:one)
     item.update!(brand_name: "ものログ製薬")
 
     get item_path(item)
 
     assert_response :success
-    assert_includes response.body, "ブランド名"
-    assert_includes response.body, "ものログ製薬"
+    assert_select "p.truncate.text-emerald-700", text: "ものログ製薬"
+    assert response.body.index("ものログ製薬") < response.body.index(">#{item.name}<")
   end
 
-  test "show uses consistent finish using button label for in-use item" do
+  test "show does not display brand name when it is blank" do
     item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    item.update!(brand_name: "")
 
     get item_path(item)
 
     assert_response :success
-    assert_select "button[data-disclosure-target='finish-using']", text: "使い切る"
-    assert_select "button", text: "使い切り日を入力する", count: 0
+    assert_select "p.truncate.text-emerald-700", count: 0
   end
 
-  test "show links to review editing for in-use item" do
+  test "show shows an always-editable review form with current rating and review" do
     item = items(:one)
-    item.start_using!(@user, Time.zone.local(2026, 5, 10))
+    item.update!(rating: 4, review: "よかった")
 
     get item_path(item)
 
     assert_response :success
-    assert_select "a[href='#{edit_usage_log_path(item.current_usage_log)}']", text: "感想を書く"
+    assert_select "form[action='#{update_review_item_path(item)}'] input[type='hidden'][name='item[rating]'][value='4']"
+    assert_select "form[action='#{update_review_item_path(item)}'] button[data-star-rating-star]", count: 5
+    assert_select "form[action='#{update_review_item_path(item)}'] textarea[name='item[review]']", text: "よかった"
   end
 
-  test "show highlights out of stock item and shows stock toggle button" do
-    item = items(:two)
-
-    get item_path(item)
-
-    assert_response :success
-    assert_select "span.bg-red-50", text: "在庫なし"
-    assert_select "form[action='#{toggle_stock_item_path(item)}'] button", text: "在庫なし"
-  end
-
-  test "show shows stock toggle button for item with stock" do
+  test "show shows a quiet link to archive the item" do
     item = items(:one)
 
     get item_path(item)
 
     assert_response :success
-    assert_select "form[action='#{toggle_stock_item_path(item)}'] button", text: "在庫あり"
+    assert_select "a[href='#{archive_item_path(item)}']", text: "このアイテムを手放す"
   end
 
   test "update with invalid image rerenders edit page" do

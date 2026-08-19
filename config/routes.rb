@@ -15,11 +15,12 @@ Rails.application.routes.draw do
 
   resources :items, only: %i[index new create show edit update destroy] do
     member do
-      patch :start_using
-      patch :finish_using
-      patch :toggle_stock
       patch :toggle_low_stock
       patch :toggle_favorite
+      patch :archive
+      patch :unarchive
+      # updateアクションだとカテゴリが更新されないので、感想の更新専用アクションを作る
+      patch :update_review
       delete :image, action: :destroy_image
     end
 

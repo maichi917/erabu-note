@@ -9,7 +9,7 @@
 <%= form_with url: toggle_favorite_item_path(item), method: :patch, local: true, class: "inline-flex" do %>
   <button type="submit"
           class="inline-flex items-center justify-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition <%= button_class %> <%= compact ? "h-8 w-8 sm:w-auto" : "px-3 py-1.5" %>"
-          aria-label="<%= item.favorite? ? "お気に入りを解除" : "お気に入りに追加" %>">
+          aria-label="<%= item.favorite? ? "よく使うものから外す" : "よく使うものに追加" %>">
     <svg class="h-4 w-4 <%= item.favorite? ? "fill-pink-400 stroke-pink-500" : "fill-none stroke-pink-400" %>"
          viewBox="0 0 24 24"
          aria-hidden="true">
@@ -19,7 +19,7 @@
             stroke-linejoin="round" />
     </svg>
     <% unless compact %>
-      <span><%= item.favorite? ? "お気に入り" : "お気に入りにする" %></span>
+      <span><%= item.favorite? ? "よく使うもの" : "よく使うものに追加する" %></span>
     <% end %>
   </button>
 <% end %>
