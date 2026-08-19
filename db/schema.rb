@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_17_000005) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_19_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -65,6 +65,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_17_000005) do
     t.text "memo"
     t.string "name", null: false
     t.integer "price"
+    t.integer "rating"
+    t.text "review"
     t.datetime "updated_at", null: false
     t.uuid "user_id", null: false
     t.index ["archived"], name: "index_items_on_archived"
