@@ -3,7 +3,7 @@ class ItemsController < ApplicationController
   before_action :set_categories, only: %i[new create edit update]
   before_action :set_filter_params, only: %i[index]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
-                                    start_using finish_using toggle_stock toggle_low_stock]
+                                    toggle_low_stock archive unarchive update_review]
 
   def index
     @items = current_user.items.visible.includes(:category).order(created_at: :desc)
@@ -90,53 +90,32 @@ class ItemsController < ApplicationController
   def toggle_favorite
     @item.update!(favorite: !@item.favorite?)
 
-    notice = @item.favorite? ? "お気に入りに追加しました" : "お気に入りを解除しました"
+    notice = @item.favorite? ? "よく使うものに追加しました" : "よく使うものから外しました"
     redirect_back fallback_location: item_path(@item), notice: notice
   end
 
-  def start_using
-    if @item.using?
-      redirect_to items_path, alert: "すでに使用中です"
-      return
-    end
-
-    unless @item.in_stock?
-      redirect_to items_path, alert: "在庫がありません"
-      return
-    end
-
-    @item.start_using!(current_user, params[:started_at], started_at_unknown: params[:started_at_unknown].present?)
-    redirect_to items_path(status: "in_use"), notice: "使用を開始しました"
+  def archive
+    @item.archive!
+    redirect_to items_path, notice: "手放したアイテムに移動しました"
   end
 
-  def finish_using
-    usage_log =
-      if params[:usage_log_id].present?
-        @item.usage_logs.in_use.find_by(id: params[:usage_log_id])
-      else
-        @item.current_usage_log
-      end
-
-    if usage_log.blank?
-      redirect_to items_path(status: "in_use"), alert: "使用中のアイテムがありません"
-      return
-    end
-
-    @item.finish_using!(params[:finished_at])
-
-    redirect_to edit_usage_log_path(usage_log), notice: "アイテムを使い切りました🎉"
-  end
-
-  def toggle_stock
-    @item.update!(in_stock: !@item.in_stock?)
-
-    redirect_back fallback_location: items_path
+  def unarchive
+    @item.unarchive!
+    redirect_back fallback_location: items_path, notice: "リストに戻しました"
   end
 
   def toggle_low_stock
     @item.update!(low_stock_flagged: !@item.low_stock_flagged?)
 
     redirect_back fallback_location: items_path
+  end
+
+  def update_review
+    if @item.update(review_params)
+      redirect_to @item, notice: "感想を更新しました"
+    else
+      redirect_to @item, alert: @item.errors.full_messages.to_sentence
+    end
   end
 
   private
@@ -146,7 +125,12 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:item).permit(:name, :brand_name, :price, :favorite, :memo, :image, :capacity, :capacity_unit)
+    params.require(:item).permit(:name, :brand_name, :price, :favorite, :memo, :image, :capacity, :capacity_unit,
+                                  :rating, :review)
+  end
+
+  def review_params
+    params.require(:item).permit(:rating, :review)
   end
 
   def assign_category

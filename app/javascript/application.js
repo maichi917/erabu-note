@@ -97,6 +97,25 @@ document.addEventListener("click", (event) => {
   button.setAttribute("aria-expanded", String(Boolean(toggleButton)))
 })
 
+document.addEventListener("click", (event) => {
+  const star = event.target.closest("[data-star-rating-star]")
+  if (!star) return
+
+  const container = star.closest("[data-star-rating]")
+  const input = container?.parentElement.querySelector("[data-star-rating-input]")
+  if (!input) return
+
+  const value = star.dataset.value
+  input.value = value
+
+  container.querySelectorAll("[data-star-rating-star]").forEach((el) => {
+    const filled = Number(el.dataset.value) <= Number(value)
+    el.classList.toggle("text-amber-400", filled)
+    el.classList.toggle("text-slate-300", !filled)
+    el.classList.toggle("hover:text-amber-300", !filled)
+  })
+})
+
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return
 
