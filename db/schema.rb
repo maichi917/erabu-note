@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_19_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_20_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -60,7 +60,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_000001) do
     t.uuid "category_id"
     t.datetime "created_at", null: false
     t.boolean "favorite", default: false
-    t.boolean "in_stock", default: true, null: false
     t.boolean "low_stock_flagged", default: false, null: false
     t.text "memo"
     t.string "name", null: false
@@ -72,22 +71,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_000001) do
     t.index ["archived"], name: "index_items_on_archived"
     t.index ["category_id"], name: "index_items_on_category_id"
     t.index ["user_id"], name: "index_items_on_user_id"
-  end
-
-  create_table "usage_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "finished_at"
-    t.uuid "item_id", null: false
-    t.integer "rating"
-    t.text "review"
-    t.datetime "started_at"
-    t.datetime "updated_at", null: false
-    t.uuid "user_id", null: false
-    t.index ["item_id", "finished_at"], name: "index_usage_logs_on_item_id_and_finished_at"
-    t.index ["item_id"], name: "index_usage_logs_on_item_id"
-    t.index ["item_id"], name: "index_usage_logs_on_item_id_where_in_use", unique: true, where: "(finished_at IS NULL)"
-    t.index ["user_id", "finished_at"], name: "index_usage_logs_on_user_id_and_finished_at"
-    t.index ["user_id"], name: "index_usage_logs_on_user_id"
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -111,6 +94,4 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_000001) do
   add_foreign_key "categories", "users"
   add_foreign_key "items", "categories"
   add_foreign_key "items", "users"
-  add_foreign_key "usage_logs", "items"
-  add_foreign_key "usage_logs", "users"
 end
