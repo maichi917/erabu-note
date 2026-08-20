@@ -4,13 +4,12 @@
   </div>
 
   <section>
-    <h2 class="brand-font text-lg font-bold text-slate-900">今使っているもの</h2>
+    <h2 class="brand-font text-lg font-bold text-slate-900">なくなりそう</h2>
+    <p class="mt-1 text-xs text-slate-500">次にリピートするか、別のものを試すか決めるタイミングです。</p>
 
-    <% if @in_use_usage_logs.any? %>
+    <% if @low_stock_items.any? %>
       <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-2.5 pc:grid-cols-[repeat(auto-fill,minmax(170px,1fr))]">
-        <% @in_use_usage_logs.each do |usage_log| %>
-          <% item = usage_log.item %>
-
+        <% @low_stock_items.each do |item| %>
           <article class="rounded-2xl border border-slate-200 bg-white p-2.5">
             <%= link_to item_path(item), class: "block" do %>
               <%= render "items/image",
@@ -18,45 +17,80 @@
                          size_class: "h-14 w-full",
                          image_class: "h-14 w-full rounded-lg object-cover",
                          placeholder_icon_class: "h-6 w-6" %>
-              <h3 class="brand-font mt-1.5 truncate text-sm font-bold text-slate-900">
-                <%= item.name %>
-              </h3>
               <% if item.brand_name.present? %>
-                <p class="truncate text-xs text-slate-400"><%= item.brand_name %></p>
+                <p class="mt-1.5 truncate text-xs text-emerald-700"><%= item.brand_name %></p>
               <% end %>
+              <h3 class="brand-font truncate text-sm font-bold text-slate-900"><%= item.name %></h3>
             <% end %>
 
-            <div class="mt-2 flex flex-wrap items-center gap-1.5">
-              <%= render "items/favorite_button", item: item, compact: true %>
-              <%= render "items/low_stock_button", item: item %>
-              <%= link_to "感想を書く", edit_review_item_path(item), class: "ml-auto inline-flex items-center rounded-full border border-emerald-600 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50" %>
+            <div class="mt-2 flex items-center justify-between gap-1.5">
+              <% if item.rating.present? %>
+                <span class="text-xs font-semibold text-amber-500">⭐️ <%= item.rating %>.0</span>
+              <% else %>
+                <span class="text-xs text-slate-400">評価なし</span>
+              <% end %>
+              <%= link_to item.rating.present? ? "感想を編集" : "感想を書く", edit_review_item_path(item), class: "inline-flex items-center rounded-full border border-emerald-600 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50" %>
             </div>
           </article>
         <% end %>
       </div>
 
-      <% if @in_use_usage_logs_count > @in_use_usage_logs.size %>
+      <% if @low_stock_items_count > @low_stock_items.size %>
         <div class="mt-3 text-right">
-          <%= link_to "もっと見る >>", items_path(status: "in_use"), class: "text-sm font-medium text-emerald-700 hover:underline" %>
+          <%= link_to "もっと見る >>", items_path(status: "low_stock"), class: "text-sm font-medium text-emerald-700 hover:underline" %>
         </div>
       <% end %>
     <% else %>
       <div class="ui-empty-state mt-3">
-        <p class="text-sm">使用中のアイテムがありません</p>
+        <p class="text-sm">なくなりそうなアイテムはありません</p>
       </div>
     <% end %>
   </section>
 
   <section class="mt-8">
-    <h2 class="brand-font text-lg font-bold text-slate-900">よかったもの・イマイチだったもの</h2>
+    <h2 class="brand-font text-lg font-bold text-slate-900">レビュー未記入</h2>
+    <p class="mt-1 text-xs text-slate-500">感想を書けば、この一覧から自然に消えていきます。</p>
+
+    <% if @unreviewed_items.any? %>
+      <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(148px,1fr))] gap-2.5 pc:grid-cols-[repeat(auto-fill,minmax(170px,1fr))]">
+        <% @unreviewed_items.each do |item| %>
+          <article class="rounded-2xl border border-slate-200 bg-white p-2.5">
+            <%= link_to item_path(item), class: "block" do %>
+              <%= render "items/image",
+                         item: item,
+                         size_class: "h-14 w-full",
+                         image_class: "h-14 w-full rounded-lg object-cover",
+                         placeholder_icon_class: "h-6 w-6" %>
+              <% if item.brand_name.present? %>
+                <p class="mt-1.5 truncate text-xs text-emerald-700"><%= item.brand_name %></p>
+              <% end %>
+              <h3 class="brand-font truncate text-sm font-bold text-slate-900"><%= item.name %></h3>
+            <% end %>
+
+            <%= link_to "感想を書く", edit_review_item_path(item), class: "mt-2 block rounded-full border border-emerald-600 px-2.5 py-1 text-center text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50" %>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="ui-empty-state mt-3">
+        <p class="text-sm">未記入のレビューはありません</p>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="mt-8">
+    <div class="flex items-baseline justify-between">
+      <h2 class="brand-font text-lg font-bold text-slate-900">よかったもの・イマイチだったもの</h2>
+      <%= link_to "すべて見る", reviews_usage_logs_path, class: "text-sm font-medium text-emerald-700 hover:underline" %>
+    </div>
 
     <div class="mt-3">
       <h3 class="text-sm font-bold text-emerald-700">よかったもの</h3>
 
-      <% if @good_usage_logs.any? %>
+      <% if @good_items.any? %>
         <div class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
-          <% @good_usage_logs.each do |usage_log| %>
-            <%= render "review_summary", usage_log: usage_log %>
+          <% @good_items.each do |item| %>
+            <%= render "review_summary", item: item %>
           <% end %>
         </div>
       <% else %>
@@ -67,10 +101,10 @@
     <div class="mt-4">
       <h3 class="text-sm font-bold text-red-700">イマイチだったもの</h3>
 
-      <% if @bad_usage_logs.any? %>
+      <% if @bad_items.any? %>
         <div class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
-          <% @bad_usage_logs.each do |usage_log| %>
-            <%= render "review_summary", usage_log: usage_log %>
+          <% @bad_items.each do |item| %>
+            <%= render "review_summary", item: item %>
           <% end %>
         </div>
       <% else %>

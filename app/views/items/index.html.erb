@@ -94,19 +94,26 @@
                 <h2 class="brand-font truncate text-sm font-bold text-slate-900"><%= item.name %></h2>
               </div>
 
-              <div class="shrink-0 text-right text-xs font-semibold">
+              <div class="shrink-0 text-right text-sm font-semibold">
                 <% if item.rating.present? %>
-                  <span class="text-amber-500">⭐️ <%= item.rating %>.0</span>
+                  <span class="text-yellow-500"><%= star_rating(item.rating) %></span>
                 <% else %>
-                  <span class="text-slate-400">評価なし</span>
+                  <span class="text-xs font-normal text-slate-400">評価なし</span>
                 <% end %>
               </div>
             <% end %>
           </div>
 
+          <% if item.review.present? %>
+            <div class="mt-1.5 pl-[calc(3rem+0.75rem)]">
+              <p class="truncate border-l-2 border-emerald-200 pl-2 text-xs italic text-slate-700">“<%= item.review %>”</p>
+            </div>
+          <% end %>
+
+          <% review_link_label = item.rating.present? ? "感想を編集" : "感想を書く" %>
           <div class="mt-2 flex flex-wrap items-center gap-2 pl-[calc(3rem+0.75rem)]">
             <% if item.archived? %>
-              <%= link_to "感想を書く", item_path(item, anchor: "review"), class: "inline-flex items-center rounded-full border border-emerald-600 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50" %>
+              <%= link_to review_link_label, item_path(item, anchor: "review"), class: "inline-flex items-center rounded-full border border-emerald-600 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50" %>
               <%= link_to "リストに戻す",
                           unarchive_item_path(item),
                           data: { turbo_method: :patch },
@@ -114,7 +121,7 @@
             <% else %>
               <%= render "favorite_button", item: item, compact: true %>
               <%= render "low_stock_button", item: item %>
-              <%= link_to "感想を書く", item_path(item, anchor: "review"), class: "inline-flex items-center rounded-full border border-emerald-600 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50" %>
+              <%= link_to review_link_label, item_path(item, anchor: "review"), class: "inline-flex items-center rounded-full border border-emerald-600 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50" %>
               <%= link_to "手放す",
                           archive_item_path(item),
                           data: {

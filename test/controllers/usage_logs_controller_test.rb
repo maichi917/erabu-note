@@ -63,8 +63,8 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{item_path(@item)}']", text: "アイテム本体を見る"
   end
 
-  test "reviews shows finished usage logs with rating and review" do
-    @usage_log.update!(rating: 4, review: "また使いたい")
+  test "reviews shows items with rating and review" do
+    @item.update!(rating: 4, review: "また使いたい")
 
     get reviews_usage_logs_path
 
@@ -72,11 +72,11 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, @item.name
     assert_select "p", text: /★★★★\s*☆/
     assert_includes response.body, "また使いたい"
-    assert_select "a[href='#{edit_usage_log_path(@usage_log)}']", text: "編集"
+    assert_select "a[href='#{edit_review_item_path(@item)}']", text: "編集"
   end
 
-  test "reviews shows rated usage log without review as no review" do
-    @usage_log.update!(rating: 4, review: "")
+  test "reviews shows rated item without review as no review" do
+    @item.update!(rating: 4, review: "")
 
     get reviews_usage_logs_path
 
@@ -86,18 +86,16 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "レビューなし"
   end
 
-  test "reviews does not show unrated usage logs" do
+  test "reviews does not show unrated items" do
     get reviews_usage_logs_path
 
     assert_response :success
     assert_no_match @item.name, response.body
   end
 
-  test "reviews does not show other user's usage logs" do
+  test "reviews does not show other user's items" do
     other_user = users(:two)
-    other_item = other_user.items.create!(name: "他のアイテム", in_stock: true)
-    other_item.start_using!(other_user, Time.zone.local(2026, 5, 10))
-    other_item.finish_using!(Time.zone.local(2026, 5, 12), rating: 5, review: "他ユーザー")
+    other_user.items.create!(name: "他のアイテム", rating: 5, review: "他ユーザー")
 
     get reviews_usage_logs_path
 
@@ -106,16 +104,10 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match "他ユーザー", response.body
   end
 
-  test "reviews searches rated usage logs by item name" do
-    @usage_log.update!(rating: 4, review: "また使いたい")
+  test "reviews searches rated items by name" do
+    @item.update!(rating: 4, review: "また使いたい")
     other_item = items(:two)
-    other_item.update!(in_stock: true)
-    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
-    other_item.finish_using!(
-      Time.zone.local(2026, 5, 13),
-      rating: 5,
-      review: "しっとりした"
-    )
+    other_item.update!(rating: 5, review: "しっとりした")
 
     get reviews_usage_logs_path, params: { q: "化粧" }
 
@@ -130,17 +122,14 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     get reviews_usage_logs_path, params: { q: "存在しないアイテム" }
 
     assert_response :success
-    assert_includes response.body, "条件に合う評価・レビュー履歴がありません"
+    assert_includes response.body, "条件に合う評価・レビューがありません"
     assert_select "a[href='#{reviews_usage_logs_path}']", text: "検索条件をリセット"
   end
 
-  test "reviews filters usage logs by item category" do
-    @item.update!(category: categories(:hair_care))
-    @usage_log.update!(rating: 4)
+  test "reviews filters items by category" do
+    @item.update!(category: categories(:hair_care), rating: 4)
     other_item = items(:two)
-    other_item.update!(in_stock: true, category: categories(:skin_care))
-    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
-    other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
+    other_item.update!(category: categories(:skin_care), rating: 5)
 
     get reviews_usage_logs_path, params: { category_id: categories(:hair_care).id }
 
@@ -151,12 +140,9 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "reviews combines item name and category filters" do
-    @item.update!(category: categories(:hair_care))
-    @usage_log.update!(rating: 4)
+    @item.update!(category: categories(:hair_care), rating: 4)
     other_item = items(:two)
-    other_item.update!(in_stock: true, category: categories(:hair_care))
-    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
-    other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
+    other_item.update!(category: categories(:hair_care), rating: 5)
 
     get reviews_usage_logs_path, params: {
       q: "化粧",
@@ -169,12 +155,10 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
   end
 
-  test "reviews filters usage logs by rating" do
-    @usage_log.update!(rating: 4, review: "また使いたい")
+  test "reviews filters items by rating" do
+    @item.update!(rating: 4, review: "また使いたい")
     other_item = items(:two)
-    other_item.update!(in_stock: true)
-    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
-    other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
+    other_item.update!(rating: 5)
 
     get reviews_usage_logs_path, params: { rating: "4" }
 
@@ -185,7 +169,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "reviews search form keeps selected rating" do
-    @usage_log.update!(rating: 4)
+    @item.update!(rating: 4)
 
     get reviews_usage_logs_path, params: { rating: "4" }
 
@@ -195,8 +179,7 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
 
   test "reviews rating filters keep selected category" do
     category = categories(:hair_care)
-    @item.update!(category: category)
-    @usage_log.update!(rating: 4)
+    @item.update!(category: category, rating: 4)
 
     get reviews_usage_logs_path, params: { category_id: category.id, rating: "4" }
 
@@ -205,13 +188,10 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "select[name='rating'] option[selected]", text: /⭐️\s*4/
   end
 
-  test "reviews filters usage logs for uncategorized items" do
-    @item.update!(category: categories(:hair_care))
-    @usage_log.update!(rating: 4)
+  test "reviews filters items for uncategorized items" do
+    @item.update!(category: categories(:hair_care), rating: 4)
     other_item = items(:two)
-    other_item.update!(in_stock: true)
-    other_item.start_using!(@user, Time.zone.local(2026, 5, 11))
-    other_item.finish_using!(Time.zone.local(2026, 5, 13), rating: 5)
+    other_item.update!(rating: 5)
 
     get reviews_usage_logs_path, params: { category_id: "uncategorized" }
 
@@ -223,13 +203,11 @@ class UsageLogsControllerTest < ActionDispatch::IntegrationTest
   test "reviews keeps search category and rating filters in pagination links" do
     category = categories(:hair_care)
     11.times do |number|
-      item = @user.items.create!(
+      @user.items.create!(
         name: "検索対象#{number}",
-        in_stock: true,
-        category: category
+        category: category,
+        rating: 4
       )
-      item.start_using!(@user, Time.zone.local(2026, 5, 10))
-      item.finish_using!(Time.zone.local(2026, 5, 12), rating: 4)
     end
 
     get reviews_usage_logs_path, params: {

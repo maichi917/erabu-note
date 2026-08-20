@@ -36,6 +36,11 @@ class Item < ApplicationRecord
 
     where(category_id: category_id)
   }
+  scope :by_rating, ->(rating) {
+    return all if rating.blank?
+
+    where(rating: rating)
+  }
 
   def current_usage_log
     usage_logs.in_use.order(started_at: :desc).first

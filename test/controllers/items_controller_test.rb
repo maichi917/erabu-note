@@ -186,7 +186,26 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path
 
     assert_response :success
-    assert_includes response.body, "⭐️ 4"
+    assert_select "article span.text-yellow-500", text: /★★★★\s*☆/
+  end
+
+  test "index shows the review snippet when the item has a review" do
+    item = items(:one)
+    item.update!(rating: 4, review: "泡立ちが良くて香りも好み")
+
+    get items_path
+
+    assert_response :success
+    assert_includes response.body, "泡立ちが良くて香りも好み"
+  end
+
+  test "index does not show a review snippet when the item has no review" do
+    item = items(:one)
+
+    get items_path
+
+    assert_response :success
+    assert_select "article p.italic", count: 0
   end
 
   test "index does not show a rating for an item without any reviews" do
@@ -195,7 +214,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path
 
     assert_response :success
-    assert_select "article", text: /⭐️/, count: 0
+    assert_select "article span.text-yellow-500", count: 0
   end
 
   test "index shows brand name above the item name for each row" do
@@ -218,6 +237,16 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "article form[action='#{toggle_low_stock_item_path(item)}']"
     assert_select "article a[href='#{item_path(item, anchor: "review")}']", text: "感想を書く"
     assert_select "article a[href='#{archive_item_path(item)}']", text: "手放す"
+  end
+
+  test "index shows an edit label for the review link when the item already has a rating" do
+    item = items(:one)
+    item.update!(rating: 4)
+
+    get items_path
+
+    assert_response :success
+    assert_select "article a[href='#{item_path(item, anchor: "review")}']", text: "感想を編集"
   end
 
   test "index filters items by category" do
