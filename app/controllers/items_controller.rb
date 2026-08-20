@@ -1,7 +1,7 @@
 class ItemsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_categories, only: %i[new create edit update]
-  before_action :set_filter_params, only: %i[index]
+  before_action :set_filter_params, only: %i[index reviews]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
                                     toggle_low_stock confirm_archive archive unarchive edit_review update_review]
 
@@ -36,6 +36,19 @@ class ItemsController < ApplicationController
       end
 
     render json: names
+  end
+
+  # 感想を振り返る画面（評価がついているアイテムの一覧）
+  def reviews
+    @page_title = "レビュー"
+    @selected_rating = params[:rating].to_s
+    @items = current_user.items
+                         .where.not(rating: nil)
+                         .by_rating(@selected_rating)
+                         .by_name(@search_query)
+                         .by_category(@selected_category_id)
+                         .order(updated_at: :desc)
+                         .page(params[:page])
   end
 
   def new

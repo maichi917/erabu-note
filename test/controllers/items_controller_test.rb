@@ -37,13 +37,13 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_select "nav[aria-label='スマートフォンメニュー'].pc\\:hidden" do
       assert_select "a[href='#{home_path}']", text: "ホーム"
       assert_select "a[href='#{items_path}']", text: "持ち物"
-      assert_select "a[href='#{reviews_usage_logs_path}']", text: "感想"
+      assert_select "a[href='#{reviews_items_path}']", text: "感想"
       assert_select "a[href='#{new_item_path}']", text: "登録"
     end
     assert_select "nav[aria-label='メインメニュー'].pc\\:flex" do
       assert_select "a.border-emerald-600[href='#{items_path}']", text: "持ち物"
       assert_select "a[href='#{home_path}']", text: "ホーム"
-      assert_select "a[href='#{reviews_usage_logs_path}']", text: "感想"
+      assert_select "a[href='#{reviews_items_path}']", text: "感想"
       assert_select "a[href='#{new_item_path}']", text: "登録"
     end
   end
@@ -982,5 +982,185 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_content
     assert_includes response.body, "JPEGまたはPNG形式"
+  end
+
+  test "reviews shows items with rating and review" do
+    item = items(:one)
+    item.update!(rating: 4, review: "また使いたい")
+
+    get reviews_items_path
+
+    assert_response :success
+    assert_includes response.body, item.name
+    assert_select "p", text: /★★★★\s*☆/
+    assert_includes response.body, "また使いたい"
+    assert_select "a[href='#{edit_review_item_path(item)}']", text: "編集"
+  end
+
+  test "reviews shows rated item without review as no review" do
+    item = items(:one)
+    item.update!(rating: 4, review: "")
+
+    get reviews_items_path
+
+    assert_response :success
+    assert_includes response.body, item.name
+    assert_select "p", text: /★★★★\s*☆/
+    assert_includes response.body, "レビューなし"
+  end
+
+  test "reviews does not show unrated items" do
+    item = items(:one)
+
+    get reviews_items_path
+
+    assert_response :success
+    assert_no_match item.name, response.body
+  end
+
+  test "reviews does not show other user's items" do
+    other_user = users(:two)
+    other_user.items.create!(name: "他のアイテム", rating: 5, review: "他ユーザー")
+
+    get reviews_items_path
+
+    assert_response :success
+    assert_no_match "他のアイテム", response.body
+    assert_no_match "他ユーザー", response.body
+  end
+
+  test "reviews searches rated items by name" do
+    item = items(:one)
+    item.update!(rating: 4, review: "また使いたい")
+    other_item = items(:two)
+    other_item.update!(rating: 5, review: "しっとりした")
+
+    get reviews_items_path, params: { q: "化粧" }
+
+    assert_response :success
+    assert_includes response.body, item.name
+    assert_no_match other_item.name, response.body
+    assert_select "input[name='q'][value='化粧']"
+    assert_select "a[href='#{reviews_items_path}']", text: "リセット"
+  end
+
+  test "reviews shows a message when search has no results" do
+    get reviews_items_path, params: { q: "存在しないアイテム" }
+
+    assert_response :success
+    assert_includes response.body, "条件に合う評価・レビューがありません"
+    assert_select "a[href='#{reviews_items_path}']", text: "検索条件をリセット"
+  end
+
+  test "reviews filters items by category" do
+    item = items(:one)
+    item.update!(category: categories(:hair_care), rating: 4)
+    other_item = items(:two)
+    other_item.update!(category: categories(:skin_care), rating: 5)
+
+    get reviews_items_path, params: { category_id: categories(:hair_care).id }
+
+    assert_response :success
+    assert_includes response.body, item.name
+    assert_no_match other_item.name, response.body
+    assert_select "select[name='category_id'] option[selected]", text: categories(:hair_care).name
+  end
+
+  test "reviews combines item name and category filters" do
+    item = items(:one)
+    item.update!(category: categories(:hair_care), rating: 4)
+    other_item = items(:two)
+    other_item.update!(category: categories(:hair_care), rating: 5)
+
+    get reviews_items_path, params: {
+      q: "化粧",
+      category_id: categories(:hair_care).id
+    }
+
+    assert_response :success
+    assert_includes response.body, item.name
+    assert_no_match other_item.name, response.body
+    assert_select "input[type='hidden'][name='category_id'][value='#{categories(:hair_care).id}']"
+  end
+
+  test "reviews filters items by rating" do
+    item = items(:one)
+    item.update!(rating: 4, review: "また使いたい")
+    other_item = items(:two)
+    other_item.update!(rating: 5)
+
+    get reviews_items_path, params: { rating: "4" }
+
+    assert_response :success
+    assert_includes response.body, item.name
+    assert_no_match other_item.name, response.body
+    assert_select "select[name='rating'] option[selected]", text: /⭐️\s*4/
+  end
+
+  test "reviews search form keeps selected rating" do
+    item = items(:one)
+    item.update!(rating: 4)
+
+    get reviews_items_path, params: { rating: "4" }
+
+    assert_response :success
+    assert_select "input[type='hidden'][name='rating'][value='4']"
+  end
+
+  test "reviews rating filters keep selected category" do
+    category = categories(:hair_care)
+    item = items(:one)
+    item.update!(category: category, rating: 4)
+
+    get reviews_items_path, params: { category_id: category.id, rating: "4" }
+
+    assert_response :success
+    assert_select "select[name='category_id'] option[selected]", text: category.name
+    assert_select "select[name='rating'] option[selected]", text: /⭐️\s*4/
+  end
+
+  test "reviews filters items for uncategorized items" do
+    item = items(:one)
+    item.update!(category: categories(:hair_care), rating: 4)
+    other_item = items(:two)
+    other_item.update!(rating: 5)
+
+    get reviews_items_path, params: { category_id: "uncategorized" }
+
+    assert_response :success
+    assert_includes response.body, other_item.name
+    assert_no_match item.name, response.body
+  end
+
+  test "reviews keeps search category and rating filters in pagination links" do
+    category = categories(:hair_care)
+    11.times do |number|
+      @user.items.create!(
+        name: "検索対象#{number}",
+        category: category,
+        rating: 4
+      )
+    end
+
+    get reviews_items_path, params: {
+      q: "検索対象",
+      category_id: category.id,
+      rating: "4"
+    }
+
+    assert_response :success
+    assert_select "a[href='#{reviews_items_path(
+      page: 2,
+      q: "検索対象",
+      category_id: category.id,
+      rating: "4"
+    )}']"
+  end
+
+  test "header links to reviews page" do
+    get reviews_items_path
+
+    assert_response :success
+    assert_select "a[href='#{reviews_items_path}']", text: "感想"
   end
 end

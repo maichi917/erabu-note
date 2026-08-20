@@ -37,13 +37,16 @@ class UserTest < ActiveSupport::TestCase
     assert_not_includes User.guests, users(:one)
   end
 
-  test "seed_guest_sample_data! creates sample categories, items, and usage logs" do
+  test "seed_guest_sample_data! creates sample categories and items" do
     guest = User.create_guest!
 
     guest.seed_guest_sample_data!
 
     assert_equal 3, guest.categories.count
-    assert_equal 4, guest.items.count
-    assert_equal 3, guest.usage_logs.count
+    assert_equal 6, guest.items.count
+    assert_equal 1, guest.items.where(favorite: true, low_stock_flagged: true).count
+    assert_equal 4, guest.items.where.not(rating: nil).count
+    assert_equal 2, guest.items.where(rating: nil).count
+    assert_equal 1, guest.items.where(archived: true).count
   end
 end

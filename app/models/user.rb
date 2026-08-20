@@ -9,7 +9,6 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          :omniauthable, omniauth_providers: [ :line ]
   has_many :items, dependent: :destroy
-  has_many :usage_logs, dependent: :destroy
   has_many :categories, dependent: :destroy
 
   # スコープ
@@ -43,43 +42,52 @@ class User < ApplicationRecord
     email.to_s.end_with?("@#{GUEST_EMAIL_DOMAIN}")
   end
 
-  # ゲストアカウントに、機能を理解しやすいサンプルデータ（カテゴリ・アイテム・使用履歴）を用意する
+  # ゲストアカウントに、機能を理解しやすいサンプルデータ（カテゴリ・アイテム）を用意する
   def seed_guest_sample_data!
     skin_care = categories.create!(name: "スキンケア")
     hair_care = categories.create!(name: "ヘアケア")
     daily_goods = categories.create!(name: "日用品")
 
-    # 使用中
-    moisturizer = items.create!(
+    # よく使うもの・なくなりそう（感想はまだ未記入）
+    items.create!(
       name: "モイストバランス ローション", brand_name: "kinari", category: skin_care,
-      price: 1200, in_stock: true, capacity: 120, capacity_unit: "ml"
+      price: 1200, capacity: 120, capacity_unit: "ml",
+      favorite: true, low_stock_flagged: true
     )
-    moisturizer.usage_logs.create!(user: self, started_at: 10.days.ago)
 
-    # 使い切り済み（レビューあり）
-    shampoo = items.create!(
-      name: "シルクリペア シャンプー", brand_name: "botanica", category: hair_care,
-      price: 1500, in_stock: false, capacity: 400, capacity_unit: "ml"
+    # よく使うもの（感想あり、なくなりそうではない）
+    items.create!(
+      name: "デイクリーム", brand_name: "kinari", category: skin_care,
+      price: 2400, capacity: 50, capacity_unit: "g",
+      favorite: true, rating: 5, review: "毎日のスキンケアに欠かせないアイテムです"
     )
-    shampoo.usage_logs.create!(
-      user: self, started_at: 60.days.ago, finished_at: 10.days.ago,
+
+    # 感想あり（高評価）
+    items.create!(
+      name: "シルクリペア シャンプー", brand_name: "botanica", category: hair_care,
+      price: 1500, capacity: 400, capacity_unit: "ml",
       rating: 4, review: "泡立ちが良く、香りも好みでした"
     )
 
-    # 使い切り済み（低評価のレビュー）
-    serum = items.create!(
+    # 感想あり（低評価）
+    items.create!(
       name: "グロウセラム", brand_name: "clear lab", category: skin_care,
-      price: 3000, in_stock: false, capacity: 30, capacity_unit: "ml"
-    )
-    serum.usage_logs.create!(
-      user: self, started_at: 40.days.ago, finished_at: 20.days.ago,
+      price: 3000, capacity: 30, capacity_unit: "ml",
       rating: 1, review: "肌に合わなかった。次は買わない。"
     )
 
-    # 未使用・在庫あり
+    # レビュー未記入
     items.create!(
       name: "ランドリーソープ", brand_name: "clean days", category: daily_goods,
-      price: 800, in_stock: true, capacity: 900, capacity_unit: "g"
+      price: 800, capacity: 900, capacity_unit: "g"
+    )
+
+    # 手放したもの（感想は残る）
+    items.create!(
+      name: "リッチモイストトリートメント", brand_name: "botanica", category: hair_care,
+      price: 1800, capacity: 200, capacity_unit: "g",
+      rating: 2, review: "香りは好きだったけど、仕上がりが重たくて合わなかった",
+      archived: true
     )
   end
 end

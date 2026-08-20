@@ -1,19 +1,19 @@
 <div class="ui-container-wide">
   <%= render "shared/search_form",
-             url: reviews_usage_logs_path,
+             url: reviews_items_path,
              query: @search_query,
              hidden_params: {
                category_id: @selected_category_id.presence,
                rating: @selected_rating.presence
              },
              show_reset: @search_query.present?,
-             reset_url: reviews_usage_logs_path(
+             reset_url: reviews_items_path(
                category_id: @selected_category_id.presence,
                rating: @selected_rating.presence
              ) %>
 
   <!-- selectのchangeイベントでフォームを送信すると、選ぶだけで絞り込めるドロップダウンになる -->
-  <%= form_with url: reviews_usage_logs_path, method: :get, local: true, class: "mb-4 flex flex-wrap items-center gap-2" do %>
+  <%= form_with url: reviews_items_path, method: :get, local: true, class: "mb-4 flex flex-wrap items-center gap-2" do %>
     <%= hidden_field_tag :q, @search_query.presence %>
 
     <select name="category_id" onchange="this.form.requestSubmit()" class="form-input h-9 w-auto text-sm">
@@ -68,7 +68,7 @@
       <% if @search_query.present? %>
         <p class="text-lg">条件に合う評価・レビューがありません</p>
         <p class="mt-2 text-sm">検索条件を変更して、もう一度お試しください。</p>
-        <%= link_to "検索条件をリセット", reviews_usage_logs_path, class: "btn-secondary mt-5" %>
+        <%= link_to "検索条件をリセット", reviews_items_path, class: "btn-secondary mt-5" %>
       <% else %>
         <p class="text-lg">評価・レビューがありません</p>
         <p class="mt-2 text-sm">評価を残したアイテムがここに表示されます。</p>

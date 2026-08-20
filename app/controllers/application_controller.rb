@@ -15,6 +15,7 @@ class ApplicationController < ActionController::Base
 
   private
 
+  # カテゴリ絞り込み用プルダウンの選択肢を@categoriesに用意する
   def set_categories
     @categories = current_user.categories.order(:name)
   end
@@ -22,6 +23,7 @@ class ApplicationController < ActionController::Base
   # 一覧画面共通の検索・カテゴリ絞り込みパラメータを設定する
   def set_filter_params
     set_categories
+    # params[:q]がnil(未指定)でも.stripでエラーにならないよう、先に.to_sで文字列化する
     @search_query = params[:q].to_s.strip
     @selected_category_id = params[:category_id].to_s
   end

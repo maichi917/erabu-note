@@ -28,11 +28,6 @@ Rails.application.routes.draw do
 
     collection do
       get :autocomplete
-    end
-  end
-
-  resources :usage_logs, only: %i[show edit update] do
-    collection do
       get :reviews
     end
   end

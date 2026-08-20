@@ -6,22 +6,19 @@ ja:
   activerecord:
     models:
       item: アイテム
-      usage_log: 使用履歴
       category: カテゴリ
     attributes:
       item:
         name: アイテム名
-        category_name: カテゴリー
+        brand_name: ブランド名
         category: カテゴリ
         category_id: カテゴリ
         new_category_name: 新しいカテゴリ名
         price: 価格
-        stock_quantity: 在庫数
+        capacity: 容量
+        capacity_unit: 単位
         favorite: お気に入り
         memo: メモ
-      usage_log:
-        started_at: 使い始め日
-        finished_at: 使い切り日
         rating: 評価
         review: レビュー
       category:

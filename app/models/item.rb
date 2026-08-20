@@ -16,7 +16,6 @@ class Item < ApplicationRecord
 
   belongs_to :user
   belongs_to :category, optional: true
-  has_many :usage_logs, dependent: :destroy
   has_one_attached :image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 160, 160 ], format: :webp, saver: { quality: 80 }
     attachable.variant :preview, resize_to_fill: [ 512, 512 ], format: :webp, saver: { quality: 82 }
@@ -41,14 +40,6 @@ class Item < ApplicationRecord
 
     where(rating: rating)
   }
-
-  def current_usage_log
-    usage_logs.in_use.order(started_at: :desc).first
-  end
-
-  def using?
-    current_usage_log.present?
-  end
 
   # 容量あたりのコスト（価格 ÷ 容量）。価格または容量が未入力の場合は nil
   def cost_per_capacity
@@ -90,21 +81,6 @@ class Item < ApplicationRecord
   # 「手放した」タブから戻す。favoriteには連動させない
   def unarchive!
     update!(archived: false)
-  end
-
-  def start_using!(user, started_at, started_at_unknown: false)
-    usage_logs.create!(
-      user: user,
-      started_at: started_at_unknown ? nil : (started_at.presence || Time.current)
-    )
-  end
-
-  def finish_using!(finished_at, rating: nil, review: nil)
-    current_usage_log.update!(
-      finished_at: finished_at.presence || Time.current,
-      rating: rating.presence,
-      review: review.presence
-    )
   end
 
   private
