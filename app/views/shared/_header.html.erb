@@ -9,14 +9,14 @@
       <% active_nav_class = "border-b-2 border-emerald-600 px-5 py-2 font-semibold text-emerald-700" %>
       <% inactive_nav_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-emerald-700" %>
       <% home_active = controller_name == "home" %>
-      <% items_active = controller_name == "items" && !%w[new create].include?(action_name) %>
-      <% reviews_active = controller_name == "usage_logs" %>
+      <% reviews_active = controller_name == "items" && action_name == "reviews" %>
+      <% items_active = controller_name == "items" && !reviews_active && !%w[new create].include?(action_name) %>
       <% register_active = controller_name == "items" && %w[new create].include?(action_name) %>
 
       <nav class="hidden items-center gap-1 self-stretch text-sm pc:flex" aria-label="メインメニュー">
         <%= link_to "ホーム", home_path, class: home_active ? active_nav_class : inactive_nav_class %>
         <%= link_to "持ち物", items_path, class: items_active ? active_nav_class : inactive_nav_class %>
-        <%= link_to "感想", reviews_usage_logs_path, class: reviews_active ? active_nav_class : inactive_nav_class %>
+        <%= link_to "感想", reviews_items_path, class: reviews_active ? active_nav_class : inactive_nav_class %>
         <%= link_to "登録", new_item_path, class: register_active ? active_nav_class : inactive_nav_class %>
       </nav>
 
@@ -42,7 +42,7 @@
   <nav class="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-emerald-100 bg-white/95 px-2 py-2 text-center text-sm shadow-[0_-1px_4px_rgba(0,0,0,0.06)] pc:hidden" aria-label="スマートフォンメニュー">
     <%= link_to "ホーム", home_path, class: home_active ? active_tab_class : inactive_tab_class %>
     <%= link_to "持ち物", items_path, class: items_active ? active_tab_class : inactive_tab_class %>
-    <%= link_to "感想", reviews_usage_logs_path, class: reviews_active ? active_tab_class : inactive_tab_class %>
+    <%= link_to "感想", reviews_items_path, class: reviews_active ? active_tab_class : inactive_tab_class %>
     <%= link_to "登録", new_item_path, class: register_active ? active_tab_class : inactive_tab_class %>
   </nav>
 <% end %>
