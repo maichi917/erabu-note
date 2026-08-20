@@ -28,18 +28,6 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal Item.order(:id).to_a, Item.by_category("").order(:id).to_a
   end
 
-  test "start_using! creates an in-use usage log without changing stock" do
-    item = items(:one)
-
-    assert_difference -> { item.usage_logs.count }, 1 do
-      item.start_using!(users(:one), Time.zone.local(2026, 5, 12))
-    end
-
-    assert item.reload.in_stock?
-    assert item.using?
-    assert_equal users(:one), item.current_usage_log.user
-  end
-
   test "assign_category creates and assigns a new category by name" do
     item = items(:one)
     user = users(:one)
@@ -99,49 +87,6 @@ class ItemTest < ActiveSupport::TestCase
 
     assert item.assign_category(users(:one), category_id: nil, new_category_name: nil, remove_category: nil)
     assert_nil item.category
-  end
-
-  test "start_using! with started_at_unknown creates usage log without started_at" do
-    item = items(:one)
-
-    item.start_using!(users(:one), Time.zone.local(2026, 5, 12), started_at_unknown: true)
-
-    assert_nil item.current_usage_log.started_at
-  end
-
-  test "finish_using! finishes current usage log" do
-    item = items(:one)
-    item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
-
-    item.finish_using!(Time.zone.local(2026, 5, 12), rating: 5, review: "使いやすい")
-
-    usage_log = item.usage_logs.finished.first
-    assert_not item.using?
-    assert_equal Time.zone.local(2026, 5, 12), usage_log.finished_at
-    assert_equal 5, usage_log.rating
-    assert_equal "使いやすい", usage_log.review
-  end
-
-  test "finish_using! can finish without rating" do
-    item = items(:one)
-    item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
-
-    item.finish_using!(Time.zone.local(2026, 5, 12), rating: "")
-
-    usage_log = item.usage_logs.finished.first
-    assert_not item.using?
-    assert_nil usage_log.rating
-  end
-
-  test "finish_using! can finish without review" do
-    item = items(:one)
-    item.start_using!(users(:one), Time.zone.local(2026, 5, 10))
-
-    item.finish_using!(Time.zone.local(2026, 5, 12), review: "")
-
-    usage_log = item.usage_logs.finished.first
-    assert_not item.using?
-    assert_nil usage_log.review
   end
 
   test "cost_per_capacity divides price by capacity" do

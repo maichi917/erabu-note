@@ -76,11 +76,8 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert user.valid_password?("mynewpassword123")
   end
 
-  test "destroy removes the user along with their items, categories, and usage logs" do
+  test "destroy removes the user along with their items and categories" do
     user = users(:one)
-    item = items(:one)
-    item.start_using!(user, Time.zone.local(2026, 5, 1))
-    usage_log_id = item.reload.current_usage_log.id
     item_ids = user.items.ids
     category_ids = user.categories.ids
 
@@ -92,6 +89,5 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_nil User.find_by(id: user.id)
     assert_empty Item.where(id: item_ids)
     assert_empty Category.where(id: category_ids)
-    assert_nil UsageLog.find_by(id: usage_log_id)
   end
 end

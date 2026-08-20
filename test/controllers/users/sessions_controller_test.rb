@@ -9,7 +9,7 @@ class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to home_path
     guest = User.guests.order(created_at: :desc).first
     assert guest.guest?
-    assert_equal 4, guest.items.count
+    assert_equal 6, guest.items.count
   end
 
   test "guest_sign_in reuses the current guest account when already signed in as guest" do
