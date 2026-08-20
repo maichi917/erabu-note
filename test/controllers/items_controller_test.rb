@@ -7,10 +7,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index searches current user's items by partial name" do
-    other_user_item = users(:two).items.create!(
-      name: "化粧水 他ユーザー",
-      in_stock: true
-    )
+    other_user_item = users(:two).items.create!(name: "化粧水 他ユーザー")
 
     get items_path, params: { q: "化粧" }
 
@@ -49,9 +46,9 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "autocomplete returns matching item names for current user" do
-    @user.items.create!(name: "化粧水A", in_stock: true)
-    @user.items.create!(name: "化粧水B", in_stock: true)
-    @user.items.create!(name: "歯ブラシ", in_stock: true)
+    @user.items.create!(name: "化粧水A")
+    @user.items.create!(name: "化粧水B")
+    @user.items.create!(name: "歯ブラシ")
 
     get autocomplete_items_path, params: { q: "化粧" }
 
@@ -63,7 +60,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "autocomplete excludes other user's items" do
-    users(:two).items.create!(name: "化粧水X", in_stock: true)
+    users(:two).items.create!(name: "化粧水X")
 
     get autocomplete_items_path, params: { q: "化粧" }
 
@@ -72,7 +69,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "autocomplete limits results to 10" do
-    12.times { |i| @user.items.create!(name: "検索アイテム#{i}", in_stock: true) }
+    12.times { |i| @user.items.create!(name: "検索アイテム#{i}") }
 
     get autocomplete_items_path, params: { q: "検索アイテム" }
 
@@ -81,7 +78,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "autocomplete returns empty array for query shorter than 2 characters" do
-    @user.items.create!(name: "化粧水", in_stock: true)
+    @user.items.create!(name: "化粧水")
 
     get autocomplete_items_path, params: { q: "化" }
 
@@ -321,7 +318,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     other_category = other_user.categories.create!(name: "他ユーザーカテゴリ")
     other_item = other_user.items.create!(
       name: "他ユーザーアイテム",
-      in_stock: true,
       category: other_category
     )
 
@@ -383,7 +379,6 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     11.times do |number|
       @user.items.create!(
         name: "検索対象#{number}",
-        in_stock: true,
         category: category
       )
     end
@@ -878,10 +873,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
   test "index paginates items with ten items per page" do
     9.times do |number|
-      @user.items.create!(
-        name: "ページネーション確認#{number}",
-        in_stock: true
-      )
+      @user.items.create!(name: "ページネーション確認#{number}")
     end
 
     get items_path
@@ -897,7 +889,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show does not allow accessing another user's item" do
-    other_user_item = users(:two).items.create!(name: "他人のアイテム", in_stock: true)
+    other_user_item = users(:two).items.create!(name: "他人のアイテム")
 
     get item_path(other_user_item)
 
