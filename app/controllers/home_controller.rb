@@ -9,10 +9,9 @@ class HomeController < ApplicationController
     @low_stock_items_count = low_stock_items.count
     @low_stock_items = low_stock_items.limit(LOW_STOCK_DISPLAY_LIMIT)
 
-    @unreviewed_items = current_user.items.visible
-                                     .where(rating: nil)
-                                     .order(created_at: :desc)
-                                     .limit(UNREVIEWED_DISPLAY_LIMIT)
+    unreviewed_items = current_user.items.visible.where(rating: nil).order(created_at: :desc)
+    @unreviewed_items_count = unreviewed_items.count
+    @unreviewed_items = unreviewed_items.limit(UNREVIEWED_DISPLAY_LIMIT)
 
     @good_items = current_user.items.visible
                                .where(rating: 4..5)

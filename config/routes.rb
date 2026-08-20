@@ -17,6 +17,7 @@ Rails.application.routes.draw do
     member do
       patch :toggle_low_stock
       patch :toggle_favorite
+      get :confirm_archive
       patch :archive
       patch :unarchive
       # updateアクションだとカテゴリが更新されないので、感想の更新専用アクションを作る

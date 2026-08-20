@@ -6,14 +6,14 @@
     <% end %>
 
     <% if user_signed_in? %>
-      <% active_nav_class = "rounded-md bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 transition hover:bg-emerald-100" %>
-      <% inactive_nav_class = "rounded-md px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-100" %>
+      <% active_nav_class = "border-b-2 border-emerald-600 px-5 py-2 font-semibold text-emerald-700" %>
+      <% inactive_nav_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-emerald-700" %>
       <% home_active = controller_name == "home" %>
       <% items_active = controller_name == "items" && !%w[new create].include?(action_name) %>
       <% reviews_active = controller_name == "usage_logs" %>
       <% register_active = controller_name == "items" && %w[new create].include?(action_name) %>
 
-      <nav class="hidden items-center gap-2 text-sm pc:flex" aria-label="メインメニュー">
+      <nav class="hidden items-center gap-1 self-stretch text-sm pc:flex" aria-label="メインメニュー">
         <%= link_to "ホーム", home_path, class: home_active ? active_nav_class : inactive_nav_class %>
         <%= link_to "持ち物", items_path, class: items_active ? active_nav_class : inactive_nav_class %>
         <%= link_to "感想", reviews_usage_logs_path, class: reviews_active ? active_nav_class : inactive_nav_class %>
@@ -36,10 +36,10 @@
 </header>
 
 <% if user_signed_in? %>
-  <% active_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-1.5 font-medium text-emerald-700" %>
-  <% inactive_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-1.5 font-medium text-slate-500" %>
+  <% active_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-2.5 font-medium text-emerald-700" %>
+  <% inactive_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-2.5 font-medium text-slate-500" %>
 
-  <nav class="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-emerald-100 bg-white/95 px-2 py-1 text-center text-xs shadow-[0_-1px_4px_rgba(0,0,0,0.06)] pc:hidden" aria-label="スマートフォンメニュー">
+  <nav class="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-emerald-100 bg-white/95 px-2 py-2 text-center text-sm shadow-[0_-1px_4px_rgba(0,0,0,0.06)] pc:hidden" aria-label="スマートフォンメニュー">
     <%= link_to "ホーム", home_path, class: home_active ? active_tab_class : inactive_tab_class %>
     <%= link_to "持ち物", items_path, class: items_active ? active_tab_class : inactive_tab_class %>
     <%= link_to "感想", reviews_usage_logs_path, class: reviews_active ? active_tab_class : inactive_tab_class %>

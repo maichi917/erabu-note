@@ -1,0 +1,25 @@
+<div class="ui-container">
+  <div class="space-y-5">
+    <h1 class="brand-font text-center text-2xl font-bold text-slate-900">このアイテムを手放す</h1>
+
+    <div class="text-center">
+      <% if @item.brand_name.present? %>
+        <p class="text-sm font-medium text-emerald-700"><%= @item.brand_name %></p>
+      <% end %>
+      <p class="brand-font mt-1 text-lg font-bold text-slate-900"><%= @item.name %></p>
+    </div>
+
+    <p class="text-center text-sm text-slate-500">
+      感想は手放した後も「手放したもの」タブに残ります。次に選ぶときの参考になるよう、今の気持ちを書き残しておきましょう。
+    </p>
+
+    <%= render "review_form", item: @item, return_to: "confirm_archive" %>
+
+    <%= link_to "このアイテムを手放す",
+                archive_item_path(@item),
+                data: { turbo_method: :patch, turbo_confirm: "手放しますか？（よく使うもの・なくなりそうのフラグは自動でオフになります。）" },
+                class: "block rounded-full border border-red-200 px-4 py-2 text-center text-sm font-semibold text-red-600 transition hover:bg-red-50" %>
+
+    <%= link_to "やめる（一覧に戻る）", items_path, class: "block text-center text-sm text-slate-500 underline-offset-4 hover:underline" %>
+  </div>
+</div>

@@ -2,6 +2,10 @@
   <p class="text-xs font-semibold text-emerald-700">今の感想（いつでも書き換えできます）</p>
 
   <%= form_with model: item, url: update_review_item_path(item), method: :patch, local: true, class: "mt-3 space-y-4" do |form| %>
+    <% if local_assigns[:return_to].present? %>
+      <%= hidden_field_tag :return_to, return_to %>
+    <% end %>
+
     <%= render "star_rating_input", form: form %>
 
     <div>

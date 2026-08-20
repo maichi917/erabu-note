@@ -7,7 +7,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select "h1", "ホーム"
+    assert_select "h2", text: "なくなりそうなもの"
   end
 
   test "signed out visitor is redirected to sign in" do
@@ -26,7 +26,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select "h2", text: "なくなりそう"
+    assert_select "h2", text: "なくなりそうなもの"
     assert_select "a[href='#{item_path(item)}']", text: item.name
     assert_select "a[href='#{edit_review_item_path(item)}']", text: "感想を書く"
   end
@@ -85,7 +85,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select "h2", text: "レビュー未記入"
+    assert_select "h2", text: "レビューをかいていないもの"
     assert_select "a[href='#{item_path(item)}']", text: item.name
     assert_select "a[href='#{edit_review_item_path(item)}']", text: "感想を書く"
   end
@@ -101,6 +101,30 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".ui-empty-state", text: /未記入のレビューはありません/
+  end
+
+  test "home shows at most 6 unreviewed items with a link to see more" do
+    user = users(:one)
+    sign_in user
+
+    items(:one).destroy
+    items(:two).destroy
+    7.times { |number| user.items.create!(name: "未記入アイテム#{number}") }
+
+    get home_path
+
+    assert_response :success
+    assert_select "a[href='#{items_path(unreviewed: "1")}']", text: "もっと見る >>"
+  end
+
+  test "home does not show the more link when 6 or fewer items are unreviewed" do
+    user = users(:one)
+    sign_in user
+
+    get home_path
+
+    assert_response :success
+    assert_select "a[href='#{items_path(unreviewed: "1")}']", text: "もっと見る >>", count: 0
   end
 
   test "home shows highly rated and poorly rated items separately" do
@@ -133,7 +157,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select "a[href='#{items_path(status: "low_stock")}']", text: "もっと見る >>"
+    assert_select "a[href='#{items_path(low_stock: "1")}']", text: "もっと見る >>"
   end
 
   test "home does not show the more link when 4 or fewer items are low on stock" do
@@ -146,7 +170,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select "a[href='#{items_path(status: "low_stock")}']", text: "もっと見る >>", count: 0
+    assert_select "a[href='#{items_path(low_stock: "1")}']", text: "もっと見る >>", count: 0
   end
 
   test "home does not show middling ratings in good or bad sections" do
