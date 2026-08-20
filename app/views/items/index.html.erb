@@ -1,63 +1,76 @@
 <div class="ui-container-wide">
+  <% carry_params = {
+    q: @search_query.presence,
+    category_id: @selected_category_id.presence,
+    scope: @scope.presence,
+    favorite: @favorite_filter ? "1" : nil,
+    low_stock: @low_stock_filter ? "1" : nil,
+    unreviewed: @unreviewed_filter ? "1" : nil
+  } %>
+
   <%= render "shared/search_form",
              url: items_path,
              query: @search_query,
-             hidden_params: {
-               category_id: @selected_category_id.presence,
-               status: @selected_status.presence
-             },
+             hidden_params: carry_params.except(:q),
              show_reset: @search_query.present?,
-             reset_url: items_path(
-               category_id: @selected_category_id.presence,
-               status: @selected_status.presence
-             ) %>
+             reset_url: items_path(carry_params.except(:q)) %>
 
   <div class="mb-4 space-y-3">
-    <% status_filter_params = {
-      q: @search_query.presence,
-      category_id: @selected_category_id.presence
-    } %>
-    <div class="flex flex-wrap items-center justify-between gap-2">
-      <nav class="flex flex-wrap gap-1 rounded-full bg-slate-100 p-1 text-sm" aria-label="絞り込み">
-        <%= link_to "すべて",
-                    items_path(status_filter_params),
-                    class: class_names(
-                      "shrink-0 rounded-full px-3 py-1.5 font-semibold transition",
-                      @selected_status.blank? ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
-                    ) %>
-        <%= link_to "♡ よく使うもの",
-                    items_path(status_filter_params.merge(status: "favorite")),
-                    class: class_names(
-                      "shrink-0 rounded-full px-3 py-1.5 font-semibold transition",
-                      @selected_status == "favorite" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
-                    ) %>
-        <%= link_to "なくなりそうなもの",
-                    items_path(status_filter_params.merge(status: "low_stock")),
-                    class: class_names(
-                      "shrink-0 rounded-full px-3 py-1.5 font-semibold transition",
-                      @selected_status == "low_stock" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
-                    ) %>
-        <%= link_to "手放したもの",
-                    items_path(status_filter_params.merge(status: "archived")),
-                    class: class_names(
-                      "shrink-0 rounded-full px-3 py-1.5 font-semibold transition",
-                      @selected_status == "archived" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
-                    ) %>
-      </nav>
+    <!-- 範囲: 見ている母集団そのものを切り替える -->
+    <nav class="flex w-fit gap-1 rounded-full bg-slate-100 p-1 text-sm" aria-label="範囲">
+      <%= link_to "すべて",
+                  items_path(carry_params.merge(scope: nil, favorite: nil, low_stock: nil, unreviewed: nil)),
+                  class: class_names(
+                    "shrink-0 rounded-full px-3 py-1.5 font-medium transition",
+                    @scope.blank? ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
+                  ) %>
+      <%= link_to "手放したもの",
+                  items_path(carry_params.merge(scope: "archived", favorite: nil, low_stock: nil, unreviewed: nil)),
+                  class: class_names(
+                    "shrink-0 rounded-full px-3 py-1.5 font-medium transition",
+                    @scope == "archived" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 hover:bg-white/70"
+                  ) %>
+    </nav>
 
-      <!-- selectのchangeイベントでフォームを送信すると、選ぶだけで絞り込めるドロップダウンになる -->
-      <%= form_with url: items_path, method: :get, local: true, class: "shrink-0" do %>
-        <%= hidden_field_tag :q, @search_query.presence %>
-        <%= hidden_field_tag :status, @selected_status.presence %>
-        <select name="category_id" onchange="this.form.requestSubmit()" class="form-input h-9 w-auto text-sm">
-          <option value="">カテゴリ: すべて</option>
-          <% @categories.each do |category| %>
-            <option value="<%= category.id %>" <%= "selected" if @selected_category_id == category.id.to_s %>><%= category.name %></option>
-          <% end %>
-          <option value="uncategorized" <%= "selected" if @selected_category_id == "uncategorized" %>>未設定</option>
-        </select>
-      <% end %>
-    </div>
+    <% unless @scope == "archived" %>
+      <!-- 属性タグ: 複数同時に当てはまり得るので、独立してON/OFFできるチップにする -->
+      <div class="flex flex-wrap items-center gap-2 text-sm">
+        <%= link_to "♡ よく使うもの",
+                    items_path(carry_params.merge(favorite: @favorite_filter ? nil : "1")),
+                    class: class_names(
+                      "shrink-0 rounded-full border px-3 py-1.5 font-medium transition",
+                      @favorite_filter ? "border-emerald-600 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                    ) %>
+        <%= link_to "なくなりそう",
+                    items_path(carry_params.merge(low_stock: @low_stock_filter ? nil : "1")),
+                    class: class_names(
+                      "shrink-0 rounded-full border px-3 py-1.5 font-medium transition",
+                      @low_stock_filter ? "border-emerald-600 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                    ) %>
+        <%= link_to "レビュー未記入",
+                    items_path(carry_params.merge(unreviewed: @unreviewed_filter ? nil : "1")),
+                    class: class_names(
+                      "shrink-0 rounded-full border px-3 py-1.5 font-medium transition",
+                      @unreviewed_filter ? "border-emerald-600 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                    ) %>
+      </div>
+    <% end %>
+
+    <!-- カテゴリ: 状態とは別軸の分類。selectのchangeイベントでフォームを送信すると、選ぶだけで絞り込める -->
+    <%= form_with url: items_path, method: :get, local: true, class: "flex" do %>
+      <%= hidden_field_tag :q, @search_query.presence %>
+      <%= hidden_field_tag :scope, @scope.presence %>
+      <%= hidden_field_tag :favorite, @favorite_filter ? "1" : nil %>
+      <%= hidden_field_tag :low_stock, @low_stock_filter ? "1" : nil %>
+      <%= hidden_field_tag :unreviewed, @unreviewed_filter ? "1" : nil %>
+      <select name="category_id" onchange="this.form.requestSubmit()" class="form-input h-9 w-auto text-sm">
+        <option value="">カテゴリ: すべて</option>
+        <% @categories.each do |category| %>
+          <option value="<%= category.id %>" <%= "selected" if @selected_category_id == category.id.to_s %>><%= category.name %></option>
+        <% end %>
+        <option value="uncategorized" <%= "selected" if @selected_category_id == "uncategorized" %>>未設定</option>
+      </select>
+    <% end %>
 
     <% if @selected_category_id.present? %>
       <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
@@ -65,7 +78,7 @@
           <%= @selected_category_id == "uncategorized" ? "カテゴリ: 未設定" : "カテゴリ: #{@categories.find { |category| category.id.to_s == @selected_category_id }&.name}" %>
         </span>
         <%= link_to "条件をクリア",
-                    items_path(q: @search_query.presence, status: @selected_status.presence),
+                    items_path(carry_params.except(:category_id)),
                     class: "font-semibold text-slate-500 underline-offset-4 hover:text-slate-800 hover:underline" %>
       </div>
     <% end %>
@@ -94,19 +107,25 @@
                 <h2 class="brand-font truncate text-sm font-bold text-slate-900"><%= item.name %></h2>
               </div>
 
-              <div class="shrink-0 text-right text-xs font-semibold">
+              <div class="shrink-0 text-right text-sm font-semibold">
                 <% if item.rating.present? %>
-                  <span class="text-amber-500">⭐️ <%= item.rating %>.0</span>
+                  <span class="text-yellow-500"><%= star_rating(item.rating) %></span>
                 <% else %>
-                  <span class="text-slate-400">評価なし</span>
+                  <span class="text-xs font-normal text-slate-400">評価なし</span>
                 <% end %>
               </div>
             <% end %>
           </div>
 
+          <% if item.review.present? %>
+            <div class="mt-1.5 pl-[calc(3rem+0.75rem)]">
+              <p class="truncate border-l-2 border-emerald-200 pl-2 text-xs italic text-slate-700">“<%= item.review %>”</p>
+            </div>
+          <% end %>
+
           <div class="mt-2 flex flex-wrap items-center gap-2 pl-[calc(3rem+0.75rem)]">
             <% if item.archived? %>
-              <%= link_to "感想を書く", item_path(item, anchor: "review"), class: "inline-flex items-center rounded-full border border-emerald-600 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50" %>
+              <%= render "review_link", item: item, url: item_path(item, anchor: "review") %>
               <%= link_to "リストに戻す",
                           unarchive_item_path(item),
                           data: { turbo_method: :patch },
@@ -114,13 +133,9 @@
             <% else %>
               <%= render "favorite_button", item: item, compact: true %>
               <%= render "low_stock_button", item: item %>
-              <%= link_to "感想を書く", item_path(item, anchor: "review"), class: "inline-flex items-center rounded-full border border-emerald-600 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50" %>
+              <%= render "review_link", item: item, url: item_path(item, anchor: "review") %>
               <%= link_to "手放す",
-                          archive_item_path(item),
-                          data: {
-                            turbo_method: :patch,
-                            turbo_confirm: item.review.present? ? "感想は残したまま、持ち物一覧の「手放した」に移動します。よろしいですか？" : "感想がまだ入力されていません。このまま手放しますか？"
-                          },
+                          confirm_archive_item_path(item),
                           class: "ml-auto text-xs text-slate-400 underline-offset-4 transition hover:text-red-600 hover:underline" %>
             <% end %>
           </div>
@@ -140,7 +155,7 @@
         <p class="mt-4 text-lg">条件に合うアイテムがありません</p>
         <p class="mt-2 text-sm">検索条件を変更して、もう一度お試しください。</p>
         <%= link_to "検索条件をリセット",
-                    items_path(status: @selected_status.presence),
+                    items_path(carry_params.except(:q)),
                     class: "btn-secondary mt-5" %>
       <% else %>
         <p class="mt-4 text-lg">アイテムがありません</p>

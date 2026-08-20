@@ -72,11 +72,7 @@
 
     <div class="border-t border-slate-100 pt-5 space-y-3 text-center">
       <%= link_to "このアイテムを手放す",
-                  archive_item_path(@item),
-                  data: {
-                    turbo_method: :patch,
-                    turbo_confirm: @item.review.present? ? "感想は残したまま、持ち物一覧の「手放した」に移動します。よろしいですか？" : "感想がまだ入力されていません。このまま手放しますか？"
-                  },
+                  confirm_archive_item_path(@item),
                   class: "block text-sm text-slate-500 underline-offset-4 transition hover:text-amber-700 hover:underline" %>
 
       <%= link_to "削除する",

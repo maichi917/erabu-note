@@ -12,15 +12,13 @@ class UsageLogsController < ApplicationController
   def reviews
     @page_title = "レビュー"
     @selected_rating = params[:rating].to_s
-    @usage_logs = current_user.usage_logs
-                              .finished
-                              .rated
-                              .by_rating(@selected_rating)
-                              .by_item_name(@search_query)
-                              .by_item_category(@selected_category_id)
-                              .includes(:item)
-                              .order(finished_at: :desc)
-                              .page(params[:page])
+    @items = current_user.items
+                         .where.not(rating: nil)
+                         .by_rating(@selected_rating)
+                         .by_name(@search_query)
+                         .by_category(@selected_category_id)
+                         .order(updated_at: :desc)
+                         .page(params[:page])
   end
 
   def update

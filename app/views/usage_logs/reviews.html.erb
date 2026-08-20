@@ -32,11 +32,9 @@
     </select>
   <% end %>
 
-  <% if @usage_logs.any? %>
+  <% if @items.any? %>
     <div class="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
-      <% @usage_logs.each do |usage_log| %>
-        <% item = usage_log.item %>
-
+      <% @items.each do |item| %>
         <article class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3">
           <div class="shrink-0">
             <%= render "items/image",
@@ -47,32 +45,32 @@
           </div>
 
           <div class="min-w-0 flex-1">
-            <div class="flex items-baseline justify-between gap-2">
-              <h2 class="brand-font truncate text-sm font-bold text-slate-900">
-                <%= link_to item.name, item_path(item), class: "transition hover:text-emerald-700" %>
-              </h2>
-              <span class="shrink-0 text-xs text-slate-400"><%= format_date(usage_log.finished_at) %></span>
-            </div>
-            <p class="mt-0.5 text-sm font-semibold text-yellow-500"><%= star_rating(usage_log.rating) %></p>
-            <p class="mt-0.5 line-clamp-2 text-xs text-slate-600"><%= usage_log.review.presence || "レビューなし" %></p>
+            <% if item.brand_name.present? %>
+              <p class="truncate text-xs text-emerald-700"><%= item.brand_name %></p>
+            <% end %>
+            <h2 class="brand-font truncate text-sm font-bold text-slate-900">
+              <%= link_to item.name, item_path(item), class: "transition hover:text-emerald-700" %>
+            </h2>
+            <p class="mt-0.5 text-sm font-semibold text-yellow-500"><%= star_rating(item.rating) %></p>
+            <p class="mt-0.5 line-clamp-2 text-xs text-slate-600"><%= item.review.presence || "レビューなし" %></p>
           </div>
 
-          <%= link_to "編集", edit_usage_log_path(usage_log), class: "shrink-0 text-xs font-medium text-emerald-700 transition hover:text-emerald-800" %>
+          <%= link_to "編集", edit_review_item_path(item), class: "shrink-0 text-xs font-medium text-emerald-700 transition hover:text-emerald-800" %>
         </article>
       <% end %>
     </div>
 
     <div class="mt-8">
-      <%= paginate @usage_logs %>
+      <%= paginate @items %>
     </div>
   <% else %>
     <div class="ui-empty-state">
       <% if @search_query.present? %>
-        <p class="text-lg">条件に合う評価・レビュー履歴がありません</p>
+        <p class="text-lg">条件に合う評価・レビューがありません</p>
         <p class="mt-2 text-sm">検索条件を変更して、もう一度お試しください。</p>
         <%= link_to "検索条件をリセット", reviews_usage_logs_path, class: "btn-secondary mt-5" %>
       <% else %>
-        <p class="text-lg">評価・レビュー履歴がありません</p>
+        <p class="text-lg">評価・レビューがありません</p>
         <p class="mt-2 text-sm">評価を残したアイテムがここに表示されます。</p>
       <% end %>
     </div>

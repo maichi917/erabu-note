@@ -3,21 +3,18 @@ class ItemsController < ApplicationController
   before_action :set_categories, only: %i[new create edit update]
   before_action :set_filter_params, only: %i[index]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
-                                    toggle_low_stock archive unarchive edit_review update_review]
+                                    toggle_low_stock confirm_archive archive unarchive edit_review update_review]
 
   def index
-    @selected_status = params[:status].to_s
-    @items =
-      case @selected_status
-      when "favorite"
-        current_user.items.visible.where(favorite: true)
-      when "low_stock"
-        current_user.items.visible.where(low_stock_flagged: true)
-      when "archived"
-        current_user.items.archived
-      else
-        current_user.items.visible
-      end
+    @scope = params[:scope].to_s
+    @favorite_filter = params[:favorite] == "1"
+    @low_stock_filter = params[:low_stock] == "1"
+    @unreviewed_filter = params[:unreviewed] == "1"
+
+    @items = @scope == "archived" ? current_user.items.archived : current_user.items.visible
+    @items = @items.where(favorite: true) if @favorite_filter
+    @items = @items.where(low_stock_flagged: true) if @low_stock_filter
+    @items = @items.where(rating: nil) if @unreviewed_filter
 
     @items = @items.includes(:category)
                    .order(created_at: :desc)
@@ -91,6 +88,9 @@ class ItemsController < ApplicationController
     redirect_back fallback_location: item_path(@item), notice: notice
   end
 
+  def confirm_archive
+  end
+
   def archive
     @item.archive!
     redirect_to items_path, notice: "手放したアイテムに移動しました"
@@ -112,7 +112,10 @@ class ItemsController < ApplicationController
 
   def update_review
     if @item.update(review_params)
-      redirect_to @item, notice: "感想を更新しました"
+      redirect_to(
+        params[:return_to] == "confirm_archive" ? confirm_archive_item_path(@item) : item_path(@item),
+        notice: "感想を更新しました"
+      )
     else
       redirect_to @item, alert: @item.errors.full_messages.to_sentence
     end
