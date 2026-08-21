@@ -76,6 +76,31 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert user.valid_password?("mynewpassword123")
   end
 
+  test "edit redirects a guest user to the root path" do
+    sign_in User.create_guest!
+
+    get edit_user_registration_path
+
+    assert_redirected_to root_path
+  end
+
+  test "update does not change a guest user's email" do
+    guest = User.create_guest!
+    original_email = guest.email
+    sign_in guest
+
+    patch user_registration_path, params: {
+      user: {
+        email: "not-a-guest@example.com",
+        current_password: "password"
+      }
+    }
+
+    assert_redirected_to root_path
+    assert_equal original_email, guest.reload.email
+    assert guest.guest?
+  end
+
   test "destroy removes the user along with their items and categories" do
     user = users(:one)
     item_ids = user.items.ids

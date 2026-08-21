@@ -27,7 +27,10 @@
         </summary>
 
         <div class="absolute right-0 z-10 mt-2 w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-          <%= link_to "アカウント編集", edit_user_registration_path, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
+          <%# ゲストはアカウント情報を変更できないため、編集リンクは表示しない %>
+          <% unless current_user.guest? %>
+            <%= link_to "アカウント編集", edit_user_registration_path, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
+          <% end %>
           <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
         </div>
       </details>
