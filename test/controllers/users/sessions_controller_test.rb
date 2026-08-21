@@ -21,4 +21,16 @@ class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to home_path
   end
+
+  test "guest_sign_in does not replace the session of a signed-in regular user" do
+    sign_in users(:one)
+
+    assert_no_difference "User.count" do
+      post guest_sign_in_path
+    end
+
+    # ゲストに置き換わっていれば、ゲストは編集画面に入れないためリダイレクトされる
+    get edit_user_registration_path
+    assert_response :success
+  end
 end
