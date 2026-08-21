@@ -1,5 +1,15 @@
 class Users::RegistrationsController < Devise::RegistrationsController
+  before_action :reject_guest, only: %i[edit update]
+
   private
+
+  # ゲストがメールアドレスを変更すると guest? の判定が外れ、
+  # 定期削除（guest:cleanup）の対象から漏れてしまうため、アカウント編集を行えないようにする
+  def reject_guest
+    return unless current_user&.guest?
+
+    redirect_to root_path, alert: "ゲストではアカウント情報を変更できません"
+  end
 
   # LINE連携済みユーザーは、本人の知らない自動生成パスワードを持っているため、
   # 現在のパスワード確認をスキップして名前・メールアドレスを更新できるようにする
