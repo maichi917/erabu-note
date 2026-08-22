@@ -26,10 +26,11 @@ Rails 8.1 + PostgreSQL の在庫管理・レビューアプリ。認証は Devis
 - テストは `test/`
 - 主キーは UUID を使う（`id: :uuid, default: -> { "gen_random_uuid()" }`）。新規テーブルもこの形式に合わせる
 
-## 在庫管理方針
-- `items` はアイテム本体、`usage_logs` は使用履歴を表す
-- 使用状態は `items.status` ではなく、未完了の `usage_logs` から判定する
-- `usage_logs.finished_at` が `nil` のレコードは使用中を表す
+## アイテムの状態管理方針
+- `items` が状態を直接持つ（評価・レビューの履歴テーブルは持たない）
+- `favorite`: よく使うもの、`low_stock_flagged`: なくなりそう、`archived`: 手放した
+- `rating`/`review` は常に上書き。過去の使用サイクルごとの履歴は持たない
+- 「手放す」は削除ではなくアーカイブ（`archived: true`）。手放す際は `favorite`/`low_stock_flagged` を自動でオフにする
 
 ## 権限
 - 自動実行OK: テスト、読み取り系コマンド
