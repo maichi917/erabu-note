@@ -8,7 +8,6 @@ Rails.application.routes.draw do
   delete "account/line", to: "users/line_connections#destroy", as: :disconnect_line
   get "home", to: "home#show", as: :home
   root "static_pages#top"
-  get "guide", to: "static_pages#guide", as: :guide
   get "terms", to: "static_pages#terms", as: :terms
   get "privacy", to: "static_pages#privacy", as: :privacy
   get "contact", to: "static_pages#contact", as: :contact
