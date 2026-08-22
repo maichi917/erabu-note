@@ -208,4 +208,42 @@ LIPS・@cosmeなどの口コミサイトは他人のレビューを参考にす�
 
 ## ER図
 
-[![ER図](https://i.gyazo.com/00de7250f2280637d1dfda549d66a218.png)](https://gyazo.com/00de7250f2280637d1dfda549d66a218)
+```mermaid
+erDiagram
+    users ||--o{ categories : "has many"
+    users ||--o{ items : "has many"
+    categories ||--o{ items : "has many"
+
+    users {
+        uuid id PK
+        string email
+        string name
+        string line_user_id
+        datetime created_at
+    }
+
+    categories {
+        uuid id PK
+        uuid user_id FK
+        string name
+    }
+
+    items {
+        uuid id PK
+        uuid user_id FK
+        uuid category_id FK
+        string name
+        string brand_name
+        integer price
+        decimal capacity
+        string capacity_unit
+        boolean favorite
+        boolean low_stock_flagged
+        boolean archived
+        integer rating
+        text review
+        text memo
+    }
+```
+
+`items` は画像を1枚まで添付できます（Active Storage）。
