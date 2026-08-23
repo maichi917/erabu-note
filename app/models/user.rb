@@ -49,10 +49,14 @@ class User < ApplicationRecord
     daily_goods = categories.create!(name: "日用品")
 
     # よく使うもの・なくなりそう（感想はまだ未記入）
-    items.create!(
+    lotion = items.create!(
       name: "モイストバランス ローション", brand_name: "kinari", category: skin_care,
       price: 1200, capacity: 120, capacity_unit: "ml",
       favorite: true, low_stock_flagged: true
+    )
+    lotion.image.attach(
+      io: Rails.root.join("app/assets/images/samples/lotion.png").open,
+      filename: "lotion.png"
     )
 
     # よく使うもの（感想あり、なくなりそうではない）
@@ -70,10 +74,14 @@ class User < ApplicationRecord
     )
 
     # 感想あり（低評価）
-    items.create!(
+    serum = items.create!(
       name: "グロウセラム", brand_name: "clear lab", category: skin_care,
       price: 3000, capacity: 30, capacity_unit: "ml",
       rating: 1, review: "肌に合わなかった。次は買わない。"
+    )
+    serum.image.attach(
+      io: Rails.root.join("app/assets/images/samples/serum.png").open,
+      filename: "serum.png"
     )
 
     # レビュー未記入
