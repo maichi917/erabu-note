@@ -103,17 +103,17 @@ https://monolog-note.com/
 
 ## 画面イメージ
 
-| アイテム登録 | アイテム一覧 |
+| ホーム | 持ち物一覧 |
 | --- | --- |
-| ![アイテム登録画面](app/assets/images/guide/guide-item-new.png) | ![アイテム一覧画面](app/assets/images/guide/guide-items-index.png) |
+| ![ホーム画面](app/assets/images/guide/guide-home.png) | ![持ち物一覧画面](app/assets/images/guide/guide-items-index.png) |
 
-| アイテム詳細 | 使い切り入力 |
+| アイテム登録 | アイテム詳細 |
 | --- | --- |
-| ![アイテム詳細画面](app/assets/images/guide/guide-item-show.png) | ![使い切り日を入力する画面](app/assets/images/guide/guide-finish-using.png) |
+| ![アイテム登録画面](app/assets/images/guide/guide-item-new.png) | ![アイテム詳細画面](app/assets/images/guide/guide-item-show.png) |
 
-| レビュー入力 | レビュー一覧 |
+| 感想入力 | 感想を振り返る |
 | --- | --- |
-| ![評価とレビューを入力する画面](app/assets/images/guide/guide-review-edit.png) | ![レビュー一覧画面](app/assets/images/guide/guide-reviews-index.png) |
+| ![評価と感想を入力する画面](app/assets/images/guide/guide-review-edit.png) | ![感想を振り返る画面](app/assets/images/guide/guide-reviews-index.png) |
 
 ## 使用技術
 
