@@ -33,9 +33,10 @@ Rails 8.1 + PostgreSQL の在庫管理・レビューアプリ。認証は Devis
 - 「手放す」は削除ではなくアーカイブ（`archived: true`）。手放す際は `favorite`/`low_stock_flagged` を自動でオフにする
 
 ## 権限
-- 自動実行OK: テスト、読み取り系コマンド
-- 確認が必要: パッケージ追加、DB操作、git push
-- 確認が必要（削除・上書き系）: ファイル・生成物の削除、`git checkout`/`restore`/`reset`/`clean`、本番DBへの書き込み。git管理外のファイルは消すと戻せない
+コマンドの自動実行可否は `.claude/settings.json` の `allow`/`ask`/`deny` で管理する。目安は以下の通り。
+- 自動実行OK: テスト、Lint、読み取り系コマンド、開発DBへの `db:migrate`
+- 確認が必要: パッケージ追加、`git push`、`git checkout`/`restore`/`reset`/`clean`、PR/issueのマージ・作成・クローズ、本番DBへの書き込み
+- 拒否（確認なしでブロック）: `git push --force`、`git reset --hard`、`git clean -f`、`docker compose down -v` など、一度実行すると取り返しがつかない破壊的コマンド。git管理外のファイルは消すと戻せない
 
 ## 調査するときの原則
 - 原因が分かるまで、削除・上書き・再実行を「試して」はいけない。まず読んで、比較して、事実を確定させる

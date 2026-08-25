@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git add*)",
+      "Bash(git commit -m *)",
+      "Bash(git pull*)",
+      "Bash(gh issue view*)",
+      "Bash(gh issue list*)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr checks*)",
+      "Bash(gh pr diff*)",
+      "Bash(docker compose up*)",
+      "Bash(docker compose down)",
+      "Bash(docker compose ps*)",
+      "Bash(docker compose logs*)",
+      "Bash(docker compose exec web bin/rails test*)",
+      "Bash(docker compose exec web bin/rails db:migrate*)",
+      "Bash(docker compose exec web bin/rails tailwindcss:build*)",
+      "Bash(docker compose exec web bin/rails console*)",
+      "Bash(docker compose exec web bundle exec rubocop*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(git checkout*)",
+      "Bash(git restore*)",
+      "Bash(git clean*)",
+      "Bash(git reset*)",
+      "Bash(gh pr create*)",
+      "Bash(gh pr merge*)",
+      "Bash(gh pr close*)",
+      "Bash(gh issue create*)",
+      "Bash(gh issue close*)",
+      "Bash(gh issue edit*)",
+      "Bash(gh repo edit*)",
+      "Bash(bundle add*)",
+      "Bash(bundle install*)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(docker compose down -v*)"
+    ]
+  }
+}
