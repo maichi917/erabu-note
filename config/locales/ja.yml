@@ -18,6 +18,8 @@ ja:
         capacity: 容量
         capacity_unit: 単位
         favorite: お気に入り
+        low_stock_flagged: なくなりそう
+        archived: 手放した
         memo: メモ
         rating: 評価
         review: レビュー
