@@ -26,6 +26,7 @@ ja:
       category:
         name: カテゴリ名
       user:
+        name: 名前
         email: メールアドレス
     errors:
       models:
