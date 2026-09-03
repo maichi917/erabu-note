@@ -14,6 +14,14 @@ class Item < ApplicationRecord
   validate :image_size
   validate :review_requires_rating
 
+  def price=(value)
+    super(zenkaku_to_hankaku(value))
+  end
+
+  def capacity=(value)
+    super(zenkaku_to_hankaku(value))
+  end
+
   belongs_to :user
   belongs_to :category, optional: true
   has_one_attached :image do |attachable|
@@ -84,6 +92,12 @@ class Item < ApplicationRecord
   end
 
   private
+
+  def zenkaku_to_hankaku(value)
+    return value unless value.is_a?(String)
+
+    value.tr("０-９．", "0-9.")
+  end
 
   def review_requires_rating
     return if review.blank? || rating.present?
