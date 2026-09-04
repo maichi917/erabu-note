@@ -1,22 +1,22 @@
-<article class="flex items-center gap-2.5 rounded-2xl border border-slate-200 bg-white p-3">
+<article class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4">
   <div class="shrink-0">
     <%= render "items/image",
                item: item,
-               size_class: "h-11 w-11",
-               image_class: "h-11 w-11 rounded-lg object-cover",
-               placeholder_icon_class: "h-5 w-5" %>
+               size_class: "h-16 w-16",
+               image_class: "h-16 w-16 rounded-lg object-cover",
+               placeholder_icon_class: "h-6 w-6" %>
   </div>
 
   <div class="min-w-0 flex-1">
     <% if item.brand_name.present? %>
-      <p class="truncate text-xs text-emerald-700"><%= item.brand_name %></p>
+      <p class="truncate text-sm text-emerald-700"><%= item.brand_name %></p>
     <% end %>
-    <h4 class="brand-font truncate text-sm font-bold text-slate-900">
+    <h4 class="brand-font truncate text-base font-bold text-slate-900">
       <%= link_to item.name, item_path(item), class: "transition hover:text-emerald-700" %>
     </h4>
     <p class="mt-0.5 text-sm font-semibold text-yellow-500"><%= star_rating(item.rating) %></p>
     <% if item.review.present? %>
-      <p class="mt-0.5 truncate text-xs text-slate-500"><%= item.review %></p>
+      <p class="mt-0.5 line-clamp-2 text-sm text-slate-500"><%= item.review %></p>
     <% end %>
   </div>
 </article>
