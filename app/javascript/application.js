@@ -106,10 +106,12 @@ document.addEventListener("click", (event) => {
   if (!input) return
 
   const value = star.dataset.value
-  input.value = value
+  // 選択済みの星をもう一度押したら評価をクリアできるようにする
+  const nextValue = input.value === value ? "" : value
+  input.value = nextValue
 
   container.querySelectorAll("[data-star-rating-star]").forEach((el) => {
-    const filled = Number(el.dataset.value) <= Number(value)
+    const filled = nextValue !== "" && Number(el.dataset.value) <= Number(nextValue)
     el.classList.toggle("text-amber-400", filled)
     el.classList.toggle("text-slate-300", !filled)
     el.classList.toggle("hover:text-amber-300", !filled)
