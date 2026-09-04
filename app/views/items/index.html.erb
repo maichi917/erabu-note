@@ -63,7 +63,7 @@
       <%= hidden_field_tag :favorite, @favorite_filter ? "1" : nil %>
       <%= hidden_field_tag :low_stock, @low_stock_filter ? "1" : nil %>
       <%= hidden_field_tag :unreviewed, @unreviewed_filter ? "1" : nil %>
-      <select name="category_id" onchange="this.form.requestSubmit()" class="form-input h-9 w-auto text-sm">
+      <select name="category_id" onchange="this.form.requestSubmit()" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
         <option value="">カテゴリ: すべて</option>
         <% @categories.each do |category| %>
           <option value="<%= category.id %>" <%= "selected" if @selected_category_id == category.id.to_s %>><%= category.name %></option>
@@ -95,16 +95,16 @@
               <div class="shrink-0">
                 <%= render "image",
                            item: item,
-                           size_class: "h-12 w-12",
-                           image_class: "h-12 w-12 rounded-lg object-cover",
-                           placeholder_icon_class: "h-5 w-5" %>
+                           size_class: "h-16 w-16",
+                           image_class: "h-16 w-16 rounded-lg object-cover",
+                           placeholder_icon_class: "h-6 w-6" %>
               </div>
 
               <div class="min-w-0 flex-1">
                 <% if item.brand_name.present? %>
-                  <p class="truncate text-xs text-emerald-700"><%= item.brand_name %></p>
+                  <p class="truncate text-sm text-emerald-700"><%= item.brand_name %></p>
                 <% end %>
-                <h2 class="brand-font truncate text-sm font-bold text-slate-900"><%= item.name %></h2>
+                <h2 class="brand-font truncate text-base font-bold text-slate-900"><%= item.name %></h2>
               </div>
 
               <div class="shrink-0 text-right text-sm font-semibold">
@@ -118,12 +118,12 @@
           </div>
 
           <% if item.review.present? %>
-            <div class="mt-1.5 pl-[calc(3rem+0.75rem)]">
-              <p class="truncate border-l-2 border-emerald-200 pl-2 text-xs italic text-slate-700">“<%= item.review %>”</p>
+            <div class="mt-1.5 pl-[calc(4rem+0.75rem)]">
+              <p class="truncate border-l-2 border-emerald-200 pl-2 text-xs italic text-slate-700"><%= item.review %></p>
             </div>
           <% end %>
 
-          <div class="mt-2 flex flex-wrap items-center gap-2 pl-[calc(3rem+0.75rem)]">
+          <div class="mt-2 flex flex-wrap items-center gap-2 pl-[calc(4rem+0.75rem)]">
             <% if item.archived? %>
               <%= render "review_link", item: item, url: item_path(item, anchor: "review") %>
               <%= link_to "リストに戻す",
