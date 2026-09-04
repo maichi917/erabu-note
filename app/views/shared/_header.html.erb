@@ -13,49 +13,51 @@
       <% items_active = controller_name == "items" && !reviews_active && !%w[new create].include?(action_name) %>
       <% register_active = controller_name == "items" && %w[new create].include?(action_name) %>
 
-      <nav class="hidden items-center gap-1 self-stretch text-sm pc:flex" aria-label="メインメニュー">
-        <%= link_to home_path, class: home_active ? active_nav_class : inactive_nav_class do %>
-          <span class="inline-flex items-center gap-1.5">
-            <%= render "shared/nav_icon", name: :home, class: "h-4 w-4" %>ホーム
-          </span>
-        <% end %>
-        <%= link_to items_path, class: items_active ? active_nav_class : inactive_nav_class do %>
-          <span class="inline-flex items-center gap-1.5">
-            <%= render "shared/nav_icon", name: :items, class: "h-4 w-4" %>持ち物
-          </span>
-        <% end %>
-        <%= link_to reviews_items_path, class: reviews_active ? active_nav_class : inactive_nav_class do %>
-          <span class="inline-flex items-center gap-1.5">
-            <%= render "shared/nav_icon", name: :reviews, class: "h-4 w-4" %>感想
-          </span>
-        <% end %>
-        <%= link_to new_item_path, class: register_active ? active_nav_class : inactive_nav_class do %>
-          <span class="inline-flex items-center gap-1.5">
-            <%= render "shared/nav_icon", name: :register, class: "h-4 w-4" %>登録
-          </span>
-        <% end %>
-      </nav>
-
-      <!-- detailsタグは、ブラウザ標準の「クリックで開閉する箱」の機能。JS不要でドロップダウンを作れる -->
-      <details class="relative">
-        <summary class="btn-secondary inline-flex cursor-pointer list-none px-3 py-1.5 [&::-webkit-details-marker]:hidden">
-          <%= current_user.name %>
-        </summary>
-
-        <div class="absolute right-0 z-10 mt-2 w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-          <%# ゲストはアカウント情報を変更できないため、編集リンクは表示しない %>
-          <% unless current_user.guest? %>
-            <%= link_to "アカウント編集", edit_user_registration_path, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
+      <div class="flex items-center gap-4 pc:justify-end">
+        <nav class="hidden items-center gap-1 self-stretch text-base pc:flex" aria-label="メインメニュー">
+          <%= link_to home_path, class: home_active ? active_nav_class : inactive_nav_class do %>
+            <span class="inline-flex items-center gap-1.5">
+              <%= render "shared/nav_icon", name: :home, class: "h-4 w-4" %>ホーム
+            </span>
           <% end %>
-          <%# PCではフッターに表示されるため、ヘッダーにはスマホ幅でだけ表示する %>
-          <div class="pc:hidden">
-            <%= link_to "利用規約", terms_path, class: "block whitespace-nowrap px-4 py-2 text-xs text-slate-700 transition hover:bg-slate-50" %>
-            <%= link_to "プライバシーポリシー", privacy_path, class: "block whitespace-nowrap px-4 py-2 text-xs text-slate-700 transition hover:bg-slate-50" %>
-            <%= link_to "お問い合わせ", contact_path, class: "block whitespace-nowrap px-4 py-2 text-xs text-slate-700 transition hover:bg-slate-50" %>
+          <%= link_to items_path, class: items_active ? active_nav_class : inactive_nav_class do %>
+            <span class="inline-flex items-center gap-1.5">
+              <%= render "shared/nav_icon", name: :items, class: "h-4 w-4" %>持ち物
+            </span>
+          <% end %>
+          <%= link_to reviews_items_path, class: reviews_active ? active_nav_class : inactive_nav_class do %>
+            <span class="inline-flex items-center gap-1.5">
+              <%= render "shared/nav_icon", name: :reviews, class: "h-4 w-4" %>感想
+            </span>
+          <% end %>
+          <%= link_to new_item_path, class: register_active ? active_nav_class : inactive_nav_class do %>
+            <span class="inline-flex items-center gap-1.5">
+              <%= render "shared/nav_icon", name: :register, class: "h-4 w-4" %>登録
+            </span>
+          <% end %>
+        </nav>
+
+        <!-- detailsタグは、ブラウザ標準の「クリックで開閉する箱」の機能。JS不要でドロップダウンを作れる -->
+        <details class="relative">
+          <summary class="btn-secondary inline-flex cursor-pointer list-none px-3 py-1.5 [&::-webkit-details-marker]:hidden">
+            <%= current_user.name %>
+          </summary>
+
+          <div class="absolute right-0 z-10 mt-2 w-40 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+            <%# ゲストはアカウント情報を変更できないため、編集リンクは表示しない %>
+            <% unless current_user.guest? %>
+              <%= link_to "アカウント編集", edit_user_registration_path, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
+            <% end %>
+            <%# PCではフッターに表示されるため、ヘッダーにはスマホ幅でだけ表示する %>
+            <div class="pc:hidden">
+              <%= link_to "利用規約", terms_path, class: "block whitespace-nowrap px-4 py-2 text-xs text-slate-700 transition hover:bg-slate-50" %>
+              <%= link_to "プライバシーポリシー", privacy_path, class: "block whitespace-nowrap px-4 py-2 text-xs text-slate-700 transition hover:bg-slate-50" %>
+              <%= link_to "お問い合わせ", contact_path, class: "block whitespace-nowrap px-4 py-2 text-xs text-slate-700 transition hover:bg-slate-50" %>
+            </div>
+            <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
           </div>
-          <%= link_to "ログアウト", destroy_user_session_path, data: { turbo_method: :delete }, class: "block px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50" %>
-        </div>
-      </details>
+        </details>
+      </div>
     <% end %>
   </div>
 </header>

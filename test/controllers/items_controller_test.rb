@@ -547,7 +547,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get new_item_path
 
     assert_response :success
-    assert_select "label[for='item_brand_name']", "ブランド名"
+    assert_select "label[for='item_brand_name']", "メーカー・ブランド名"
     assert_select "input[name='item[brand_name]'][maxlength='100']"
   end
 
@@ -555,7 +555,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get edit_item_path(items(:one))
 
     assert_response :success
-    assert_select "label[for='item_brand_name']", "ブランド名"
+    assert_select "label[for='item_brand_name']", "メーカー・ブランド名"
     assert_select "input[name='item[brand_name]'][maxlength='100']"
   end
 
