@@ -124,11 +124,18 @@ class ItemsController < ApplicationController
   end
 
   def update_review
+    was_unreviewed = @item.rating.blank?
+
     if @item.update(review_params)
-      redirect_to(
-        params[:return_to] == "confirm_archive" ? confirm_archive_item_path(@item) : item_path(@item),
-        notice: "感想を更新しました"
-      )
+      notice = was_unreviewed ? "感想を書きました" : "感想を更新しました"
+      destination =
+        case params[:return_to]
+        when "confirm_archive" then confirm_archive_item_path(@item)
+        when "edit_review" then edit_review_item_path(@item)
+        else item_path(@item)
+        end
+
+      redirect_to destination, notice: notice
     else
       redirect_to @item, alert: @item.errors.full_messages.to_sentence
     end

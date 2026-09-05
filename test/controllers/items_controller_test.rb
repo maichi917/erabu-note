@@ -168,7 +168,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, archived_item.name
     assert_no_match items(:one).name, response.body
     assert_select "a[href='#{unarchive_item_path(archived_item)}']", text: "リストに戻す"
-    assert_select "a[href='#{item_path(archived_item, anchor: "review")}']", text: "感想を書く"
+    assert_select "a[href='#{edit_review_item_path(archived_item)}']", text: "感想を書く"
   end
 
   test "index does not show archived items on the all tab" do
@@ -264,7 +264,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "article form[action='#{toggle_low_stock_item_path(item)}']"
-    assert_select "article a[href='#{item_path(item, anchor: "review")}']", text: "感想を書く"
+    assert_select "article a[href='#{edit_review_item_path(item)}']", text: "感想を書く"
     assert_select "article a[href='#{confirm_archive_item_path(item)}']", text: "手放す"
   end
 
@@ -275,7 +275,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path
 
     assert_response :success
-    assert_select "article a[href='#{item_path(item, anchor: "review")}']", text: "感想を編集"
+    assert_select "article a[href='#{edit_review_item_path(item)}']", text: "感想を編集"
   end
 
   test "index filters items by category" do
@@ -448,6 +448,32 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 4, item.rating
     assert_equal "よかった", item.review
     assert_redirected_to item_path(item)
+  end
+
+  test "update_review shows a first-time notice when the item had no rating yet" do
+    item = items(:one)
+    assert_nil item.rating
+
+    patch update_review_item_path(item), params: { item: { rating: 4, review: "よかった" } }
+
+    assert_equal "感想を書きました", flash[:notice]
+  end
+
+  test "update_review shows an update notice when the item already had a rating" do
+    item = items(:one)
+    item.update!(rating: 3, review: "まあまあ")
+
+    patch update_review_item_path(item), params: { item: { rating: 4, review: "よかった" } }
+
+    assert_equal "感想を更新しました", flash[:notice]
+  end
+
+  test "update_review redirects back to edit_review when return_to is set" do
+    item = items(:one)
+
+    patch update_review_item_path(item), params: { item: { rating: 4, review: "よかった" }, return_to: "edit_review" }
+
+    assert_redirected_to edit_review_item_path(item)
   end
 
   test "update_review rejects review without rating" do
