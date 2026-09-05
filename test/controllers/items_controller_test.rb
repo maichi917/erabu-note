@@ -450,6 +450,32 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to item_path(item)
   end
 
+  test "update_review shows a first-time notice when the item had no rating yet" do
+    item = items(:one)
+    assert_nil item.rating
+
+    patch update_review_item_path(item), params: { item: { rating: 4, review: "よかった" } }
+
+    assert_equal "感想を書きました", flash[:notice]
+  end
+
+  test "update_review shows an update notice when the item already had a rating" do
+    item = items(:one)
+    item.update!(rating: 3, review: "まあまあ")
+
+    patch update_review_item_path(item), params: { item: { rating: 4, review: "よかった" } }
+
+    assert_equal "感想を更新しました", flash[:notice]
+  end
+
+  test "update_review redirects back to edit_review when return_to is set" do
+    item = items(:one)
+
+    patch update_review_item_path(item), params: { item: { rating: 4, review: "よかった" }, return_to: "edit_review" }
+
+    assert_redirected_to edit_review_item_path(item)
+  end
+
   test "update_review rejects review without rating" do
     item = items(:one)
 

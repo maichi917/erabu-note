@@ -9,8 +9,6 @@
       <p class="brand-font mt-1 text-lg font-bold text-slate-900"><%= @item.name %></p>
     </div>
 
-    <%= render "review_form", item: @item %>
-
-    <%= link_to "ホームに戻る", home_path, class: "block text-center text-sm text-slate-500 underline-offset-4 hover:underline" %>
+    <%= render "review_form", item: @item, return_to: "edit_review" %>
   </div>
 </div>
