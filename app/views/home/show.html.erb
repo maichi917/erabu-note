@@ -1,7 +1,6 @@
 <div class="ui-container-wide">
   <section>
     <h2 class="brand-font text-lg font-bold text-slate-900">なくなりそうなもの</h2>
-    <p class="mt-1 text-xs text-slate-500">リピートするか、別のものを試すか決めるタイミングです。</p>
 
     <% if @low_stock_items.any? %>
       <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-3 pc:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]">
@@ -39,15 +38,12 @@
         </div>
       <% end %>
     <% else %>
-      <div class="ui-empty-state mt-3">
-        <p class="text-sm">なくなりそうなアイテムはありません</p>
-      </div>
+      <p class="mt-3 py-6 text-center text-sm text-slate-500">なくなりそうなアイテムはありません</p>
     <% end %>
   </section>
 
   <section class="mt-8">
     <h2 class="brand-font text-lg font-bold text-slate-900">レビューをかいていないもの</h2>
-    <p class="mt-1 text-xs text-slate-500">まだ感想を書いていないアイテムです。</p>
 
     <% if @unreviewed_items.any? %>
       <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-3 pc:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]">
@@ -80,9 +76,7 @@
         </div>
       <% end %>
     <% else %>
-      <div class="ui-empty-state mt-3">
-        <p class="text-sm">未記入のレビューはありません</p>
-      </div>
+      <p class="mt-3 py-6 text-center text-sm text-slate-500">レビュー未記入のアイテムがありません</p>
     <% end %>
   </section>
 
@@ -102,7 +96,7 @@
           <% end %>
         </div>
       <% else %>
-        <p class="mt-2 text-sm text-slate-500">まだ高評価のレビューがありません</p>
+        <p class="mt-2 text-sm text-slate-500">まだ高評価のアイテムがありません</p>
       <% end %>
     </div>
 
@@ -116,7 +110,7 @@
           <% end %>
         </div>
       <% else %>
-        <p class="mt-2 text-sm text-slate-500">まだ低評価のレビューがありません</p>
+        <p class="mt-2 text-sm text-slate-500">まだ低評価のアイテムがありません</p>
       <% end %>
     </div>
   </section>
