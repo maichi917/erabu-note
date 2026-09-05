@@ -168,7 +168,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, archived_item.name
     assert_no_match items(:one).name, response.body
     assert_select "a[href='#{unarchive_item_path(archived_item)}']", text: "リストに戻す"
-    assert_select "a[href='#{item_path(archived_item, anchor: "review")}']", text: "感想を書く"
+    assert_select "a[href='#{edit_review_item_path(archived_item)}']", text: "感想を書く"
   end
 
   test "index does not show archived items on the all tab" do
@@ -264,7 +264,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "article form[action='#{toggle_low_stock_item_path(item)}']"
-    assert_select "article a[href='#{item_path(item, anchor: "review")}']", text: "感想を書く"
+    assert_select "article a[href='#{edit_review_item_path(item)}']", text: "感想を書く"
     assert_select "article a[href='#{confirm_archive_item_path(item)}']", text: "手放す"
   end
 
@@ -275,7 +275,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get items_path
 
     assert_response :success
-    assert_select "article a[href='#{item_path(item, anchor: "review")}']", text: "感想を編集"
+    assert_select "article a[href='#{edit_review_item_path(item)}']", text: "感想を編集"
   end
 
   test "index filters items by category" do
