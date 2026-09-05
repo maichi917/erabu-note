@@ -1,12 +1,21 @@
 <div class="ui-container">
   <div class="space-y-5">
-    <h1 class="brand-font text-center text-2xl font-bold text-slate-900">感想を書く</h1>
+    <h1 class="brand-font text-center text-lg font-bold text-slate-900">感想を書く</h1>
 
-    <div class="text-center">
+    <div class="ui-card mx-auto w-56 rounded-2xl p-3 text-center">
+      <div class="mx-auto w-28">
+        <%= render "image",
+                   item: @item,
+                   size_class: "aspect-square w-full",
+                   image_class: "aspect-square w-full rounded-lg object-cover",
+                   placeholder_icon_class: "h-8 w-8",
+                   variant_name: :preview %>
+      </div>
+
       <% if @item.brand_name.present? %>
-        <p class="text-sm font-medium text-emerald-700"><%= @item.brand_name %></p>
+        <p class="mt-2 truncate text-sm font-medium text-emerald-700"><%= @item.brand_name %></p>
       <% end %>
-      <p class="brand-font mt-1 text-lg font-bold text-slate-900"><%= @item.name %></p>
+      <p class="brand-font mt-0.5 line-clamp-2 text-sm font-bold text-slate-900"><%= @item.name %></p>
     </div>
 
     <%= render "review_form", item: @item, return_to: "edit_review" %>
