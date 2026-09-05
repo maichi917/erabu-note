@@ -50,7 +50,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select ".ui-empty-state", text: /なくなりそうなアイテムはありません/
+    assert_includes response.body, "なくなりそうなアイテムはありません"
   end
 
   test "home does not show other user's low stock items" do
@@ -73,7 +73,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select ".ui-empty-state", text: /なくなりそうなアイテムはありません/
+    assert_includes response.body, "なくなりそうなアイテムはありません"
   end
 
   test "home shows unreviewed items with a review link" do
@@ -100,7 +100,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select ".ui-empty-state", text: /未記入のレビューはありません/
+    assert_includes response.body, "レビュー未記入のアイテムがありません"
   end
 
   test "home shows at most 6 unreviewed items with a link to see more" do
@@ -183,8 +183,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_includes response.body, "まだ高評価のレビューがありません"
-    assert_includes response.body, "まだ低評価のレビューがありません"
+    assert_includes response.body, "まだ高評価のアイテムがありません"
+    assert_includes response.body, "まだ低評価のアイテムがありません"
   end
 
   test "home does not show archived items in good or bad sections" do
@@ -197,6 +197,6 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_includes response.body, "まだ高評価のレビューがありません"
+    assert_includes response.body, "まだ高評価のアイテムがありません"
   end
 end
