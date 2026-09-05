@@ -10,7 +10,7 @@
       <% inactive_nav_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-emerald-700" %>
       <% home_active = controller_name == "home" %>
       <% reviews_active = controller_name == "items" && action_name == "reviews" %>
-      <% items_active = controller_name == "items" && !reviews_active && !%w[new create].include?(action_name) %>
+      <% items_active = controller_name == "items" && !reviews_active && !%w[new create edit_review].include?(action_name) %>
       <% register_active = controller_name == "items" && %w[new create].include?(action_name) %>
 
       <div class="flex items-center gap-4 pc:justify-end">
