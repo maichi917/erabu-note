@@ -102,15 +102,12 @@ https://monolog-note.com/
 
 - Ruby / Rails 8
 - PostgreSQL（Neon）
-- Docker（開発）
 - Render（本番）
-- Hotwire（Turbo / Stimulus）
+- Docker（開発）
 - Tailwind CSS
-- Devise
+- Devise / omniauth-oauth2
 - Active Storage（Cloudflare R2 / image_processing / libvips）
-- Kaminari
 - Minitest / GitHub Actions
-
 
 ## 使用技術の選定理由
 
@@ -118,21 +115,44 @@ https://monolog-note.com/
 
 認証、CRUD、ルーティング、画像アップロードなど、Webアプリに必要な基本機能を効率よく実装できるため採用しました。
 
-### Hotwire（Turbo / Stimulus）
+### PostgreSQL
 
-Rails標準の仕組みを活かしながら、画像プレビューや操作導線などの小さな体験改善を行いやすいため採用しました。
+MySQLやSQLiteと比較して、デプロイ先のRenderやNeonで標準的にサポートされており親和性が高いと考え採用しました。
+
+### Neon
+
+当初はRenderの無料PostgreSQLでDBを運用していましたが、90日で有効期限が切れる制約があったため、期限のないPostgreSQL互換のサーバーレスDBであるNeonに移行しました。
+
+### Render
+
+GitHub連携で簡単にデプロイでき、Webサービスの無料枠を継続的に使えるため採用しました。
+
+### Docker
+
+ローカル環境に依存せず、バージョンを固定した状態で安定した開発ができることと、今後のチーム開発を意識し、実務でも広く使われていることから採用しました。
 
 ### Tailwind CSS
 
-スマートフォンでの見やすさや、カード・ボタン・フォームの余白を細かく調整しやすいため採用しました。
+UIを細かく調整でき、デザインに統一感を持たせやすいことに加え、スマートフォン利用を前提としたモバイルファーストの考え方とアプリの相性が良いと考えたため採用しました。
 
-### Active Storage / image_processing / libvips
+### Devise
 
-アイテム画像を登録し、一覧用と詳細用で適切なサイズに変換して表示するために採用しました。
+認証機能を自前で実装するとパスワード・セッション等セキュリティ面でのリスクが大きいため、Railsで実績があり広く使われているDeviseを採用しました。
 
-### Minitest / GitHub Actions
+### omniauth-oauth2（LINE認証）
 
-モデル・コントローラの主要な挙動をテストし、GitHub Actionsで継続的に確認できるようにしています。
+LINE認証は既存の`omniauth-line`gemではなく、`omniauth-oauth2`を土台として独自のストラテジを実装しました。既存gemは長期間メンテナンスがされていないためです。
+
+### Cloudflare R2
+
+個人開発でランニングコストを抑えたく、無料枠が大きいCloudflare R2をActive Storageの本番環境での画像保存先として採用しました。
+
+### Minitest / GitHub Actions(CI/CD)
+
+MinitestはRails標準機能で、追加設定の手間が少なく済むため採用しました。
+シンプルな分テスト数を増やしてカバーしています。
+CI/CDで自動チェック後にマージします。
+
 
 ## 技術的に工夫した点
 
