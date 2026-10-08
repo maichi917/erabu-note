@@ -3,7 +3,7 @@
 2026-10-06 時点のコード（README / AGENTS.md / db/schema.rb / config/routes.rb / models / ItemsController / HomeController）をもとに整理したもの。
 LINE 連携とゲストログインの細かい挙動、各画面の View は README とルーティングからの推測を含む。
 
-SNS 化に向けた今後の TODO は [sns-roadmap.md](sns-roadmap.md) を参照。
+今後追加する共有機能（フォローとタイムライン）の設計は [sharing-plan.md](sharing-plan.md) を参照。
 
 ## 1. サービス概要
 
