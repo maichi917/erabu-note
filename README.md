@@ -185,8 +185,6 @@ LIPS・@cosmeなどの口コミサイトは他人のレビューを参考にす�
 
 ## ER図
 
-現在の実装のテーブル構成です。共有機能で追加予定のテーブルは [共有機能 設計メモ](docs/sharing-plan.md) を参照してください。
-
 ```mermaid
 erDiagram
     users ||--o{ categories : "has many"
@@ -225,7 +223,7 @@ erDiagram
     }
 ```
 
-`items` は画像を1枚まで添付できます（Active Storage）。
+現在の実装のテーブル構成です。共有機能で追加予定のテーブルは [共有機能 設計メモ](docs/sharing-plan.md) に掲載しています。
 
 ## 今後の実装予定
 
