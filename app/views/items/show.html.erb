@@ -20,10 +20,12 @@
           <p class="truncate text-sm font-medium text-emerald-700"><%= @item.brand_name %></p>
         <% end %>
         <h1 class="brand-font break-words text-lg font-bold text-slate-900"><%= @item.name %></h1>
-        <div class="mt-2 flex flex-wrap items-center gap-2">
-          <%= render "favorite_button", item: @item %>
-          <%= render "low_stock_button", item: @item %>
-        </div>
+        <% unless @item.archived? %>
+          <div class="mt-2 flex flex-wrap items-center gap-2">
+            <%= render "favorite_button", item: @item %>
+            <%= render "low_stock_button", item: @item %>
+          </div>
+        <% end %>
       </div>
 
       <dl class="grid grid-cols-2 gap-3 text-sm">
@@ -71,9 +73,16 @@
     </div>
 
     <div class="border-t border-slate-100 pt-5 space-y-3 text-center">
-      <%= link_to "このアイテムを手放す",
-                  confirm_archive_item_path(@item),
-                  class: "block text-sm text-slate-500 underline-offset-4 transition hover:text-amber-700 hover:underline" %>
+      <% if @item.archived? %>
+        <%= link_to "リストに戻す",
+                    unarchive_item_path(@item),
+                    data: { turbo_method: :patch },
+                    class: "block text-sm text-slate-500 underline-offset-4 transition hover:text-emerald-700 hover:underline" %>
+      <% else %>
+        <%= link_to "このアイテムを手放す",
+                    confirm_archive_item_path(@item),
+                    class: "block text-sm text-slate-500 underline-offset-4 transition hover:text-amber-700 hover:underline" %>
+      <% end %>
 
       <%= link_to "削除する",
                   item_path(@item),
