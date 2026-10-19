@@ -4,8 +4,10 @@
   else
     "border-slate-200 bg-white text-slate-500 hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700"
   end %>
+<%# オフにするときだけ確認を出す。オンにするときは1タップのまま %>
+<% form_data = item.low_stock_flagged? ? { turbo_confirm: "「なくなりそう」を外しますか？" } : {} %>
 
-<%= form_with url: toggle_low_stock_item_path(item), method: :patch, local: true, class: "inline-flex" do %>
+<%= form_with url: toggle_low_stock_item_path(item), method: :patch, local: true, data: form_data, class: "inline-flex" do %>
   <button type="submit"
           aria-pressed="<%= item.low_stock_flagged? %>"
           class="inline-flex items-center justify-center rounded-full border px-3 py-1 text-xs font-semibold transition <%= button_class %>">
