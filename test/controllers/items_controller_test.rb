@@ -439,6 +439,40 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_not item.favorite?
   end
 
+  test "toggle_favorite does not change an archived item" do
+    item = items(:one)
+    item.update!(archived: true)
+
+    assert_no_changes -> { item.reload.favorite? } do
+      patch toggle_favorite_item_path(item)
+    end
+
+    assert_redirected_to item_path(item)
+    assert_equal "手放したアイテムは変更できません", flash[:alert]
+  end
+
+  test "toggle_low_stock does not change an archived item" do
+    item = items(:one)
+    item.update!(archived: true)
+
+    assert_no_changes -> { item.reload.low_stock_flagged? } do
+      patch toggle_low_stock_item_path(item)
+    end
+
+    assert_redirected_to item_path(item)
+  end
+
+  test "confirm_archive and archive redirect an already archived item" do
+    item = items(:one)
+    item.update!(archived: true)
+
+    get confirm_archive_item_path(item)
+    assert_redirected_to item_path(item)
+
+    patch archive_item_path(item)
+    assert_redirected_to item_path(item)
+  end
+
   test "update_review saves rating and review" do
     item = items(:one)
 
@@ -985,6 +1019,19 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a[href='#{confirm_archive_item_path(item)}']", text: "このアイテムを手放す"
+  end
+
+  test "show hides flag buttons and shows a restore link for an archived item" do
+    item = items(:one)
+    item.update!(archived: true)
+
+    get item_path(item)
+
+    assert_response :success
+    assert_select "form[action='#{toggle_favorite_item_path(item)}']", count: 0
+    assert_select "form[action='#{toggle_low_stock_item_path(item)}']", count: 0
+    assert_select "a[href='#{confirm_archive_item_path(item)}']", count: 0
+    assert_select "a[href='#{unarchive_item_path(item)}']", text: "リストに戻す"
   end
 
   test "update with invalid image rerenders edit page" do

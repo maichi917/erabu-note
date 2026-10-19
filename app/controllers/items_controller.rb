@@ -4,6 +4,8 @@ class ItemsController < ApplicationController
   before_action :set_filter_params, only: %i[index reviews]
   before_action :set_item, only: %i[show edit update destroy destroy_image toggle_favorite
                                     toggle_low_stock confirm_archive archive unarchive edit_review update_review]
+  # 手放したアイテムで、フラグ（よく使うもの・なくなりそう）の切り替えと「手放す」操作をできないようにする
+  before_action :reject_archived_item, only: %i[toggle_favorite toggle_low_stock confirm_archive archive]
 
   def index
     @scope = params[:scope].to_s
@@ -145,6 +147,13 @@ class ItemsController < ApplicationController
 
   def set_item
     @item = current_user.items.find(params[:id])
+  end
+
+  # 手放したアイテムなら、ここで処理を止めて詳細画面へ戻す
+  def reject_archived_item
+    return unless @item.archived?
+
+    redirect_to item_path(@item), alert: "手放したアイテムは変更できません"
   end
 
   def item_params
