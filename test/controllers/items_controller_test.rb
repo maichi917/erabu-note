@@ -530,6 +530,18 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_not item.reload.low_stock_flagged?
   end
 
+  test "low stock button asks for confirmation only when turning it off" do
+    item = items(:one)
+
+    get item_path(item)
+    assert_select "form[action='#{toggle_low_stock_item_path(item)}']:not([data-turbo-confirm])"
+
+    item.update!(low_stock_flagged: true)
+    get item_path(item)
+    assert_select "form[action='#{toggle_low_stock_item_path(item)}'][data-turbo-confirm=?]",
+                  "「なくなりそう」を外しますか？"
+  end
+
   test "destroy_image removes attached image and redirects to edit page" do
     item = items(:one)
     item.image.attach(
