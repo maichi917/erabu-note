@@ -72,7 +72,10 @@
         <%= f.file_field :image,
                          accept: "image/jpeg,image/png",
                          id: "item_image_file",
-                         class: "sr-only md:not-sr-only md:block md:w-full md:text-sm md:text-slate-700" %>
+                         class: "sr-only md:not-sr-only md:block md:w-full md:text-sm md:text-slate-700
+                                 file:mr-4 file:cursor-pointer file:rounded-lg file:border file:border-slate-300
+                                 file:bg-white file:px-4 file:py-2 file:text-sm file:font-semibold
+                                 file:text-slate-700 hover:file:bg-slate-50" %>
         <label for="item_image_file" class="btn-secondary block cursor-pointer text-center md:hidden">
           フォルダからアップロード
         </label>
