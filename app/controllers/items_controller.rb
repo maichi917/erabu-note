@@ -14,9 +14,9 @@ class ItemsController < ApplicationController
     @unreviewed_filter = params[:unreviewed] == "1"
 
     @items = @scope == "archived" ? current_user.items.archived : current_user.items.visible
-    @items = @items.where(favorite: true) if @favorite_filter
-    @items = @items.where(low_stock_flagged: true) if @low_stock_filter
-    @items = @items.where(rating: nil) if @unreviewed_filter
+    @items = @items.favorites if @favorite_filter
+    @items = @items.low_stock if @low_stock_filter
+    @items = @items.unreviewed if @unreviewed_filter
 
     @items = @items.includes(:category)
                    .order(created_at: :desc)
@@ -45,7 +45,7 @@ class ItemsController < ApplicationController
     @page_title = "レビュー"
     @selected_rating = params[:rating].to_s
     @items = current_user.items
-                         .where.not(rating: nil)
+                         .reviewed
                          .by_rating(@selected_rating)
                          .by_name(@search_query)
                          .by_category(@selected_category_id)
