@@ -32,6 +32,12 @@ class Item < ApplicationRecord
   # スコープ
   scope :visible, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
+  scope :favorites, -> { where(favorite: true) }
+  scope :low_stock, -> { where(low_stock_flagged: true) }
+  scope :unreviewed, -> { where(rating: nil) }
+  scope :reviewed, -> { where.not(rating: nil) }
+  scope :highly_rated, -> { where(rating: 4..5) }
+  scope :poorly_rated, -> { where(rating: 1..2) }
   scope :by_name, ->(query) {
     return all if query.blank?
 

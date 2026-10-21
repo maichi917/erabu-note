@@ -28,6 +28,32 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal Item.order(:id).to_a, Item.by_category("").order(:id).to_a
   end
 
+  test "favorites and low_stock return only flagged items" do
+    items(:one).update!(favorite: true, low_stock_flagged: true)
+
+    assert_equal [ items(:one) ], Item.favorites.to_a
+    assert_equal [ items(:one) ], Item.low_stock.to_a
+  end
+
+  test "unreviewed and reviewed split items by whether they have a rating" do
+    items(:one).update!(rating: 3)
+
+    assert_equal [ items(:two) ], Item.unreviewed.to_a
+    assert_equal [ items(:one) ], Item.reviewed.to_a
+  end
+
+  test "highly_rated returns ratings 4 to 5 and poorly_rated returns ratings 1 to 2" do
+    items(:one).update!(rating: 4)
+    items(:two).update!(rating: 2)
+
+    assert_equal [ items(:one) ], Item.highly_rated.to_a
+    assert_equal [ items(:two) ], Item.poorly_rated.to_a
+
+    items(:one).update!(rating: 3)
+    assert_empty Item.highly_rated
+    assert_equal [ items(:two) ], Item.poorly_rated.to_a
+  end
+
   test "assign_category creates and assigns a new category by name" do
     item = items(:one)
     user = users(:one)
