@@ -1,0 +1,29 @@
+<%# ホームのアイテムカード（なくなりそう・レビュー未記入で使う）。show_rating: true で評価を出す %>
+<% show_rating = local_assigns.fetch(:show_rating, false) %>
+
+<article class="rounded-2xl border border-slate-200 bg-white p-3">
+  <%= link_to item_path(item), class: "block" do %>
+    <div class="mx-auto w-4/5">
+      <%= render "items/image",
+                 item: item,
+                 size_class: "aspect-square w-full",
+                 image_class: "aspect-square w-full rounded-lg object-cover",
+                 placeholder_icon_class: "h-6 w-6" %>
+    </div>
+    <% if item.brand_name.present? %>
+      <p class="mt-1.5 truncate text-sm text-emerald-700"><%= item.brand_name %></p>
+    <% end %>
+    <h3 class="brand-font truncate text-sm font-bold text-slate-900"><%= item.name %></h3>
+  <% end %>
+
+  <div class="mt-2 flex items-center <%= show_rating ? "justify-between" : "justify-end" %> gap-1.5">
+    <% if show_rating %>
+      <% if item.rating.present? %>
+        <span class="text-xs font-semibold text-yellow-500"><%= star_rating(item.rating) %></span>
+      <% else %>
+        <span class="text-xs text-slate-400">評価なし</span>
+      <% end %>
+    <% end %>
+    <%= render "items/review_link", item: item, url: edit_review_item_path(item) %>
+  </div>
+</article>
