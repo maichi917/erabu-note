@@ -8,29 +8,25 @@
     <% if user_signed_in? %>
       <% active_nav_class = "border-b-2 border-emerald-600 px-5 py-2 font-semibold text-emerald-700" %>
       <% inactive_nav_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-emerald-700" %>
-      <% home_active = controller_name == "home" %>
-      <% reviews_active = controller_name == "items" && action_name == "reviews" %>
-      <% items_active = controller_name == "items" && !reviews_active && !%w[new create edit_review].include?(action_name) %>
-      <% register_active = controller_name == "items" && %w[new create].include?(action_name) %>
 
       <div class="flex items-center gap-4 pc:justify-end">
         <nav class="hidden items-center gap-1 self-stretch text-base pc:flex" aria-label="メインメニュー">
-          <%= link_to home_path, class: home_active ? active_nav_class : inactive_nav_class do %>
+          <%= link_to home_path, class: current_nav?(:home) ? active_nav_class : inactive_nav_class do %>
             <span class="inline-flex items-center gap-1.5">
               <%= render "shared/nav_icon", name: :home, class: "h-4 w-4" %>ホーム
             </span>
           <% end %>
-          <%= link_to items_path, class: items_active ? active_nav_class : inactive_nav_class do %>
+          <%= link_to items_path, class: current_nav?(:items) ? active_nav_class : inactive_nav_class do %>
             <span class="inline-flex items-center gap-1.5">
               <%= render "shared/nav_icon", name: :items, class: "h-4 w-4" %>持ち物
             </span>
           <% end %>
-          <%= link_to reviews_items_path, class: reviews_active ? active_nav_class : inactive_nav_class do %>
+          <%= link_to reviews_items_path, class: current_nav?(:reviews) ? active_nav_class : inactive_nav_class do %>
             <span class="inline-flex items-center gap-1.5">
               <%= render "shared/nav_icon", name: :reviews, class: "h-4 w-4" %>感想
             </span>
           <% end %>
-          <%= link_to new_item_path, class: register_active ? active_nav_class : inactive_nav_class do %>
+          <%= link_to new_item_path, class: current_nav?(:register) ? active_nav_class : inactive_nav_class do %>
             <span class="inline-flex items-center gap-1.5">
               <%= render "shared/nav_icon", name: :register, class: "h-4 w-4" %>登録
             </span>
@@ -67,19 +63,19 @@
   <% inactive_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-2.5 font-medium text-slate-500" %>
 
   <nav class="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-emerald-100 bg-white/95 px-2 py-2 text-center text-sm shadow-[0_-1px_4px_rgba(0,0,0,0.06)] pc:hidden" aria-label="スマートフォンメニュー">
-    <%= link_to home_path, class: home_active ? active_tab_class : inactive_tab_class do %>
+    <%= link_to home_path, class: current_nav?(:home) ? active_tab_class : inactive_tab_class do %>
       <%= render "shared/nav_icon", name: :home, class: "h-5 w-5" %>
       <span>ホーム</span>
     <% end %>
-    <%= link_to items_path, class: items_active ? active_tab_class : inactive_tab_class do %>
+    <%= link_to items_path, class: current_nav?(:items) ? active_tab_class : inactive_tab_class do %>
       <%= render "shared/nav_icon", name: :items, class: "h-5 w-5" %>
       <span>持ち物</span>
     <% end %>
-    <%= link_to reviews_items_path, class: reviews_active ? active_tab_class : inactive_tab_class do %>
+    <%= link_to reviews_items_path, class: current_nav?(:reviews) ? active_tab_class : inactive_tab_class do %>
       <%= render "shared/nav_icon", name: :reviews, class: "h-5 w-5" %>
       <span>感想</span>
     <% end %>
-    <%= link_to new_item_path, class: register_active ? active_tab_class : inactive_tab_class do %>
+    <%= link_to new_item_path, class: current_nav?(:register) ? active_tab_class : inactive_tab_class do %>
       <%= render "shared/nav_icon", name: :register, class: "h-5 w-5" %>
       <span>登録</span>
     <% end %>

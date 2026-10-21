@@ -119,7 +119,8 @@ class ItemsController < ApplicationController
   def toggle_low_stock
     @item.update!(low_stock_flagged: !@item.low_stock_flagged?)
 
-    redirect_back fallback_location: items_path
+    notice = @item.low_stock_flagged? ? "なくなりそうに追加しました" : "なくなりそうから外しました"
+    redirect_back fallback_location: items_path, notice: notice
   end
 
   def edit_review

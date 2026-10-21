@@ -16,13 +16,7 @@
   <%= form_with url: reviews_items_path, method: :get, local: true, class: "mb-4 flex flex-wrap items-center gap-2" do %>
     <%= hidden_field_tag :q, @search_query.presence %>
 
-    <select name="category_id" onchange="this.form.requestSubmit()" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
-      <option value="">カテゴリ: すべて</option>
-      <% @categories.each do |category| %>
-        <option value="<%= category.id %>" <%= "selected" if @selected_category_id == category.id.to_s %>><%= category.name %></option>
-      <% end %>
-      <option value="uncategorized" <%= "selected" if @selected_category_id == "uncategorized" %>>未設定</option>
-    </select>
+    <%= render "items/category_select", categories: @categories, selected_category_id: @selected_category_id %>
 
     <select name="rating" onchange="this.form.requestSubmit()" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
       <option value="">評価: すべて</option>
@@ -35,28 +29,7 @@
   <% if @items.any? %>
     <div class="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
       <% @items.each do |item| %>
-        <article class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3">
-          <div class="shrink-0">
-            <%= render "items/image",
-                       item: item,
-                       size_class: "h-16 w-16",
-                       image_class: "h-16 w-16 rounded-lg object-cover",
-                       placeholder_icon_class: "h-6 w-6" %>
-          </div>
-
-          <div class="min-w-0 flex-1">
-            <% if item.brand_name.present? %>
-              <p class="truncate text-sm text-emerald-700"><%= item.brand_name %></p>
-            <% end %>
-            <h2 class="brand-font truncate text-base font-bold text-slate-900">
-              <%= link_to item.name, item_path(item), class: "transition hover:text-emerald-700" %>
-            </h2>
-            <p class="mt-0.5 text-sm font-semibold text-yellow-500"><%= star_rating(item.rating) %></p>
-            <p class="mt-0.5 line-clamp-2 text-sm text-slate-600"><%= item.review.presence || "レビューなし" %></p>
-          </div>
-
-          <%= link_to "編集", edit_review_item_path(item), class: "shrink-0 text-xs font-medium text-emerald-700 transition hover:text-emerald-800" %>
-        </article>
+        <%= render "items/review_card", item: item, show_edit_link: true %>
       <% end %>
     </div>
 

@@ -63,13 +63,7 @@
       <%= hidden_field_tag :favorite, @favorite_filter ? "1" : nil %>
       <%= hidden_field_tag :low_stock, @low_stock_filter ? "1" : nil %>
       <%= hidden_field_tag :unreviewed, @unreviewed_filter ? "1" : nil %>
-      <select name="category_id" onchange="this.form.requestSubmit()" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
-        <option value="">カテゴリ: すべて</option>
-        <% @categories.each do |category| %>
-          <option value="<%= category.id %>" <%= "selected" if @selected_category_id == category.id.to_s %>><%= category.name %></option>
-        <% end %>
-        <option value="uncategorized" <%= "selected" if @selected_category_id == "uncategorized" %>>未設定</option>
-      </select>
+      <%= render "items/category_select", categories: @categories, selected_category_id: @selected_category_id %>
     <% end %>
 
     <% if @selected_category_id.present? %>

@@ -525,9 +525,11 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     patch toggle_low_stock_item_path(item)
     assert item.reload.low_stock_flagged?
+    assert_equal "なくなりそうに追加しました", flash[:notice]
 
     patch toggle_low_stock_item_path(item)
     assert_not item.reload.low_stock_flagged?
+    assert_equal "なくなりそうから外しました", flash[:notice]
   end
 
   test "low stock button asks for confirmation only when turning it off" do
