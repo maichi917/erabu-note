@@ -22,4 +22,15 @@ module ApplicationHelper
     empty = content_tag(:span, "☆" * (5 - rating.round), class: "text-slate-300")
     safe_join([ filled, empty ])
   end
+
+  # ナビゲーションで、今いる画面のメニューかどうかを判定する
+  def current_nav?(name)
+    case name
+    when :home then controller_name == "home"
+    when :reviews then controller_name == "items" && action_name == "reviews"
+    when :register then controller_name == "items" && action_name.in?(%w[new create])
+    when :items then controller_name == "items" && !action_name.in?(%w[reviews new create edit_review])
+    else false
+    end
+  end
 end
