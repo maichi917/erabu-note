@@ -92,7 +92,7 @@
       <% if @good_items.any? %>
         <div class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
           <% @good_items.each do |item| %>
-            <%= render "review_summary", item: item %>
+            <%= render "items/review_card", item: item %>
           <% end %>
         </div>
       <% else %>
@@ -106,7 +106,7 @@
       <% if @bad_items.any? %>
         <div class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
           <% @bad_items.each do |item| %>
-            <%= render "review_summary", item: item %>
+            <%= render "items/review_card", item: item %>
           <% end %>
         </div>
       <% else %>
