@@ -1,5 +1,5 @@
 class Item < ApplicationRecord
-  attr_accessor :new_category_name, :remove_category
+  attr_accessor :new_category_name
 
   # 容量の単位の選択肢
   CAPACITY_UNITS = %w[ml g kg 枚 個].freeze
@@ -62,28 +62,23 @@ class Item < ApplicationRecord
     (price.to_f / capacity).round(1)
   end
 
-  # カテゴリを割り当てる。新規カテゴリ名があれば作成して設定し、
-  # 作成に失敗した場合は errors に引き継いで false を返す
-  def assign_category(user, category_id:, new_category_name:, remove_category:)
+  # カテゴリを割り当てる。カテゴリ名が空ならカテゴリなしにする。
+  # 同じ名前のカテゴリがなければ作成し、作成に失敗した場合は errors に引き継いで false を返す
+  def assign_category(user, new_category_name:)
     self.new_category_name = new_category_name.to_s.strip
-    self.remove_category = ActiveModel::Type::Boolean.new.cast(remove_category)
 
-    if self.new_category_name.present?
-      new_category = user.categories.find_or_initialize_by(name: self.new_category_name)
-      unless new_category.save
-        new_category.errors[:name].each { |message| errors.add(:new_category_name, message) }
-        return false
-      end
-
-      self.category = new_category
-    elsif self.remove_category
+    if self.new_category_name.blank?
       self.category = nil
-    elsif category_id.present?
-      self.category = user.categories.find(category_id)
-    else
-      self.category = nil
+      return true
     end
 
+    new_category = user.categories.find_or_initialize_by(name: self.new_category_name)
+    unless new_category.save
+      new_category.errors[:name].each { |message| errors.add(:new_category_name, message) }
+      return false
+    end
+
+    self.category = new_category
     true
   end
 

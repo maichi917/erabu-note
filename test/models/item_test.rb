@@ -59,7 +59,7 @@ class ItemTest < ActiveSupport::TestCase
     user = users(:one)
 
     assert_difference -> { user.categories.count }, 1 do
-      assert item.assign_category(user, category_id: nil, new_category_name: "日用品", remove_category: nil)
+      assert item.assign_category(user, new_category_name: "日用品")
     end
     assert_equal "日用品", item.category.name
   end
@@ -70,7 +70,7 @@ class ItemTest < ActiveSupport::TestCase
     existing = user.categories.create!(name: "日用品")
 
     assert_no_difference -> { user.categories.count } do
-      assert item.assign_category(user, category_id: nil, new_category_name: "日用品", remove_category: nil)
+      assert item.assign_category(user, new_category_name: "日用品")
     end
     assert_equal existing, item.category
   end
@@ -79,39 +79,15 @@ class ItemTest < ActiveSupport::TestCase
     item = items(:one)
     user = users(:one)
 
-    assert_not item.assign_category(user, category_id: nil, new_category_name: "あ" * 21, remove_category: nil)
+    assert_not item.assign_category(user, new_category_name: "あ" * 21)
     assert item.errors[:new_category_name].any?
   end
 
-  test "assign_category removes category when remove_category is set" do
+  test "assign_category clears category when the name is blank" do
     item = items(:one)
     item.update!(category: categories(:hair_care))
 
-    assert item.assign_category(users(:one), category_id: nil, new_category_name: nil, remove_category: "1")
-    assert_nil item.category
-  end
-
-  test "assign_category assigns category by id scoped to the user" do
-    item = items(:one)
-
-    assert item.assign_category(users(:one), category_id: categories(:hair_care).id, new_category_name: nil, remove_category: nil)
-    assert_equal categories(:hair_care), item.category
-  end
-
-  test "assign_category raises for another user's category id" do
-    item = items(:one)
-    other_category = users(:two).categories.create!(name: "他ユーザーカテゴリ")
-
-    assert_raises(ActiveRecord::RecordNotFound) do
-      item.assign_category(users(:one), category_id: other_category.id, new_category_name: nil, remove_category: nil)
-    end
-  end
-
-  test "assign_category clears category when nothing is given" do
-    item = items(:one)
-    item.update!(category: categories(:hair_care))
-
-    assert item.assign_category(users(:one), category_id: nil, new_category_name: nil, remove_category: nil)
+    assert item.assign_category(users(:one), new_category_name: " ")
     assert_nil item.category
   end
 

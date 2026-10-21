@@ -157,7 +157,7 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:item).permit(:name, :brand_name, :price, :favorite, :memo, :image, :capacity, :capacity_unit,
+    params.require(:item).permit(:name, :brand_name, :price, :memo, :image, :capacity, :capacity_unit,
                                   :rating, :review)
   end
 
@@ -166,11 +166,6 @@ class ItemsController < ApplicationController
   end
 
   def assign_category
-    @item.assign_category(
-      current_user,
-      category_id: params.dig(:item, :category_id),
-      new_category_name: params.dig(:item, :new_category_name),
-      remove_category: params.dig(:item, :remove_category)
-    )
+    @item.assign_category(current_user, new_category_name: params.dig(:item, :new_category_name))
   end
 end

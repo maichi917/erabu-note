@@ -688,7 +688,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
         item: {
           name: "シャンプー",
           price: 1200,
-          category_id: category.id
+          new_category_name: category.name
         }
       }
     end
@@ -773,7 +773,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
       item: {
         name: item.name,
         price: item.price,
-        category_id: category.id
+        new_category_name: category.name
       }
     }
 
@@ -907,20 +907,20 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal category, item.category
   end
 
-  test "create cannot assign another user's category" do
-    category = Category.create!(user: users(:two), name: "日用品")
+  test "create does not use another user's category with the same name" do
+    other_category = Category.create!(user: users(:two), name: "日用品")
 
-    assert_no_difference -> { @user.items.count } do
-      post items_path, params: {
-        item: {
-          name: "他ユーザーカテゴリのアイテム",
-          price: 300,
-          category_id: category.id
-        }
+    post items_path, params: {
+      item: {
+        name: "他ユーザーと同じカテゴリ名のアイテム",
+        price: 300,
+        new_category_name: "日用品"
       }
-    end
+    }
 
-    assert_response :not_found
+    item = @user.items.order(:created_at).last
+    assert_equal @user, item.category.user
+    assert_not_equal other_category, item.category
   end
 
   test "index shows item category" do

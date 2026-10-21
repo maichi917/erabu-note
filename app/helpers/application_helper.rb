@@ -16,11 +16,6 @@ module ApplicationHelper
     image_url(content_for?(:og_image) ? content_for(:og_image) : DEFAULT_OG_IMAGE)
   end
 
-  # 日付を「2026/5/1」形式で返す。nilの場合は「-」を返す
-  def format_date(date)
-    date&.strftime("%Y/%-m/%-d") || "-"
-  end
-
   # 星評価を★☆で表示する（小数の場合は四捨五入する）
   def star_rating(rating)
     filled = "★" * rating.round
