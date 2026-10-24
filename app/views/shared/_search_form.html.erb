@@ -14,16 +14,20 @@
         </svg>
       </span>
 
-      <div class="relative flex-1" data-autocomplete-container>
+      <div class="relative flex-1"
+           data-controller="autocomplete"
+           data-autocomplete-url-value="<%= autocomplete_items_path %>"
+           data-action="click@window->autocomplete#closeOnOutsideClick">
         <%= search_field_tag :q,
                              query,
                              placeholder: "アイテム名で検索",
                              class: "form-input h-10",
                              autocomplete: "off",
-                             data: { autocomplete_input: true } %>
+                             data: { autocomplete_target: "input", action: "input->autocomplete#search keydown->autocomplete#navigate" } %>
         <ul class="absolute z-10 mt-1 hidden max-h-60 w-full overflow-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg"
             role="listbox"
-            data-autocomplete-list></ul>
+            data-autocomplete-target="list"
+            data-action="click->autocomplete#choose"></ul>
       </div>
     </div>
 
