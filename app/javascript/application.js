@@ -1,5 +1,6 @@
 // Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
 import "@hotwired/turbo-rails"
+import "controllers"
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"]
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024
