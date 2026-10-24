@@ -1,0 +1,155 @@
+# ゲストログイン用のサンプルデータ（User#seed_guest_sample_data! で読み込む）
+# ホームの各欄（なくなりそう・レビュー未記入・よかったもの・イマイチ）が埋まるように配分している
+# image は app/assets/images/samples/ のファイル名
+
+categories:
+  - スキンケア
+  - ヘアケア
+  - メイク
+  - ボディケア
+  - 日用品
+
+items:
+  # なくなりそう
+  - name: モイストバランス ローション
+    brand_name: kinari
+    category: スキンケア
+    price: 1200
+    capacity: 120
+    capacity_unit: ml
+    favorite: true
+    low_stock_flagged: true
+    image: lotion.png
+  - name: シルクリペア シャンプー
+    brand_name: botanica
+    category: ヘアケア
+    price: 1500
+    capacity: 400
+    capacity_unit: ml
+    favorite: true
+    low_stock_flagged: true
+    rating: 4
+    review: 泡立ちが良く、香りも好みでした
+  - name: ランドリーソープ
+    brand_name: clean days
+    category: 日用品
+    price: 800
+    capacity: 900
+    capacity_unit: g
+    low_stock_flagged: true
+
+  # レビュー未記入
+  - name: クッションファンデーション
+    brand_name: clear lab
+    category: メイク
+    price: 3200
+    capacity: 15
+    capacity_unit: g
+  - name: デイリーフェイスマスク
+    brand_name: kinari
+    category: スキンケア
+    price: 1000
+    capacity: 30
+    capacity_unit: 枚
+
+  # よかったもの（★4〜5）
+  - name: デイクリーム
+    brand_name: kinari
+    category: スキンケア
+    price: 2400
+    capacity: 50
+    capacity_unit: g
+    favorite: true
+    rating: 5
+    review: 毎日のスキンケアに欠かせないアイテムです
+  - name: シアーリップ ローズ
+    brand_name: hanaya
+    category: メイク
+    price: 1600
+    capacity: 3
+    capacity_unit: g
+    favorite: true
+    rating: 5
+    review: 色づきが自然で、マスクにもつきにくい。色違いも欲しい
+  - name: ハーブハンドクリーム
+    brand_name: petit herb
+    category: ボディケア
+    price: 900
+    capacity: 50
+    capacity_unit: g
+    rating: 4
+    review: べたつかず、職場でも使いやすい
+  - name: スムースヘアオイル
+    brand_name: botanica
+    category: ヘアケア
+    price: 2200
+    capacity: 100
+    capacity_unit: ml
+    favorite: true
+    rating: 4
+    review: 少量でまとまる。ドライヤーの前に欠かせない
+
+  # どちらでもない（★3）
+  - name: やさしいボディソープ
+    brand_name: clean days
+    category: ボディケア
+    price: 700
+    capacity: 500
+    capacity_unit: ml
+    rating: 3
+    review: 可もなく不可もなく。香りがもう少し強いと好み
+  - name: 食器用洗剤
+    brand_name: clean days
+    category: 日用品
+    price: 300
+    capacity: 600
+    capacity_unit: ml
+    rating: 3
+    review: 汚れ落ちは普通。詰め替えが安いのは助かる
+
+  # イマイチだったもの（★1〜2）
+  - name: グロウセラム
+    brand_name: clear lab
+    category: スキンケア
+    price: 3000
+    capacity: 30
+    capacity_unit: ml
+    rating: 1
+    review: 肌に合わなかった。次は買わない。
+    image: serum.png
+  - name: ロングラッシュ マスカラ
+    brand_name: hanaya
+    category: メイク
+    price: 1400
+    capacity: 6
+    capacity_unit: g
+    rating: 2
+    review: 夕方になるとにじみやすい。下まぶたが黒くなる
+  - name: クレンジングバーム
+    brand_name: kinari
+    category: スキンケア
+    price: 2800
+    capacity: 90
+    capacity_unit: g
+    rating: 1
+    review: 洗い上がりがつっぱる。乾燥肌には合わなかった
+
+  # 手放したもの（感想は残る）
+  - name: リッチモイストトリートメント
+    brand_name: botanica
+    category: ヘアケア
+    price: 1800
+    capacity: 200
+    capacity_unit: g
+    rating: 2
+    review: 香りは好きだったけど、仕上がりが重たくて合わなかった
+    archived: true
+  - name: ソルトボディスクラブ
+    brand_name: petit herb
+    category: ボディケア
+    price: 1500
+    capacity: 200
+    capacity_unit: g
+    rating: 4
+    review: つるつるになって気に入っていた。使い切ったので手放した
+    archived: true
