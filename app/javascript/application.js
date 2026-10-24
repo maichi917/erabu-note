@@ -2,55 +2,6 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"]
-const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024
-
-document.addEventListener("change", (event) => {
-  if (event.target.type !== "file") return
-
-  const form = event.target.closest("form")
-  const uploadProgress = form.querySelector("[data-upload-progress]")
-  const imagePreview = form.querySelector("[data-image-preview]")
-  const imagePreviewPlaceholder = form.querySelector("[data-image-preview-placeholder]")
-  const file = event.target.files[0]
-
-  if (!file) return
-
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-    event.target.value = ""
-    if (uploadProgress) {
-      uploadProgress.textContent = "JPEGまたはPNG形式の画像を選択してください"
-      uploadProgress.classList.remove("hidden", "alert-success")
-      uploadProgress.classList.add("alert-error")
-    }
-    return
-  }
-
-  if (file.size > MAX_IMAGE_SIZE_BYTES) {
-    event.target.value = ""
-    if (uploadProgress) {
-      uploadProgress.textContent = "画像は10MB以下にしてください"
-      uploadProgress.classList.remove("hidden", "alert-success")
-      uploadProgress.classList.add("alert-error")
-    }
-    return
-  }
-
-  if (uploadProgress) {
-    uploadProgress.textContent = "画像が選択されました"
-    uploadProgress.classList.remove("hidden", "alert-error")
-    uploadProgress.classList.add("alert-success")
-  }
-
-  if (imagePreview) {
-    imagePreview.src = URL.createObjectURL(file)
-    imagePreview.classList.remove("hidden")
-    if (imagePreviewPlaceholder) {
-      imagePreviewPlaceholder.classList.add("hidden")
-    }
-  }
-})
-
 document.addEventListener("submit", (event) => {
   const form = event.target
   const submitLoading = form.querySelector("[data-submit-loading]")
