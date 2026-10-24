@@ -2,6 +2,8 @@ class User < ApplicationRecord
   EMAIL_FORMAT = /\A[^@\s]+@[^@\s]+\.[^@\s]+\z/
   LINE_PLACEHOLDER_EMAIL_DOMAIN = "line.invalid"
   GUEST_EMAIL_DOMAIN = "guest.invalid"
+  GUEST_SAMPLE_DATA_PATH = Rails.root.join("config/guest_sample_data.yml")
+  GUEST_SAMPLE_IMAGE_DIR = Rails.root.join("app/assets/images/samples")
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :trackable
@@ -42,60 +44,19 @@ class User < ApplicationRecord
     email.to_s.end_with?("@#{GUEST_EMAIL_DOMAIN}")
   end
 
-  # ゲストアカウントに、機能を理解しやすいサンプルデータ（カテゴリ・アイテム）を用意する
+  # ゲストアカウントに、機能を理解しやすいサンプルデータ（カテゴリ・アイテム）を用意する。
+  # データの中身は config/guest_sample_data.yml に書いている
   def seed_guest_sample_data!
-    skin_care = categories.create!(name: "スキンケア")
-    hair_care = categories.create!(name: "ヘアケア")
-    daily_goods = categories.create!(name: "日用品")
+    data = YAML.load_file(GUEST_SAMPLE_DATA_PATH)
+    categories_by_name = data["categories"].index_with { |name| categories.create!(name: name) }
 
-    # よく使うもの・なくなりそう（感想はまだ未記入）
-    lotion = items.create!(
-      name: "モイストバランス ローション", brand_name: "kinari", category: skin_care,
-      price: 1200, capacity: 120, capacity_unit: "ml",
-      favorite: true, low_stock_flagged: true
-    )
-    lotion.image.attach(
-      io: Rails.root.join("app/assets/images/samples/lotion.png").open,
-      filename: "lotion.png"
-    )
+    data["items"].each do |attributes|
+      image = attributes.delete("image")
+      category = categories_by_name.fetch(attributes.delete("category"))
+      item = items.create!(attributes.merge(category: category))
+      next if image.blank?
 
-    # よく使うもの（感想あり、なくなりそうではない）
-    items.create!(
-      name: "デイクリーム", brand_name: "kinari", category: skin_care,
-      price: 2400, capacity: 50, capacity_unit: "g",
-      favorite: true, rating: 5, review: "毎日のスキンケアに欠かせないアイテムです"
-    )
-
-    # 感想あり（高評価）
-    items.create!(
-      name: "シルクリペア シャンプー", brand_name: "botanica", category: hair_care,
-      price: 1500, capacity: 400, capacity_unit: "ml",
-      rating: 4, review: "泡立ちが良く、香りも好みでした"
-    )
-
-    # 感想あり（低評価）
-    serum = items.create!(
-      name: "グロウセラム", brand_name: "clear lab", category: skin_care,
-      price: 3000, capacity: 30, capacity_unit: "ml",
-      rating: 1, review: "肌に合わなかった。次は買わない。"
-    )
-    serum.image.attach(
-      io: Rails.root.join("app/assets/images/samples/serum.png").open,
-      filename: "serum.png"
-    )
-
-    # レビュー未記入
-    items.create!(
-      name: "ランドリーソープ", brand_name: "clean days", category: daily_goods,
-      price: 800, capacity: 900, capacity_unit: "g"
-    )
-
-    # 手放したもの（感想は残る）
-    items.create!(
-      name: "リッチモイストトリートメント", brand_name: "botanica", category: hair_care,
-      price: 1800, capacity: 200, capacity_unit: "g",
-      rating: 2, review: "香りは好きだったけど、仕上がりが重たくて合わなかった",
-      archived: true
-    )
+      item.image.attach(io: GUEST_SAMPLE_IMAGE_DIR.join(image).open, filename: image)
+    end
   end
 end
