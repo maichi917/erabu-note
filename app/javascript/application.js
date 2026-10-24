@@ -65,33 +65,6 @@ document.addEventListener("submit", (event) => {
 })
 
 document.addEventListener("click", (event) => {
-  const toggleButton = event.target.closest("[data-disclosure-toggle]")
-  const cancelButton = event.target.closest("[data-disclosure-cancel]")
-  const button = toggleButton || cancelButton
-
-  if (!button) return
-
-  const disclosure = button.closest("[data-disclosure]")
-  const target = button.dataset.disclosureTarget
-  const panel =
-    cancelButton?.closest("[data-disclosure-panel]") ||
-    disclosure?.querySelector(target ? `[data-disclosure-panel="${target}"]` : "[data-disclosure-panel]")
-
-  if (!panel) return
-
-  if (panel.matches("[data-modal-panel]")) {
-    panel.classList.toggle("hidden", Boolean(cancelButton))
-    panel.classList.toggle("flex", Boolean(toggleButton))
-    button.setAttribute("aria-expanded", String(Boolean(toggleButton)))
-    document.body.classList.toggle("overflow-hidden", Boolean(toggleButton))
-    return
-  }
-
-  panel.classList.toggle("hidden", Boolean(cancelButton))
-  button.setAttribute("aria-expanded", String(Boolean(toggleButton)))
-})
-
-document.addEventListener("click", (event) => {
   const star = event.target.closest("[data-star-rating-star]")
   if (!star) return
 
@@ -110,16 +83,6 @@ document.addEventListener("click", (event) => {
     el.classList.toggle("text-slate-300", !filled)
     el.classList.toggle("hover:text-amber-300", !filled)
   })
-})
-
-document.addEventListener("keydown", (event) => {
-  if (event.key !== "Escape") return
-
-  document.querySelectorAll("[data-modal-panel]:not(.hidden)").forEach((panel) => {
-    panel.classList.add("hidden")
-    panel.classList.remove("flex")
-  })
-  document.body.classList.remove("overflow-hidden")
 })
 
 const AUTOCOMPLETE_MIN_LENGTH = 2
