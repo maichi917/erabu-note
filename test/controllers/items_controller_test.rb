@@ -637,7 +637,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get new_item_path
 
     assert_response :success
-    assert_select "button[data-star-rating-star]", count: 5
+    assert_select "button[data-star-rating-target='star']", count: 5
     assert_select "textarea[name='item[review]']"
   end
 
@@ -1009,7 +1009,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "form[action='#{update_review_item_path(item)}'] input[type='hidden'][name='item[rating]'][value='4']"
-    assert_select "form[action='#{update_review_item_path(item)}'] button[data-star-rating-star]", count: 5
+    assert_select "form[action='#{update_review_item_path(item)}'] button[data-star-rating-target='star']", count: 5
     assert_select "form[action='#{update_review_item_path(item)}'] textarea[name='item[review]']", text: "よかった"
   end
 
@@ -1022,7 +1022,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, item.name
     assert_select "p.text-emerald-700", text: "ものログ製薬"
-    assert_select "form[action='#{update_review_item_path(item)}'] button[data-star-rating-star]", count: 5
+    assert_select "form[action='#{update_review_item_path(item)}'] button[data-star-rating-target='star']", count: 5
     assert_select "form[action='#{update_review_item_path(item)}'] textarea[name='item[review]']", text: "よかった"
   end
 

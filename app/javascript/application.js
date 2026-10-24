@@ -64,27 +64,6 @@ document.addEventListener("submit", (event) => {
   }
 })
 
-document.addEventListener("click", (event) => {
-  const star = event.target.closest("[data-star-rating-star]")
-  if (!star) return
-
-  const container = star.closest("[data-star-rating]")
-  const input = container?.parentElement.querySelector("[data-star-rating-input]")
-  if (!input) return
-
-  const value = star.dataset.value
-  // 選択済みの星をもう一度押したら評価をクリアできるようにする
-  const nextValue = input.value === value ? "" : value
-  input.value = nextValue
-
-  container.querySelectorAll("[data-star-rating-star]").forEach((el) => {
-    const filled = nextValue !== "" && Number(el.dataset.value) <= Number(nextValue)
-    el.classList.toggle("text-amber-400", filled)
-    el.classList.toggle("text-slate-300", !filled)
-    el.classList.toggle("hover:text-amber-300", !filled)
-  })
-})
-
 const AUTOCOMPLETE_MIN_LENGTH = 2
 const AUTOCOMPLETE_DEBOUNCE_MS = 300
 const AUTOCOMPLETE_ITEM_CLASS =

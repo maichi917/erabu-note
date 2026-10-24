@@ -1,14 +1,15 @@
-<div>
+<div data-controller="star-rating">
   <p class="text-base font-semibold text-slate-700">評価</p>
   <p class="text-xs text-slate-500">（感想を書く場合は必須）</p>
-  <div class="mt-2 flex gap-1.5" data-star-rating>
+  <div class="mt-2 flex gap-1.5">
     <% (1..5).each do |n| %>
       <button type="button"
               class="text-3xl leading-none transition <%= n <= (form.object.rating || 0) ? "text-amber-400" : "text-slate-300 hover:text-amber-300" %>"
-              data-star-rating-star
+              data-star-rating-target="star"
+              data-action="star-rating#select"
               data-value="<%= n %>"
               aria-label="星<%= n %>つ">★</button>
     <% end %>
   </div>
-  <%= form.hidden_field :rating, data: { star_rating_input: true } %>
+  <%= form.hidden_field :rating, data: { star_rating_target: "input" } %>
 </div>
