@@ -57,7 +57,7 @@
     <% end %>
 
     <!-- カテゴリ: 状態とは別軸の分類。selectのchangeイベントでフォームを送信すると、選ぶだけで絞り込める -->
-    <%= form_with url: items_path, method: :get, local: true, class: "flex" do %>
+    <%= form_with url: items_path, method: :get, local: true, class: "flex", data: { controller: "auto-submit" } do %>
       <%= hidden_field_tag :q, @search_query.presence %>
       <%= hidden_field_tag :scope, @scope.presence %>
       <%= hidden_field_tag :favorite, @favorite_filter ? "1" : nil %>

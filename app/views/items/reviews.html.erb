@@ -13,12 +13,12 @@
              ) %>
 
   <!-- selectのchangeイベントでフォームを送信すると、選ぶだけで絞り込めるドロップダウンになる -->
-  <%= form_with url: reviews_items_path, method: :get, local: true, class: "mb-4 flex flex-wrap items-center gap-2" do %>
+  <%= form_with url: reviews_items_path, method: :get, local: true, class: "mb-4 flex flex-wrap items-center gap-2", data: { controller: "auto-submit" } do %>
     <%= hidden_field_tag :q, @search_query.presence %>
 
     <%= render "items/category_select", categories: @categories, selected_category_id: @selected_category_id %>
 
-    <select name="rating" onchange="this.form.requestSubmit()" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+    <select name="rating" data-action="auto-submit#submit" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
       <option value="">評価: すべて</option>
       <% 5.downto(1) do |rating| %>
         <option value="<%= rating %>" <%= "selected" if @selected_rating == rating.to_s %>>⭐️ <%= rating %></option>

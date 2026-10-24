@@ -105,6 +105,7 @@ https://monolog-note.com/
 - Render（本番）
 - Docker（開発）
 - Tailwind CSS
+- Hotwire（Turbo / Stimulus）
 - Devise / omniauth-oauth2
 - Active Storage（Cloudflare R2 / image_processing / libvips）
 - Minitest / GitHub Actions
