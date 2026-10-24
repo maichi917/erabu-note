@@ -1,5 +1,5 @@
-<%# カテゴリで絞り込むプルダウン（持ち物一覧・感想一覧で使う）。選ぶだけでフォームを送信する %>
-<select name="category_id" onchange="this.form.requestSubmit()" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+<%# カテゴリで絞り込むプルダウン（持ち物一覧・感想一覧で使う）。auto-submit のフォームの中に置くと、選ぶだけで送信される %>
+<select name="category_id" data-action="auto-submit#submit" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
   <option value="">カテゴリ: すべて</option>
   <% categories.each do |category| %>
     <option value="<%= category.id %>" <%= "selected" if selected_category_id == category.id.to_s %>><%= category.name %></option>
