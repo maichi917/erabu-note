@@ -1,4 +1,4 @@
-<%= form_with model: item, class: "ui-card space-y-6" do |f| %>
+<%= form_with model: item, class: "ui-card space-y-6", data: { controller: "submit-loading", action: "submit-loading#show" } do |f| %>
 
   <!-- エラーメッセージ表示 -->
   <% if item.errors.any? %>
@@ -129,18 +129,18 @@
     </div>
 
     <!-- ボタン群 -->
-    <div class="alert-info hidden text-center" data-submit-loading>
+    <div class="alert-info hidden text-center" data-submit-loading-target="message">
       <%= item.persisted? ? "アイテム情報を更新しています..." : "アイテムを登録しています..." %>
     </div>
 
     <% if item.persisted? %>
       <div class="grid gap-3 sm:grid-cols-2">
         <%= link_to 'キャンセル', item_path(item), class: "btn-secondary" %>
-        <%= f.submit '更新する', class: "btn-primary cursor-pointer" %>
+        <%= f.submit '更新する', class: "btn-primary cursor-pointer", data: { submit_loading_target: "button" } %>
       </div>
     <% else %>
       <div>
-        <%= f.submit nil, class: "btn-primary w-full cursor-pointer" %>
+        <%= f.submit nil, class: "btn-primary w-full cursor-pointer", data: { submit_loading_target: "button" } %>
       </div>
     <% end %>
   </div>

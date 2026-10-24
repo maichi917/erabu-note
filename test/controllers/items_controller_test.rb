@@ -564,7 +564,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get new_item_path
 
     assert_response :success
-    assert_select "[data-submit-loading]", text: "アイテムを登録しています..."
+    assert_select "[data-submit-loading-target='message']", text: "アイテムを登録しています..."
   end
 
   test "new page image input supports camera capture" do
@@ -602,7 +602,7 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     get edit_item_path(items(:one))
 
     assert_response :success
-    assert_select "[data-submit-loading]", text: "アイテム情報を更新しています..."
+    assert_select "[data-submit-loading-target='message']", text: "アイテム情報を更新しています..."
   end
 
   test "edit page image input supports camera capture" do

@@ -2,19 +2,6 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 
-document.addEventListener("submit", (event) => {
-  const form = event.target
-  const submitLoading = form.querySelector("[data-submit-loading]")
-  const submitButton = form.querySelector("input[type='submit']")
-
-  if (!submitLoading) return
-
-  submitLoading.classList.remove("hidden")
-  if (submitButton) {
-    submitButton.disabled = true
-  }
-})
-
 const AUTOCOMPLETE_MIN_LENGTH = 2
 const AUTOCOMPLETE_DEBOUNCE_MS = 300
 const AUTOCOMPLETE_ITEM_CLASS =
