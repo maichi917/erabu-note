@@ -16,7 +16,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_user_session_path
   end
 
-  test "home shows low stock items with a review link" do
+  test "home shows low stock items" do
     user = users(:one)
     sign_in user
 
@@ -28,10 +28,9 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h2", text: "なくなりそうなもの"
     assert_select "a[href='#{item_path(item)}']", text: item.name
-    assert_select "a[href='#{edit_review_item_path(item)}']", text: "感想を書く"
   end
 
-  test "home shows an edit label for the review link when the low stock item already has a rating" do
+  test "home shows the rating of a low stock item without a review link" do
     user = users(:one)
     sign_in user
 
@@ -41,7 +40,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select "a[href='#{edit_review_item_path(item)}']", text: "感想を編集"
+    assert_includes response.body, "★★★★"
+    assert_select "a[href='#{edit_review_item_path(item)}']", count: 0
   end
 
   test "home shows empty state when nothing is low on stock" do
@@ -85,7 +85,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select "h2", text: "レビューをかいていないもの"
+    assert_select "h2", text: "感想を書いていないもの"
     assert_select "a[href='#{item_path(item)}']", text: item.name
     assert_select "a[href='#{edit_review_item_path(item)}']", text: "感想を書く"
   end
@@ -100,7 +100,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_includes response.body, "レビュー未記入のアイテムがありません"
+    assert_includes response.body, "感想を書いていないアイテムはありません"
   end
 
   test "home shows at most 6 unreviewed items with a link to see more" do
@@ -140,8 +140,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get home_path
 
     assert_response :success
-    assert_select "h3", text: "よかったもの"
-    assert_select "h3", text: "イマイチだったもの"
+    assert_select "h2", text: "よかったもの"
+    assert_select "h2", text: "イマイチだったもの"
     assert_select "a[href='#{item_path(good_item)}']", text: good_item.name
     assert_select "a[href='#{item_path(bad_item)}']", text: bad_item.name
   end
@@ -198,5 +198,17 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "まだ高評価のアイテムがありません"
+  end
+
+  test "home shows a guide to register when the user has no items" do
+    sign_in users(:one)
+    users(:one).items.destroy_all
+
+    get home_path
+
+    assert_response :success
+    assert_select "h2", text: "最初のアイテムを登録しよう"
+    assert_select "a[href='#{new_item_path}']", text: "アイテムを登録する"
+    assert_select "h2", text: "なくなりそうなもの", count: 0
   end
 end
