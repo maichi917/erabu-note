@@ -17,16 +17,16 @@
 
 <table width="100%">
 <tr><th width="50%">① ホーム</th><th width="50%">② 感想を書く</th></tr>
-<tr><td><img src="images/sharing-01-home.png" width="300" alt="① ホーム"></td><td><img src="images/sharing-02-review.png" width="300" alt="② 感想を書く"></td></tr>
+<tr><td align="center"><img src="images/sharing-01-home.png" width="300" alt="① ホーム"></td><td align="center"><img src="images/sharing-02-review.png" width="300" alt="② 感想を書く"></td></tr>
 <tr><td>現在のホーム画面のタブの右端に、線で区切って「シェア」を追加。フォロー中の人の新しい感想があると赤い点を表示。</td><td>「シェアする」スイッチを追加。シェア画面に関するもののテーマカラーはローズに統一。星評価がないと公開はできない。ゲストには出さない。</td></tr>
 <tr><th width="50%">③ ニックネームの確認</th><th width="50%">④ フォロー中</th></tr>
-<tr><td><img src="images/sharing-03-confirm.png" width="300" alt="③ ニックネームの確認"></td><td><img src="images/sharing-04-following.png" width="300" alt="④ フォロー中"></td></tr>
+<tr><td align="center"><img src="images/sharing-03-confirm.png" width="300" alt="③ ニックネームの確認"></td><td align="center"><img src="images/sharing-04-following.png" width="300" alt="④ フォロー中"></td></tr>
 <tr><td>シェア中の感想が0件の人が、②でシェアして保存した時に出す。ニックネームを確認してもらう（既に名前を登録済みのユーザーがいるため）。</td><td>ヘッダーにロゴ＋「シェア」の印。下のタブもシェア用に変わる。フォローしている人がシェアした感想が、新しい順に並ぶ。ここを開くと赤い点が消える。ブックマークもできる</td></tr>
 <tr><th width="50%">⑤ さがす</th><th width="50%">⑥ 他の人のプロフィール</th></tr>
-<tr><td><img src="images/sharing-05-search.png" width="300" alt="⑤ さがす"></td><td><img src="images/sharing-06-profile.png" width="300" alt="⑥ 他の人のプロフィール"></td></tr>
+<tr><td align="center"><img src="images/sharing-05-search.png" width="300" alt="⑤ さがす"></td><td align="center"><img src="images/sharing-06-profile.png" width="300" alt="⑥ 他の人のプロフィール"></td></tr>
 <tr><td>シェアされている全員の感想から、商品名で検索できる。</td><td>名前を押すとユーザーのプロフィールが開ける。フォローするボタンはローズ。ログインしている人だけが見られる（ゲストは見本のユーザーを出す）。</td></tr>
 <tr><th width="50%">⑦ マイページ</th><th width="50%">⑧ 保存した感想</th></tr>
-<tr><td><img src="images/sharing-07-mypage.png" width="300" alt="⑦ マイページ"></td><td><img src="images/sharing-08-saved.png" width="300" alt="⑧ 保存した感想"></td></tr>
+<tr><td align="center"><img src="images/sharing-07-mypage.png" width="300" alt="⑦ マイページ"></td><td align="center"><img src="images/sharing-08-saved.png" width="300" alt="⑧ 保存した感想"></td></tr>
 <tr><td>シェア画面の中の自分のページ。名前の横の「✎ 編集」で、ニックネームを変更。数を押すとフォロー／フォロワー一覧。</td><td>ブックマークした感想を確認できる。自分だけが見られる。書いた人がシェアをやめたら、一覧に表示させない。</td></tr>
 </table>
 
