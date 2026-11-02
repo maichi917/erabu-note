@@ -5,6 +5,8 @@ class HomeController < ApplicationController
   UNREVIEWED_DISPLAY_LIMIT = 6
 
   def show
+    @has_items = current_user.items.exists?
+
     low_stock_items = current_user.items.visible.low_stock.order(updated_at: :desc)
     @low_stock_items_count = low_stock_items.count
     @low_stock_items = low_stock_items.limit(LOW_STOCK_DISPLAY_LIMIT)

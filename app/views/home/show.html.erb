@@ -1,76 +1,85 @@
 <div class="ui-container-wide">
-  <section>
-    <h2 class="brand-font text-lg font-bold text-slate-900">なくなりそうなもの</h2>
+  <% if @has_items %>
+    <div class="space-y-9">
+      <section class="space-y-3">
+        <%= render "section_heading", title: "なくなりそうなもの", icon: :low_stock, count: @low_stock_items_count %>
 
-    <% if @low_stock_items.any? %>
-      <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-3 pc:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]">
-        <% @low_stock_items.each do |item| %>
-          <%= render "item_card", item: item, show_rating: true %>
-        <% end %>
-      </div>
+        <% if @low_stock_items.any? %>
+          <div class="grid grid-cols-2 gap-3 pc:grid-cols-4">
+            <% @low_stock_items.each do |item| %>
+              <%= render "item_card", item: item %>
+            <% end %>
+          </div>
 
-      <% if @low_stock_items_count > @low_stock_items.size %>
-        <div class="mt-3 text-right">
-          <%= link_to "もっと見る >>", items_path(low_stock: "1"), class: "text-sm font-medium text-emerald-700 hover:underline" %>
-        </div>
-      <% end %>
-    <% else %>
-      <p class="mt-3 py-16 text-center text-sm text-slate-500">なくなりそうなアイテムはありません</p>
-    <% end %>
-  </section>
-
-  <section class="mt-8">
-    <h2 class="brand-font text-lg font-bold text-slate-900">レビューをかいていないもの</h2>
-
-    <% if @unreviewed_items.any? %>
-      <div class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-3 pc:grid-cols-[repeat(auto-fill,minmax(200px,1fr))]">
-        <% @unreviewed_items.each do |item| %>
-          <%= render "item_card", item: item %>
-        <% end %>
-      </div>
-
-      <% if @unreviewed_items_count > @unreviewed_items.size %>
-        <div class="mt-3 text-right">
-          <%= link_to "もっと見る >>", items_path(unreviewed: "1"), class: "text-sm font-medium text-emerald-700 hover:underline" %>
-        </div>
-      <% end %>
-    <% else %>
-      <p class="mt-3 py-16 text-center text-sm text-slate-500">レビュー未記入のアイテムがありません</p>
-    <% end %>
-  </section>
-
-  <section class="mt-8">
-    <div class="flex items-baseline justify-between">
-      <h2 class="brand-font text-lg font-bold text-slate-900">よかったもの・イマイチだったもの</h2>
-      <%= link_to "すべて見る", reviews_items_path, class: "text-sm font-medium text-emerald-700 hover:underline" %>
-    </div>
-
-    <div class="mt-3">
-      <h3 class="text-base font-bold text-emerald-700">よかったもの</h3>
-
-      <% if @good_items.any? %>
-        <div class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
-          <% @good_items.each do |item| %>
-            <%= render "items/review_card", item: item %>
+          <% if @low_stock_items_count > @low_stock_items.size %>
+            <div class="text-right">
+              <%= link_to "もっと見る >>", items_path(low_stock: "1"), class: "text-sm font-medium text-emerald-700 hover:underline" %>
+            </div>
           <% end %>
-        </div>
-      <% else %>
-        <p class="mt-2 py-16 text-center text-sm text-slate-500">まだ高評価のアイテムがありません</p>
-      <% end %>
-    </div>
+        <% else %>
+          <p class="py-10 text-center text-sm text-slate-500">なくなりそうなアイテムはありません</p>
+        <% end %>
+      </section>
 
-    <div class="mt-4">
-      <h3 class="text-base font-bold text-red-700">イマイチだったもの</h3>
+      <section class="space-y-3">
+        <%= render "section_heading", title: "感想を書いていないもの", icon: :unreviewed, count: @unreviewed_items_count %>
 
-      <% if @bad_items.any? %>
-        <div class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-2.5">
-          <% @bad_items.each do |item| %>
-            <%= render "items/review_card", item: item %>
+        <% if @unreviewed_items.any? %>
+          <div class="grid gap-2 pc:grid-cols-2">
+            <% @unreviewed_items.each do |item| %>
+              <%= render "unreviewed_row", item: item %>
+            <% end %>
+          </div>
+
+          <% if @unreviewed_items_count > @unreviewed_items.size %>
+            <div class="text-right">
+              <%= link_to "もっと見る >>", items_path(unreviewed: "1"), class: "text-sm font-medium text-emerald-700 hover:underline" %>
+            </div>
           <% end %>
-        </div>
-      <% else %>
-        <p class="mt-2 py-16 text-center text-sm text-slate-500">まだ低評価のアイテムがありません</p>
-      <% end %>
+        <% else %>
+          <p class="py-10 text-center text-sm text-slate-500">感想を書いていないアイテムはありません</p>
+        <% end %>
+      </section>
+
+      <div class="grid gap-9 pc:grid-cols-2 pc:gap-6">
+        <section class="space-y-3">
+          <%= render "section_heading", title: "よかったもの", icon: :good, link_path: reviews_items_path %>
+
+          <% if @good_items.any? %>
+            <div class="grid gap-2.5">
+              <% @good_items.each do |item| %>
+                <%= render "items/review_card", item: item %>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="py-10 text-center text-sm text-slate-500">まだ高評価のアイテムがありません</p>
+          <% end %>
+        </section>
+
+        <section class="space-y-3">
+          <%= render "section_heading", title: "イマイチだったもの", icon: :bad %>
+
+          <% if @bad_items.any? %>
+            <div class="grid gap-2.5">
+              <% @bad_items.each do |item| %>
+                <%= render "items/review_card", item: item %>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="py-10 text-center text-sm text-slate-500">まだ低評価のアイテムがありません</p>
+          <% end %>
+        </section>
+      </div>
     </div>
-  </section>
+  <% else %>
+    <%# アイテムが1つもないとき（登録したばかりなど）は、各欄の代わりに登録への案内を出す %>
+    <section class="ui-card mx-auto max-w-md space-y-4 py-10 text-center">
+      <h2 class="brand-font text-xl font-bold text-slate-900">最初のアイテムを登録しよう</h2>
+      <p class="text-sm leading-relaxed text-slate-600">
+        使っている化粧品や日用品を登録して、感想を残していきましょう。<br>
+        なくなりそうなものや、よかったものがここに並びます。
+      </p>
+      <%= link_to "アイテムを登録する", new_item_path, class: "btn-primary" %>
+    </section>
+  <% end %>
 </div>
