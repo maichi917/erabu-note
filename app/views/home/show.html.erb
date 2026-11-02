@@ -25,7 +25,7 @@
         <%= render "section_heading", title: "感想を書いていないもの", icon: :unreviewed, count: @unreviewed_items_count %>
 
         <% if @unreviewed_items.any? %>
-          <div class="grid gap-2 pc:grid-cols-2">
+          <div class="grid grid-cols-1 gap-2 pc:grid-cols-2">
             <% @unreviewed_items.each do |item| %>
               <%= render "unreviewed_row", item: item %>
             <% end %>
@@ -46,7 +46,7 @@
           <%= render "section_heading", title: "よかったもの", icon: :good, link_path: reviews_items_path %>
 
           <% if @good_items.any? %>
-            <div class="grid gap-2.5">
+            <div class="grid grid-cols-1 gap-2.5">
               <% @good_items.each do |item| %>
                 <%= render "items/review_card", item: item %>
               <% end %>
@@ -60,7 +60,7 @@
           <%= render "section_heading", title: "イマイチだったもの", icon: :bad %>
 
           <% if @bad_items.any? %>
-            <div class="grid gap-2.5">
+            <div class="grid grid-cols-1 gap-2.5">
               <% @bad_items.each do |item| %>
                 <%= render "items/review_card", item: item %>
               <% end %>

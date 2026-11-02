@@ -10,7 +10,7 @@
 <%= form_with url: toggle_low_stock_item_path(item), method: :patch, local: true, data: form_data, class: "inline-flex" do %>
   <button type="submit"
           aria-pressed="<%= item.low_stock_flagged? %>"
-          class="inline-flex items-center justify-center rounded-full border px-3 py-1 text-xs font-semibold transition <%= button_class %>">
+          class="inline-flex h-8 items-center justify-center rounded-full border px-3 text-xs font-semibold transition <%= button_class %>">
     なくなりそう
   </button>
 <% end %>
