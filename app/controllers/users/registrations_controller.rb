@@ -1,7 +1,18 @@
 class Users::RegistrationsController < Devise::RegistrationsController
+  # 人には見えない入力欄（ハニーポット）の名前。ボットは全部の欄を埋めるので、ここに入力があれば登録させない
+  HONEYPOT_FIELD = :website
+
   before_action :reject_guest, only: %i[edit update]
+  before_action :reject_bot_signup, only: :create
 
   private
+
+  # ボットには登録できたように見せて、実際には何も作らずにトップへ戻す
+  def reject_bot_signup
+    return if params[HONEYPOT_FIELD].blank?
+
+    redirect_to root_path
+  end
 
   # ゲストがメールアドレスを変更すると guest? の判定が外れ、
   # 定期削除（guest:cleanup）の対象から漏れてしまうため、アカウント編集を行えないようにする
