@@ -1,43 +1,40 @@
-<div class="ui-container max-w-md">
-  <div class="space-y-8 py-10 text-center">
-    <div class="space-y-4">
-      <%# アプリタイトル %>
-      <h1 class="logo-font text-6xl font-medium tracking-wide text-emerald-700">
-        えらぶノート
-      </h1>
+<%# 未ログイン時のトップ画面。ログイン済みならコントローラでホームにリダイレクトする %>
+<section class="relative overflow-hidden bg-stone-100">
+  <%# 背景の飾り（コスメのテクスチャのような、やわらかい色の形） %>
+  <div class="pointer-events-none absolute -left-16 top-5 h-14 w-40 -rotate-[18deg] rounded-full bg-[#d8e9df] pc:-left-10 pc:top-8 pc:h-24 pc:w-64" aria-hidden="true"></div>
+  <div class="pointer-events-none absolute -right-12 top-32 h-14 w-40 -rotate-[24deg] rounded-full bg-[#e3e6f3] pc:right-16 pc:top-16 pc:h-20 pc:w-56" aria-hidden="true"></div>
+  <div class="pointer-events-none absolute -left-10 bottom-32 h-12 w-36 rotate-12 rounded-full bg-[#f1ddd6] pc:bottom-10 pc:left-32 pc:h-16 pc:w-52" aria-hidden="true"></div>
+  <div class="pointer-events-none absolute -right-10 bottom-16 h-14 w-40 rotate-[20deg] rounded-full bg-[#f4e7c9] pc:-right-8 pc:bottom-16 pc:h-24 pc:w-60" aria-hidden="true"></div>
 
-      <%# サブタイトル %>
-      <p class="text-lg leading-relaxed text-slate-600">
-        感想を記録して、<br>
-        アイテム選びを楽しくする。
+  <div class="relative mx-auto flex max-w-5xl flex-col items-center gap-10 px-4 pt-10 pc:h-[560px] pc:flex-row pc:items-stretch pc:gap-10 pc:pt-0">
+    <%# コピーとボタン（スマホでは上、PC では右） %>
+    <div class="flex flex-col items-center gap-5 text-center pc:order-2 pc:flex-1 pc:justify-center pc:gap-6">
+      <p class="text-[15px] font-bold pc:text-lg">＼ いろいろ試すのが好きな人へ ／</p>
+      <h1 class="text-[34px] font-black leading-snug pc:text-[52px]">「えらぶ」を、<br>もっと楽しく</h1>
+      <p class="max-w-md text-sm leading-loose text-slate-700 pc:text-[15px]">
+        使ったコスメや日用品の、感想や評価を残していくアプリ。<br class="hidden pc:inline">
+        自分の感想を見返すことで、えらぶことを楽に、楽しくします。
       </p>
+      <div class="flex w-full flex-col items-center gap-3">
+        <%= button_to "ゲストログイン", guest_sign_in_path, method: :post,
+                      class: "w-full cursor-pointer rounded-full bg-slate-900 px-11 py-4 text-base font-bold text-white transition hover:bg-black pc:w-auto pc:text-[17px]",
+                      form_class: "w-full pc:w-auto" %>
+        <%= link_to "アカウント作成", new_user_registration_path, class: "text-sm text-slate-700 underline-offset-4 hover:underline" %>
+      </div>
     </div>
 
-    <div class="ui-card space-y-5 text-left">
-      <div>
-        <p class="brand-font text-xl font-bold text-slate-900">これ、どうだっけ…をなくす</p>
-        <p class="mt-2 text-sm leading-relaxed text-slate-600">
-          アイテムを登録して、使った感想を評価やレビューとして残せます。
-          好きなものを大切にできるよう、記録を次の「選ぶ」判断材料にしていくアプリです。
-          まずはゲストとして、実際に触ってみてください。
-        </p>
+    <%# アプリの画面（スマホの枠に入れたスクショ）と、ゲストログインのバッジ %>
+    <div class="relative h-[300px] w-[260px] shrink-0 pc:order-1 pc:h-[440px] pc:w-[440px] pc:self-end">
+      <div class="absolute bottom-0 left-5 hidden h-[380px] w-[210px] -rotate-6 overflow-hidden rounded-t-[30px] border-8 border-b-0 border-slate-900 bg-white pc:block">
+        <%= image_tag "top/phone-home.png", alt: "", class: "h-full w-full object-cover object-top" %>
       </div>
-
-      <% if user_signed_in? %>
-        <div class="rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          ようこそ、<%= current_user.name %> さん
-        </div>
-
-        <%= link_to "アイテム一覧へ", items_path, class: "btn-primary w-full" %>
-      <% else %>
-        <div class="grid gap-3">
-          <%= link_to "新規登録", new_user_registration_path, class: "btn-primary w-full" %>
-          <%= link_to "ログイン", new_user_session_path, class: "btn-secondary w-full" %>
-          <%= button_to "ゲストとして試す", guest_sign_in_path, method: :post,
-                        class: "block w-full cursor-pointer text-center text-sm font-medium text-emerald-700 hover:underline",
-                        form_class: "w-full" %>
-        </div>
-      <% end %>
+      <div class="absolute bottom-0 left-1/2 h-[300px] w-[210px] -translate-x-1/2 overflow-hidden rounded-t-[30px] border-[7px] border-b-0 border-slate-900 bg-white pc:left-auto pc:right-[30px] pc:h-[400px] pc:translate-x-0 pc:border-8">
+        <%= image_tag "top/phone-home.png", alt: "えらぶノートのホーム画面", class: "h-full w-full object-cover object-top pc:hidden" %>
+        <%= image_tag "top/phone-reviews.png", alt: "えらぶノートのホーム画面（よかったもの・イマイチだったもの）", class: "hidden h-full w-full object-cover object-top pc:block" %>
+      </div>
+      <div class="absolute -right-6 top-40 z-10 flex h-[104px] w-[104px] items-center justify-center rounded-full bg-[#e7a59a] text-center text-[11px] font-bold leading-normal text-white pc:left-[152px] pc:right-auto pc:top-[212px] pc:h-32 pc:w-32 pc:text-sm">
+        ゲスト<br>ログインで<br>操作をお試し！
+      </div>
     </div>
   </div>
-</div>
+</section>
