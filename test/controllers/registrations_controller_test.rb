@@ -1,6 +1,32 @@
 require "test_helper"
 
 class RegistrationsControllerTest < ActionDispatch::IntegrationTest
+  test "create registers a user when the hidden honeypot field is empty" do
+    assert_difference -> { User.count }, 1 do
+      post user_registration_path, params: {
+        user: { name: "新しい人", email: "new@example.com", password: "password", password_confirmation: "password" },
+        website: ""
+      }
+    end
+  end
+
+  test "create does not register a user when the hidden honeypot field is filled" do
+    assert_no_difference -> { User.count } do
+      post user_registration_path, params: {
+        user: { name: "bot1234", email: "bot@example.com", password: "password", password_confirmation: "password" },
+        website: "https://spam.example.com"
+      }
+    end
+
+    assert_redirected_to root_path
+  end
+
+  test "sign up form has the hidden honeypot field" do
+    get new_user_registration_path
+
+    assert_select "input[name='website'][tabindex='-1']"
+  end
+
   test "edit renders the account edit page for a signed-in user" do
     sign_in users(:one)
 
