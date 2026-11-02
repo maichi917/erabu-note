@@ -1,8 +1,8 @@
 <header class="border-b border-emerald-100 bg-white/95 shadow-sm">
   <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-4">
-    <%= link_to root_path, class: "logo-font inline-flex items-center gap-2 text-3xl font-bold text-emerald-700 transition hover:text-emerald-800" do %>
-      <%= image_tag "logo-mark.svg", alt: "", class: "h-9 w-9 shrink-0" %>
-      <span>えらぶノート</span>
+    <%= link_to root_path, class: "logo-font inline-flex shrink-0 items-center gap-2 text-2xl font-bold text-emerald-700 transition hover:text-emerald-800" do %>
+      <%= image_tag "logo-mark.svg", alt: "", class: "h-8 w-8 shrink-0 pc:h-9 pc:w-9" %>
+      <span class="whitespace-nowrap pc:text-3xl">えらぶノート</span>
     <% end %>
 
     <% if user_signed_in? %>
@@ -54,6 +54,12 @@
           </div>
         </details>
       </div>
+    <% else %>
+      <nav class="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm text-slate-700 pc:gap-3" aria-label="アカウント">
+        <%= link_to "新規登録", new_user_registration_path, class: "py-2 hover:text-emerald-700" %>
+        <span class="text-slate-300" aria-hidden="true">|</span>
+        <%= link_to "ログイン", new_user_session_path, class: "py-2 hover:text-emerald-700" %>
+      </nav>
     <% end %>
   </div>
 </header>

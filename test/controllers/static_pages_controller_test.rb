@@ -9,6 +9,16 @@ class StaticPagesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to home_path
   end
 
+  test "トップページにゲストログインとアカウント作成の導線がある" do
+    get root_path
+
+    assert_response :success
+    assert_select "h1", text: /もっと楽しく/
+    assert_select "form[action='#{guest_sign_in_path}'] button", text: "ゲストログイン"
+    assert_select "a[href='#{new_user_registration_path}']", text: "アカウント作成"
+    assert_select "header a[href='#{new_user_session_path}']", text: "ログイン"
+  end
+
   test "トップページにOGPとX Cardを設定している" do
     get root_path
 
