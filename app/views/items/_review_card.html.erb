@@ -16,7 +16,12 @@
     <h3 class="brand-font line-clamp-2 text-base font-bold text-slate-900">
       <%= link_to item.name, item_path(item), class: "transition hover:text-emerald-700" %>
     </h3>
-    <p class="mt-0.5 text-sm font-semibold text-yellow-500"><%= star_rating(item.rating) %></p>
+    <p class="mt-0.5 flex items-center gap-2 text-sm font-semibold text-yellow-500">
+      <%= star_rating(item.rating) %>
+      <% if item.shared? %>
+        <span class="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">シェア中</span>
+      <% end %>
+    </p>
     <p class="mt-0.5 line-clamp-2 text-sm text-slate-600"><%= item.review.presence || "レビューなし" %></p>
   </div>
 

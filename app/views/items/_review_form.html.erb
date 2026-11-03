@@ -16,6 +16,16 @@
                          placeholder: "使ってみた感想は任意です" %>
     </div>
 
+    <%# ゲストにも出す（押して保存すると、登録すると使えることを伝える） %>
+    <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-rose-200 bg-white p-3">
+      <span class="min-w-0 flex-1">
+        <span class="block text-sm font-bold text-slate-900">シェアする</span>
+        <span class="block text-xs text-slate-500">シェアした感想は、えらぶノートを使っている他のユーザーも見ることができます。星評価をつけるとシェアできます。</span>
+      </span>
+      <%= form.check_box :shared, class: "peer sr-only" %>
+      <span class="relative h-7 w-12 shrink-0 rounded-full bg-slate-300 transition peer-checked:bg-rose-700 after:absolute after:left-0.5 after:top-0.5 after:h-6 after:w-6 after:rounded-full after:bg-white after:shadow after:transition peer-checked:after:translate-x-5" aria-hidden="true"></span>
+    </label>
+
     <%= form.submit "保存する", class: "btn-primary w-full cursor-pointer" %>
   <% end %>
 </div>

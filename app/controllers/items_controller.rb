@@ -131,6 +131,7 @@ class ItemsController < ApplicationController
 
     if @item.update(review_params)
       notice = was_unreviewed ? "感想を書きました" : "感想を更新しました"
+      alert = sharing_alert
       destination =
         case params[:return_to]
         when "confirm_archive" then confirm_archive_item_path(@item)
@@ -138,7 +139,7 @@ class ItemsController < ApplicationController
         else item_path(@item)
         end
 
-      redirect_to destination, notice: notice
+      redirect_to destination, notice: notice, alert: alert
     else
       redirect_to @item, alert: @item.errors.full_messages.to_sentence
     end
@@ -162,8 +163,18 @@ class ItemsController < ApplicationController
                                   :rating, :review)
   end
 
+  # シェアを選んだのにシェアされなかったとき、理由を伝える
+  def sharing_alert
+    return unless params.dig(:item, :shared) == "1"
+    return "シェアは新規登録すると使えます" if current_user.guest?
+
+    "星評価をつけるとシェアできます" unless @item.shared?
+  end
+
   def review_params
-    params.require(:item).permit(:rating, :review)
+    # ゲストはシェアできないので、shared を受け取らない
+    permitted = current_user.guest? ? %i[rating review] : %i[rating review shared]
+    params.require(:item).permit(*permitted)
   end
 
   def assign_category
