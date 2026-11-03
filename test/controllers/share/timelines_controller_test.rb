@@ -38,4 +38,13 @@ class Share::TimelinesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[aria-label='新着あり']", count: 0
   end
 
+  test "long reviews are folded with a read-more" do
+    @other.items.create!(name: "長い感想の乳液", rating: 4, review: "あ" * 150, shared: true)
+    @user.follow!(@other)
+    sign_in @user
+
+    get share_timeline_path
+
+    assert_select "details summary", text: /続きを読む/
+  end
 end
