@@ -519,6 +519,22 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_nil flash[:alert]
   end
 
+  test "update_review saves the nickname confirmed when sharing for the first time" do
+    item = items(:one)
+
+    patch update_review_item_path(item), params: { item: { rating: 4, shared: "1" }, nickname: " まい " }
+
+    assert_equal "まい", @user.reload.name
+  end
+
+  test "update_review keeps the name when the review is not shared" do
+    item = items(:one)
+
+    patch update_review_item_path(item), params: { item: { rating: "", shared: "1" }, nickname: "まい" }
+
+    assert_equal "テストユーザー1", @user.reload.name
+  end
+
   test "update_review tells the user that a review without rating cannot be shared" do
     item = items(:one)
 

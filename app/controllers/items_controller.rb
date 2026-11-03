@@ -132,6 +132,7 @@ class ItemsController < ApplicationController
     if @item.update(review_params)
       notice = was_unreviewed ? "感想を書きました" : "感想を更新しました"
       alert = sharing_alert
+      update_nickname
       destination =
         case params[:return_to]
         when "confirm_archive" then confirm_archive_item_path(@item)
@@ -161,6 +162,12 @@ class ItemsController < ApplicationController
   def item_params
     params.require(:item).permit(:name, :brand_name, :price, :memo, :image, :capacity, :capacity_unit,
                                   :rating, :review)
+  end
+
+  # 初めてシェアするときに確認したニックネームを保存する
+  def update_nickname
+    nickname = params[:nickname].to_s.strip
+    current_user.update(name: nickname) if @item.shared? && nickname.present?
   end
 
   # シェアを選んだのにシェアされなかったとき、理由を伝える

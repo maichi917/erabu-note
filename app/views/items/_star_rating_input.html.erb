@@ -11,5 +11,5 @@
               aria-label="星<%= n %>つ">★</button>
     <% end %>
   </div>
-  <%= form.hidden_field :rating, data: { star_rating_target: "input" } %>
+  <%= form.hidden_field :rating, data: { star_rating_target: "input", share_confirm_target: "rating" } %>
 </div>
