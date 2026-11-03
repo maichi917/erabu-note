@@ -2,7 +2,7 @@ require "test_helper"
 
 class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
   test "guest_sign_in creates a guest account with sample data and signs in" do
-    assert_difference "User.count", 1 do
+    assert_difference "User.guests.count", 1 do
       post guest_sign_in_path
     end
 
@@ -10,6 +10,7 @@ class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
     guest = User.guests.order(created_at: :desc).first
     assert guest.guest?
     assert_equal 16, guest.items.count
+    assert_equal 3, User.samples.count
   end
 
   test "guest_sign_in reuses the current guest account when already signed in as guest" do

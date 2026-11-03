@@ -4,6 +4,8 @@ class Users::SessionsController < Devise::SessionsController
   before_action :require_no_authentication, only: [ :guest_sign_in ]
 
   def guest_sign_in
+    # ゲストがシェアの画面で見る、見本のユーザーを用意しておく
+    User.ensure_sample_users!
     guest = User.create_guest!
     guest.seed_guest_sample_data!
     sign_in guest, event: :authentication

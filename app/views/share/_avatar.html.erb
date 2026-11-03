@@ -1,0 +1,12 @@
+<%# ユーザーのアイコン。ふだんは全員共通の人のマーク。見本のユーザーは画像がないので、色で見分ける %>
+<%
+  sample_colors = {
+    "sample-sakura@sample.invalid" => "bg-rose-100 text-rose-600",
+    "sample-yuu@sample.invalid" => "bg-sky-100 text-sky-600",
+    "sample-natsu@sample.invalid" => "bg-amber-100 text-amber-600"
+  }
+  color_class = sample_colors.fetch(user.email, "bg-slate-100 text-slate-400")
+%>
+<span class="flex shrink-0 items-center justify-center rounded-full <%= color_class %> <%= local_assigns[:class] %>" aria-hidden="true">
+  <%= render "shared/nav_icon", name: :mypage, class: local_assigns[:icon_class] %>
+</span>

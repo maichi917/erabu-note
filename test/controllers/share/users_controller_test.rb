@@ -28,12 +28,29 @@ class Share::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to share_mypage_path
   end
 
-  test "show does not let a guest see other users" do
+  test "show does not let a guest see real users" do
     sign_in User.create_guest!
 
     get share_user_path(@other)
 
-    assert_redirected_to share_mypage_path
-    assert_equal "他のユーザーのページは、新規登録すると見られます", flash[:alert]
+    assert_response :not_found
+  end
+
+  test "show lets a guest see sample users" do
+    User.ensure_sample_users!
+    sign_in User.create_guest!
+
+    get share_user_path(User.samples.first)
+
+    assert_response :success
+  end
+
+  test "show does not let a member see sample users" do
+    User.ensure_sample_users!
+    sign_in users(:one)
+
+    get share_user_path(User.samples.first)
+
+    assert_response :not_found
   end
 end

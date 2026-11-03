@@ -2,9 +2,7 @@
 <% editable = local_assigns.fetch(:editable, false) %>
 
 <section class="ui-card flex items-center gap-4">
-  <span class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-2xl font-bold <%= editable ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700" %>" aria-hidden="true">
-    <%= user.name.first %>
-  </span>
+  <%= render "share/avatar", user: user, class: "h-16 w-16", icon_class: "h-9 w-9" %>
 
   <div class="min-w-0">
     <div class="flex items-center gap-2">
