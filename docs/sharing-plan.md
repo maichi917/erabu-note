@@ -68,7 +68,7 @@
 
 | テーブル | 追加するもの | ステップ |
 |---|---|---|
-| items | `public`（boolean、default: false）、`published_at`（datetime） | 1 |
+| items | `shared`（boolean、default: false）、`shared_at`（datetime） | 1 |
 | follows（新規） | `follower_id`、`followed_id`（どちらも users） | 2 |
 | users | `share_seen_at`（datetime。赤い点用） | 2 |
 | bookmarks（新規） | `user_id`、`item_id` | 4 |
@@ -103,8 +103,8 @@ erDiagram
         string name
         integer rating
         text review
-        boolean public "追加"
-        datetime published_at "追加"
+        boolean shared "追加"
+        datetime shared_at "追加"
     }
     follows {
         uuid id PK
@@ -122,6 +122,6 @@ erDiagram
 
 ## 実装で気をつけること
 
-- 公開のルール（星評価がないものは公開できない、星評価を消したら非公開に戻す、`published_at` の更新）は model にまとめる
+- 公開のルール（星評価がないものは公開できない、星評価を消したら非公開に戻す、`shared_at` の更新）は model にまとめる
 - シェアに出す感想の条件は model の1か所にまとめ、3つの画面で使い回す（ゲストには見本だけを表示、本物のユーザーには本物の感想だけを表示）
 - 公開する項目は1つの partial にまとめ、メモなど不要な情報を出さない
