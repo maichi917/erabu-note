@@ -2,6 +2,8 @@ class User < ApplicationRecord
   EMAIL_FORMAT = /\A[^@\s]+@[^@\s]+\.[^@\s]+\z/
   LINE_PLACEHOLDER_EMAIL_DOMAIN = "line.invalid"
   GUEST_EMAIL_DOMAIN = "guest.invalid"
+  SAMPLE_EMAIL_DOMAIN = "sample.invalid"
+  SAMPLE_USERS_PATH = Rails.root.join("config/sample_users.yml")
   GUEST_SAMPLE_DATA_PATH = Rails.root.join("config/guest_sample_data.yml")
   GUEST_SAMPLE_IMAGE_DIR = Rails.root.join("app/assets/images/samples")
 
@@ -15,6 +17,10 @@ class User < ApplicationRecord
 
   # スコープ
   scope :guests, -> { where("email LIKE ?", "%@#{GUEST_EMAIL_DOMAIN}") }
+  # シェアの見本ユーザー（ゲストに見せる）
+  scope :samples, -> { where("email LIKE ?", "%@#{SAMPLE_EMAIL_DOMAIN}") }
+  # 本物のユーザー
+  scope :real_users, -> { where.not("email LIKE ? OR email LIKE ?", "%@#{GUEST_EMAIL_DOMAIN}", "%@#{SAMPLE_EMAIL_DOMAIN}") }
 
   # nameは必須（重複は許可）
   validates :name, presence: true, length: { maximum: 255 }
@@ -42,6 +48,29 @@ class User < ApplicationRecord
   # ゲスト（一時）アカウントかどうか
   def guest?
     email.to_s.end_with?("@#{GUEST_EMAIL_DOMAIN}")
+  end
+
+  # ゲストが見ていれば見本のユーザー、本物のユーザーが見ていれば本物のユーザーを返す
+  def self.visible_to(viewer)
+    viewer.guest? ? samples : real_users
+  end
+
+  # シェアの見本のユーザーと、そのシェア中の感想を用意する（すでにあれば何もしない）。
+  # データの中身は config/sample_users.yml に書いている
+  def self.ensure_sample_users!
+    YAML.load_file(SAMPLE_USERS_PATH)["users"].each do |data|
+      user = find_or_create_by!(email: "sample-#{data["key"]}@#{SAMPLE_EMAIL_DOMAIN}") do |new_user|
+        new_user.name = data["name"]
+        new_user.password = Devise.friendly_token[0, 20]
+      end
+      next if user.items.exists?
+
+      data["items"].each do |attributes|
+        image = attributes.delete("image")
+        item = user.items.create!(attributes.merge(shared: true))
+        item.image.attach(io: GUEST_SAMPLE_IMAGE_DIR.join(image).open, filename: image) if image.present?
+      end
+    end
   end
 
   # ゲストアカウントに、機能を理解しやすいサンプルデータ（カテゴリ・アイテム）を用意する。

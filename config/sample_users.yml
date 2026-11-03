@@ -1,0 +1,39 @@
+# シェアの見本のユーザー（User.ensure_sample_users! で作る）
+# ゲストには、ここで作るユーザーのシェアだけを見せる。image は app/assets/images/samples/ のファイル名
+
+users:
+  - key: sakura
+    name: さくら
+    items:
+      - name: グロウセラム
+        brand_name: clear lab
+        rating: 5
+        review: 朝に使うと化粧のりが全然ちがう。リピート3本目。
+        image: serum.png
+      - name: シアーリップ ローズ
+        brand_name: hanaya
+        rating: 4
+        review: ちょうどいい血色感。マスクにもつきにくい。
+  - key: yuu
+    name: ゆう
+    items:
+      - name: モイストバランス ローション
+        brand_name: kinari
+        rating: 2
+        review: 私にはしっとりしすぎた。夏はべたつく。
+      - name: シルクリペア シャンプー
+        brand_name: botanica
+        rating: 3
+        review: 香りは好き。私の髪には少し重かった。
+  - key: natsu
+    name: なつ
+    items:
+      - name: モイストバランス ローション
+        brand_name: kinari
+        rating: 4
+        review: しっとりするのにべたつかない。冬でもこれ1本。
+        image: lotion.png
+      - name: スムースヘアオイル
+        brand_name: botanica
+        rating: 5
+        review: 少量でまとまる。重くならないのがいい。

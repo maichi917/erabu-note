@@ -51,4 +51,24 @@ class UserTest < ActiveSupport::TestCase
     assert_includes User.guests, guest
     assert_not_includes User.guests, users(:one)
   end
+
+  test "ensure_sample_users! creates sample users with shared reviews only once" do
+    User.ensure_sample_users!
+
+    assert_no_difference [ "User.count", "Item.count" ] do
+      User.ensure_sample_users!
+    end
+    assert_equal 3, User.samples.count
+    assert User.samples.all? { |user| user.items.shared.any? }
+  end
+
+  test "visible_to shows only sample users to guests and only real users to others" do
+    User.ensure_sample_users!
+    guest = User.create_guest!
+
+    assert_equal User.samples.to_a.sort_by(&:id), User.visible_to(guest).to_a.sort_by(&:id)
+    assert_includes User.visible_to(users(:one)), users(:two)
+    assert_not_includes User.visible_to(users(:one)), guest
+    assert_empty User.visible_to(users(:one)) & User.samples
+  end
 end
