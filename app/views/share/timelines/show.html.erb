@@ -1,0 +1,15 @@
+<div class="ui-container-wide space-y-4">
+  <h1 class="brand-font text-lg font-bold text-slate-900">タイムライン</h1>
+
+  <% if @items.any? %>
+    <div class="grid grid-cols-1 gap-2.5 pc:grid-cols-2">
+      <%= render partial: "share/review_card", collection: @items, as: :item, locals: { show_user: true } %>
+    </div>
+    <%= paginate @items %>
+  <% else %>
+    <div class="space-y-3 py-10 text-center text-sm text-slate-500">
+      <p>フォローしている人の感想がここに並びます。</p>
+      <%= link_to "さがすから、気になるアイテムの感想を見つけよう", share_search_path, class: "font-semibold text-rose-700 hover:underline" %>
+    </div>
+  <% end %>
+</div>

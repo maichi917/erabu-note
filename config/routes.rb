@@ -14,6 +14,7 @@ Rails.application.routes.draw do
 
   # シェア用画面
   namespace :share do
+    resource :timeline, only: :show
     resource :search, only: :show
     resource :mypage, only: :show
     resource :nickname, only: %i[edit update]

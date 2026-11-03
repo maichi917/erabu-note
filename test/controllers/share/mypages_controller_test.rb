@@ -23,7 +23,7 @@ class Share::MypagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path
 
-    assert_select "nav[aria-label='スマートフォンメニュー'] a[href='#{share_search_path}']", text: "シェア"
+    assert_select "nav[aria-label='スマートフォンメニュー'] a[href='#{share_timeline_path}']", text: "シェア"
   end
 
   test "show lists only the current user's shared reviews" do

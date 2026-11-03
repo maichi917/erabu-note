@@ -4,6 +4,7 @@
     nav_items =
       if share
         [
+          { name: :timeline, label: "タイムライン", path: share_timeline_path },
           { name: :search, label: "さがす", path: share_search_path },
           { name: :mypage, label: "マイページ", path: share_mypage_path }
         ]
@@ -15,7 +16,9 @@
           { name: :register, label: "登録", path: new_item_path }
         ]
       end
-    room_link = share ? { name: :note, label: "ノートへ", path: home_path } : { name: :share, label: "シェア", path: share_search_path }
+    room_link = share ? { name: :note, label: "ノートへ", path: home_path } : { name: :share, label: "シェア", path: share_timeline_path }
+    # フォローしている人の新しい感想があれば、「シェア」に赤い点を出す
+    new_shares = !share && current_user.new_shares?
   %>
 <% end %>
 
@@ -27,21 +30,21 @@
         <span class="whitespace-nowrap pc:text-3xl">えらぶノート</span>
       <% end %>
       <% if share %>
-        <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-rose-50 py-0.5 pl-1.5 pr-2.5 text-xs font-bold text-rose-700">
-          <%= render "shared/nav_icon", name: :share, class: "h-4 w-4" %>シェア
+        <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-rose-50 py-0.5 pl-1.5 pr-2.5 text-xs font-bold text-rose-700 pc:pl-2 pc:pr-3 pc:text-base">
+          <%= render "shared/nav_icon", name: :share, class: "h-4 w-4 shrink-0 pc:h-6 pc:w-6" %>シェア
         </span>
       <% end %>
     </div>
 
     <% if user_signed_in? %>
       <% if share %>
-        <% active_nav_class = "border-b-2 border-rose-700 px-5 py-2 font-semibold text-rose-700" %>
-        <% inactive_nav_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-rose-700" %>
-        <% room_link_class = "border-b-2 border-transparent px-5 py-2 font-semibold text-emerald-700 transition hover:border-emerald-100" %>
+        <% active_nav_class = "border-b-2 border-rose-700 px-3 py-2 font-semibold text-rose-700" %>
+        <% inactive_nav_class = "border-b-2 border-transparent px-3 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-rose-700" %>
+        <% room_link_class = "border-b-2 border-transparent px-3 py-2 font-semibold text-emerald-700 transition hover:border-emerald-100" %>
       <% else %>
-        <% active_nav_class = "border-b-2 border-emerald-600 px-5 py-2 font-semibold text-emerald-700" %>
-        <% inactive_nav_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-emerald-700" %>
-        <% room_link_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-rose-100 hover:text-rose-700" %>
+        <% active_nav_class = "border-b-2 border-emerald-600 px-3 py-2 font-semibold text-emerald-700" %>
+        <% inactive_nav_class = "border-b-2 border-transparent px-3 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-emerald-700" %>
+        <% room_link_class = "border-b-2 border-transparent px-3 py-2 font-medium text-slate-600 transition hover:border-rose-100 hover:text-rose-700" %>
       <% end %>
 
       <div class="flex items-center gap-4 pc:justify-end">
@@ -56,7 +59,10 @@
           <span class="mx-1 h-5 w-px self-center bg-slate-200" aria-hidden="true"></span>
           <%= link_to room_link[:path], class: room_link_class do %>
             <span class="inline-flex items-center gap-1.5">
-              <%= render "shared/nav_icon", name: room_link[:name], class: "h-4 w-4" %><%= room_link[:label] %>
+              <span class="relative">
+                <%= render "shared/nav_icon", name: room_link[:name], class: "h-4 w-4" %>
+                <% if new_shares %><span class="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-rose-600" aria-label="新着あり"></span><% end %>
+              </span><%= room_link[:label] %>
             </span>
           <% end %>
         </nav>
@@ -106,7 +112,10 @@
     <% end %>
     <span class="my-1 w-px shrink-0 bg-slate-200" aria-hidden="true"></span>
     <%= link_to room_link[:path], class: "#{tab_class} #{room_tab_color}" do %>
-      <%= render "shared/nav_icon", name: room_link[:name], class: "h-5 w-5" %>
+      <span class="relative">
+        <%= render "shared/nav_icon", name: room_link[:name], class: "h-5 w-5" %>
+        <% if new_shares %><span class="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-rose-600" aria-label="新着あり"></span><% end %>
+      </span>
       <span><%= room_link[:label] %></span>
     <% end %>
   </nav>

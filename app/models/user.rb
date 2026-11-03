@@ -72,6 +72,16 @@ class User < ApplicationRecord
     followers.merge(User.visible_to(user))
   end
 
+  # タイムライン：フォローしている人の、シェア中の感想
+  def timeline_items
+    Item.shared_for(self).where(user: following)
+  end
+
+  # シェアを最後に開いたあと、新しい感想があれば赤い点を出す
+  def new_shares?
+    timeline_items.where("items.shared_at > ?", share_seen_at || Time.zone.at(0)).exists?
+  end
+
   # ゲスト（一時）アカウントかどうか
   def guest?
     email.to_s.end_with?("@#{GUEST_EMAIL_DOMAIN}")
