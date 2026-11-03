@@ -15,6 +15,8 @@ Rails.application.routes.draw do
   # シェア用画面
   namespace :share do
     resource :mypage, only: :show
+    resource :nickname, only: %i[edit update]
+    resources :users, only: :show
   end
 
   resources :items, only: %i[index new create show edit update destroy] do

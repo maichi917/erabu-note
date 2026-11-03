@@ -1,3 +1,14 @@
-<div class="ui-container-wide">
-  <h1 class="brand-font text-lg font-bold text-slate-900">マイページ</h1>
+<div class="ui-container-wide space-y-6">
+  <%= render "share/profile_header", user: current_user, items_count: @items.size, editable: true %>
+
+  <section class="space-y-3">
+    <h2 class="brand-font text-lg font-bold text-slate-900">シェア中の感想</h2>
+    <% if @items.any? %>
+      <div class="grid grid-cols-1 gap-2.5 pc:grid-cols-2">
+        <%= render partial: "share/review_card", collection: @items, as: :item %>
+      </div>
+    <% else %>
+      <p class="py-10 text-center text-sm text-slate-500">シェア中の感想はまだありません。感想を書くときの「シェアする」から、シェアできます。</p>
+    <% end %>
+  </section>
 </div>

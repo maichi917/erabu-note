@@ -25,4 +25,17 @@ class Share::MypagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "nav[aria-label='スマートフォンメニュー'] a[href='#{share_mypage_path}']", text: "シェア"
   end
+
+  test "show lists only the current user's shared reviews" do
+    user = users(:one)
+    items(:one).update!(rating: 4, review: "しっとりする", shared: true)
+    items(:two).update!(rating: 3)
+    users(:two).items.create!(name: "他の人の化粧水", rating: 5, shared: true)
+    sign_in user
+
+    get share_mypage_path
+
+    assert_select "article", count: 1
+    assert_select "article", text: /しっとりする/
+  end
 end
