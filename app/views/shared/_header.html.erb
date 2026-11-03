@@ -3,7 +3,10 @@
   <%
     nav_items =
       if share
-        [ { name: :mypage, label: "マイページ", path: share_mypage_path } ]
+        [
+          { name: :search, label: "さがす", path: share_search_path },
+          { name: :mypage, label: "マイページ", path: share_mypage_path }
+        ]
       else
         [
           { name: :home, label: "ホーム", path: home_path },
@@ -12,7 +15,7 @@
           { name: :register, label: "登録", path: new_item_path }
         ]
       end
-    room_link = share ? { name: :note, label: "ノートへ", path: home_path } : { name: :share, label: "シェア", path: share_mypage_path }
+    room_link = share ? { name: :note, label: "ノートへ", path: home_path } : { name: :share, label: "シェア", path: share_search_path }
   %>
 <% end %>
 

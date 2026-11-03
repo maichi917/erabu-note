@@ -30,6 +30,7 @@ module ApplicationHelper
     when :reviews then controller_name == "items" && action_name == "reviews"
     when :register then controller_name == "items" && action_name.in?(%w[new create])
     when :items then controller_name == "items" && !action_name.in?(%w[reviews new create edit_review])
+    when :search then controller_path == "share/searches"
     when :mypage then controller_path == "share/mypages"
     else false
     end
