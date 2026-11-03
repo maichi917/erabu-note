@@ -200,4 +200,55 @@ class ItemTest < ActiveSupport::TestCase
     assert_not item.valid?
     assert_includes item.errors[:image], "は10MB以下にしてください"
   end
+
+  test "items are not shared by default" do
+    assert_not Item.new.shared?
+  end
+
+  test "items without a rating are not shared" do
+    item = items(:one)
+
+    item.update!(shared: true)
+
+    assert_not item.shared?
+  end
+
+  test "sharing sets shared_at" do
+    item = items(:one)
+    item.update!(rating: 4)
+
+    item.update!(shared: true)
+
+    assert_not_nil item.shared_at
+    assert_equal [ item ], Item.shared.to_a
+  end
+
+  test "updating the review of a shared item updates shared_at" do
+    item = items(:one)
+    item.update!(rating: 4, shared: true)
+    item.update_column(:shared_at, 1.day.ago)
+
+    item.update!(review: "しっとりする")
+
+    assert_in_delta Time.current, item.shared_at, 5.seconds
+  end
+
+  test "updating other fields of a shared item keeps shared_at" do
+    item = items(:one)
+    item.update!(rating: 4, shared: true)
+    item.update_column(:shared_at, 1.day.ago)
+
+    assert_no_changes -> { item.reload.shared_at } do
+      item.update!(memo: "詰め替えあり")
+    end
+  end
+
+  test "removing the rating stops sharing" do
+    item = items(:one)
+    item.update!(rating: 4, shared: true)
+
+    item.update!(rating: nil)
+
+    assert_not item.shared?
+  end
 end

@@ -19,8 +19,8 @@
 <tr><th width="50%">① ホーム</th><th width="50%">② 感想を書く</th></tr>
 <tr><td align="center"><img src="images/sharing-01-home.png" width="300" alt="① ホーム"></td><td align="center"><img src="images/sharing-02-review.png" width="300" alt="② 感想を書く"></td></tr>
 <tr><td>現在のホーム画面のタブの右端に、線で区切って「シェア」を追加。フォロー中の人の新しい感想があると赤い点を表示。</td><td>「シェアする」スイッチを追加。シェア画面に関するもののテーマカラーはローズに統一。星評価がないと公開はできない。ゲストには出さない。</td></tr>
-<tr><th width="50%">③ ニックネームの確認</th><th width="50%">④ フォロー中</th></tr>
-<tr><td align="center"><img src="images/sharing-03-confirm.png" width="300" alt="③ ニックネームの確認"></td><td align="center"><img src="images/sharing-04-following.png" width="300" alt="④ フォロー中"></td></tr>
+<tr><th width="50%">③ ニックネームの確認</th><th width="50%">④ タイムライン</th></tr>
+<tr><td align="center"><img src="images/sharing-03-confirm.png" width="300" alt="③ ニックネームの確認"></td><td align="center"><img src="images/sharing-04-following.png" width="300" alt="④ タイムライン"></td></tr>
 <tr><td>シェア中の感想が0件の人が、②でシェアして保存した時に出す。ニックネームを確認してもらう（既に名前を登録済みのユーザーがいるため）。</td><td>ヘッダーにロゴ＋「シェア」の印。下のタブもシェア用に変わる。フォローしている人がシェアした感想が、新しい順に並ぶ。ここを開くと赤い点が消える。ブックマークもできる</td></tr>
 <tr><th width="50%">⑤ さがす</th><th width="50%">⑥ 他の人のプロフィール</th></tr>
 <tr><td align="center"><img src="images/sharing-05-search.png" width="300" alt="⑤ さがす"></td><td align="center"><img src="images/sharing-06-profile.png" width="300" alt="⑥ 他の人のプロフィール"></td></tr>
@@ -30,7 +30,7 @@
 <tr><td>シェア画面の中の自分のページ。名前の横の「✎ 編集」で、ニックネームを変更。数を押すとフォロー／フォロワー一覧。</td><td>ブックマークした感想を確認できる。自分だけが見られる。書いた人がシェアをやめたら、一覧に表示させない。</td></tr>
 </table>
 
-シェアの画面は、ロゴの横に「シェア」の札を出し、テーマカラーをローズにする。下のタブは フォロー中／さがす／マイページ ｜ ノートへ。
+シェアの画面は、ロゴの横に「シェア」の札を出し、テーマカラーをローズにする。下のタブは タイムライン／さがす／マイページ ｜ ノートへ。
 
 ## 動線
 
@@ -56,7 +56,7 @@
 | ステップ | 中身 | issue |
 |---|---|---|
 | 1 | 利用規約の更新、公開スイッチ、ニックネームの確認、シェアの部屋（ヘッダー・下のタブ）、プロフィール／マイページ | #375、#376 |
-| 2 | フォロー、フォロー／フォロワー一覧、フォロー中、赤い点 | #377 |
+| 2 | フォロー、フォロー／フォロワー一覧、タイムライン、赤い点 | #377 |
 | 3 | さがす、ゲスト用の見本ユーザー | #378 |
 | 4 | 保存（ブックマーク） | #400 |
 
@@ -68,7 +68,7 @@
 
 | テーブル | 追加するもの | ステップ |
 |---|---|---|
-| items | `public`（boolean、default: false）、`published_at`（datetime） | 1 |
+| items | `shared`（boolean、default: false）、`shared_at`（datetime） | 1 |
 | follows（新規） | `follower_id`、`followed_id`（どちらも users） | 2 |
 | users | `share_seen_at`（datetime。赤い点用） | 2 |
 | bookmarks（新規） | `user_id`、`item_id` | 4 |
@@ -103,8 +103,8 @@ erDiagram
         string name
         integer rating
         text review
-        boolean public "追加"
-        datetime published_at "追加"
+        boolean shared "追加"
+        datetime shared_at "追加"
     }
     follows {
         uuid id PK
@@ -122,6 +122,6 @@ erDiagram
 
 ## 実装で気をつけること
 
-- 公開のルール（星評価がないものは公開できない、星評価を消したら非公開に戻す、`published_at` の更新）は model にまとめる
+- 公開のルール（星評価がないものは公開できない、星評価を消したら非公開に戻す、`shared_at` の更新）は model にまとめる
 - シェアに出す感想の条件は model の1か所にまとめ、3つの画面で使い回す（ゲストには見本だけを表示、本物のユーザーには本物の感想だけを表示）
 - 公開する項目は1つの partial にまとめ、メモなど不要な情報を出さない

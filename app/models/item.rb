@@ -14,6 +14,10 @@ class Item < ApplicationRecord
   validate :image_size
   validate :review_requires_rating
 
+  # 星評価がない感想はシェアしない（シェア中に星評価を消したときも同様）
+  before_validation { self.shared = false if rating.blank? }
+  before_save :update_shared_at
+
   def price=(value)
     super(zenkaku_to_hankaku(value))
   end
@@ -38,6 +42,7 @@ class Item < ApplicationRecord
   scope :reviewed, -> { where.not(rating: nil) }
   scope :highly_rated, -> { where(rating: 4..5) }
   scope :poorly_rated, -> { where(rating: 1..2) }
+  scope :shared, -> { where(shared: true) }
   scope :by_name, ->(query) {
     return all if query.blank?
 
@@ -104,6 +109,14 @@ class Item < ApplicationRecord
     return if review.blank? || rating.present?
 
     errors.add(:base, "レビューを入力する場合、星評価は必須です")
+  end
+
+  # シェアを始めたとき、またはシェア中に感想を変えたときに、タイムラインの並び順の日時を更新する
+  def update_shared_at
+    return unless shared?
+    return unless will_save_change_to_shared? || will_save_change_to_rating? || will_save_change_to_review?
+
+    self.shared_at = Time.current
   end
 
   def image_content_type
