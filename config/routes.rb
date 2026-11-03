@@ -12,6 +12,11 @@ Rails.application.routes.draw do
   get "privacy", to: "static_pages#privacy", as: :privacy
   get "contact", to: "static_pages#contact", as: :contact
 
+  # シェア用画面
+  namespace :share do
+    resource :mypage, only: :show
+  end
+
   resources :items, only: %i[index new create show edit update destroy] do
     member do
       patch :toggle_low_stock

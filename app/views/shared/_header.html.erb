@@ -1,34 +1,59 @@
-<header class="border-b border-emerald-100 bg-white/95 shadow-sm">
+<% share = user_signed_in? && share_area? %>
+<% if user_signed_in? %>
+  <%
+    nav_items =
+      if share
+        [ { name: :mypage, label: "マイページ", path: share_mypage_path } ]
+      else
+        [
+          { name: :home, label: "ホーム", path: home_path },
+          { name: :items, label: "持ち物", path: items_path },
+          { name: :reviews, label: "感想", path: reviews_items_path },
+          { name: :register, label: "登録", path: new_item_path }
+        ]
+      end
+    room_link = share ? { name: :note, label: "ノートへ", path: home_path } : { name: :share, label: "シェア", path: share_mypage_path }
+  %>
+<% end %>
+
+<header class="border-b <%= share ? "border-rose-200" : "border-emerald-100" %> bg-white/95 shadow-sm">
   <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-4">
-    <%= link_to root_path, class: "logo-font inline-flex shrink-0 items-center gap-2 text-2xl font-bold text-emerald-700 transition hover:text-emerald-800" do %>
-      <%= image_tag "logo-mark.svg", alt: "", class: "h-8 w-8 shrink-0 pc:h-9 pc:w-9" %>
-      <span class="whitespace-nowrap pc:text-3xl">えらぶノート</span>
-    <% end %>
+    <div class="flex min-w-0 items-center gap-2">
+      <%= link_to root_path, class: "logo-font inline-flex shrink-0 items-center gap-2 text-2xl font-bold text-emerald-700 transition hover:text-emerald-800" do %>
+        <%= image_tag "logo-mark.svg", alt: "", class: "h-8 w-8 shrink-0 pc:h-9 pc:w-9" %>
+        <span class="whitespace-nowrap pc:text-3xl">えらぶノート</span>
+      <% end %>
+      <% if share %>
+        <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-rose-50 py-0.5 pl-1.5 pr-2.5 text-xs font-bold text-rose-700">
+          <%= render "shared/nav_icon", name: :share, class: "h-4 w-4" %>シェア
+        </span>
+      <% end %>
+    </div>
 
     <% if user_signed_in? %>
-      <% active_nav_class = "border-b-2 border-emerald-600 px-5 py-2 font-semibold text-emerald-700" %>
-      <% inactive_nav_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-emerald-700" %>
+      <% if share %>
+        <% active_nav_class = "border-b-2 border-rose-700 px-5 py-2 font-semibold text-rose-700" %>
+        <% inactive_nav_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-rose-700" %>
+        <% room_link_class = "border-b-2 border-transparent px-5 py-2 font-semibold text-emerald-700 transition hover:border-emerald-100" %>
+      <% else %>
+        <% active_nav_class = "border-b-2 border-emerald-600 px-5 py-2 font-semibold text-emerald-700" %>
+        <% inactive_nav_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-slate-200 hover:text-emerald-700" %>
+        <% room_link_class = "border-b-2 border-transparent px-5 py-2 font-medium text-slate-600 transition hover:border-rose-100 hover:text-rose-700" %>
+      <% end %>
 
       <div class="flex items-center gap-4 pc:justify-end">
         <nav class="hidden items-center gap-1 self-stretch text-base pc:flex" aria-label="メインメニュー">
-          <%= link_to home_path, class: current_nav?(:home) ? active_nav_class : inactive_nav_class do %>
-            <span class="inline-flex items-center gap-1.5">
-              <%= render "shared/nav_icon", name: :home, class: "h-4 w-4" %>ホーム
-            </span>
+          <% nav_items.each do |nav| %>
+            <%= link_to nav[:path], class: current_nav?(nav[:name]) ? active_nav_class : inactive_nav_class do %>
+              <span class="inline-flex items-center gap-1.5">
+                <%= render "shared/nav_icon", name: nav[:name], class: "h-4 w-4" %><%= nav[:label] %>
+              </span>
+            <% end %>
           <% end %>
-          <%= link_to items_path, class: current_nav?(:items) ? active_nav_class : inactive_nav_class do %>
+          <span class="mx-1 h-5 w-px self-center bg-slate-200" aria-hidden="true"></span>
+          <%= link_to room_link[:path], class: room_link_class do %>
             <span class="inline-flex items-center gap-1.5">
-              <%= render "shared/nav_icon", name: :items, class: "h-4 w-4" %>持ち物
-            </span>
-          <% end %>
-          <%= link_to reviews_items_path, class: current_nav?(:reviews) ? active_nav_class : inactive_nav_class do %>
-            <span class="inline-flex items-center gap-1.5">
-              <%= render "shared/nav_icon", name: :reviews, class: "h-4 w-4" %>感想
-            </span>
-          <% end %>
-          <%= link_to new_item_path, class: current_nav?(:register) ? active_nav_class : inactive_nav_class do %>
-            <span class="inline-flex items-center gap-1.5">
-              <%= render "shared/nav_icon", name: :register, class: "h-4 w-4" %>登録
+              <%= render "shared/nav_icon", name: room_link[:name], class: "h-4 w-4" %><%= room_link[:label] %>
             </span>
           <% end %>
         </nav>
@@ -65,25 +90,21 @@
 </header>
 
 <% if user_signed_in? %>
-  <% active_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-2.5 font-medium text-emerald-700" %>
-  <% inactive_tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-2.5 font-medium text-slate-500" %>
+  <% tab_class = "flex min-w-0 flex-1 flex-col items-center gap-0.5 whitespace-nowrap rounded-md py-2.5 font-medium" %>
+  <% active_tab_color = share ? "text-rose-700" : "text-emerald-700" %>
+  <% room_tab_color = share ? "text-emerald-700" : "text-slate-500" %>
 
-  <nav class="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-emerald-100 bg-white/95 px-2 py-2 text-center text-sm shadow-[0_-1px_4px_rgba(0,0,0,0.06)] pc:hidden" aria-label="スマートフォンメニュー">
-    <%= link_to home_path, class: current_nav?(:home) ? active_tab_class : inactive_tab_class do %>
-      <%= render "shared/nav_icon", name: :home, class: "h-5 w-5" %>
-      <span>ホーム</span>
+  <nav class="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t <%= share ? "border-rose-200" : "border-emerald-100" %> bg-white/95 px-2 py-2 text-center text-sm shadow-[0_-1px_4px_rgba(0,0,0,0.06)] pc:hidden" aria-label="スマートフォンメニュー">
+    <% nav_items.each do |nav| %>
+      <%= link_to nav[:path], class: "#{tab_class} #{current_nav?(nav[:name]) ? active_tab_color : "text-slate-500"}" do %>
+        <%= render "shared/nav_icon", name: nav[:name], class: "h-5 w-5" %>
+        <span><%= nav[:label] %></span>
+      <% end %>
     <% end %>
-    <%= link_to items_path, class: current_nav?(:items) ? active_tab_class : inactive_tab_class do %>
-      <%= render "shared/nav_icon", name: :items, class: "h-5 w-5" %>
-      <span>持ち物</span>
-    <% end %>
-    <%= link_to reviews_items_path, class: current_nav?(:reviews) ? active_tab_class : inactive_tab_class do %>
-      <%= render "shared/nav_icon", name: :reviews, class: "h-5 w-5" %>
-      <span>感想</span>
-    <% end %>
-    <%= link_to new_item_path, class: current_nav?(:register) ? active_tab_class : inactive_tab_class do %>
-      <%= render "shared/nav_icon", name: :register, class: "h-5 w-5" %>
-      <span>登録</span>
+    <span class="my-1 w-px shrink-0 bg-slate-200" aria-hidden="true"></span>
+    <%= link_to room_link[:path], class: "#{tab_class} #{room_tab_color}" do %>
+      <%= render "shared/nav_icon", name: room_link[:name], class: "h-5 w-5" %>
+      <span><%= room_link[:label] %></span>
     <% end %>
   </nav>
 <% end %>
