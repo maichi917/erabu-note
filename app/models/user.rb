@@ -63,14 +63,23 @@ class User < ApplicationRecord
     following.include?(user)
   end
 
+  # 他のゲストのフォローはカウントしない。
+  def visible_following(user)
+    following.merge(User.visible_to(user))
+  end
+
+  def visible_followers(user)
+    followers.merge(User.visible_to(user))
+  end
+
   # ゲスト（一時）アカウントかどうか
   def guest?
     email.to_s.end_with?("@#{GUEST_EMAIL_DOMAIN}")
   end
 
-  # ゲストが見ていれば見本のユーザー、本物のユーザーが見ていれば本物のユーザーを返す
-  def self.visible_to(viewer)
-    viewer.guest? ? samples : real_users
+  # user から見える人たち。ゲストなら見本のユーザーと自分、本物のユーザーなら本物のユーザー
+  def self.visible_to(user)
+    user.guest? ? samples.or(where(id: user.id)) : real_users
   end
 
   # シェアの見本のユーザーと、そのシェア中の感想を用意する（すでにあれば何もしない）。

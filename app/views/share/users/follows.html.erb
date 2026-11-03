@@ -1,0 +1,18 @@
+<div class="ui-container space-y-4">
+  <h1 class="brand-font text-lg font-bold text-slate-900"><%= @user.name %>の<%= @title %></h1>
+
+  <% if @users.any? %>
+    <ul class="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
+      <% @users.each do |user| %>
+        <li>
+          <%= link_to share_user_path(user), class: "flex items-center gap-3 p-3 text-sm font-bold text-slate-900 transition hover:text-rose-700" do %>
+            <%= render "share/avatar", user: user, class: "h-9 w-9", icon_class: "h-5 w-5" %>
+            <%= user.name %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="py-10 text-center text-sm text-slate-500">まだいません。</p>
+  <% end %>
+</div>

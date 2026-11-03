@@ -53,4 +53,27 @@ class Share::UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :not_found
   end
+
+  test "followers and counts do not include guests" do
+    User.ensure_sample_users!
+    sample = User.samples.first
+    User.create_guest!.follow!(sample)
+    another_guest = User.create_guest!
+    sign_in another_guest
+
+    get followers_share_user_path(sample)
+
+    assert_response :success
+    assert_select "li", count: 0
+  end
+
+  test "following lists the users the user follows" do
+    users(:one).follow!(@other)
+    sign_in users(:one)
+
+    get following_share_user_path(users(:one))
+
+    assert_response :success
+    assert_select "li", text: /#{@other.name}/
+  end
 end

@@ -1,11 +1,11 @@
 <%# プロフィールヘッダー（マイページと他の人のプロフィールで共通）。editable: true でニックネームの編集リンクを出す %>
 <% editable = local_assigns.fetch(:editable, false) %>
 
-<section class="ui-card flex items-center gap-4">
-  <%= render "share/avatar", user: user, class: "h-16 w-16", icon_class: "h-9 w-9" %>
+<section class="ui-card space-y-3">
+  <div class="flex items-center gap-4">
+    <%= render "share/avatar", user: user, class: "h-16 w-16", icon_class: "h-9 w-9" %>
 
-  <div class="min-w-0">
-    <div class="flex items-center gap-2">
+    <div class="flex min-w-0 items-center gap-2">
       <h1 class="brand-font truncate text-xl font-bold text-slate-900"><%= user.name %></h1>
       <% if editable %>
         <%= link_to edit_share_nickname_path, class: "inline-flex shrink-0 items-center gap-0.5 text-xs font-medium text-slate-500 transition hover:text-slate-700" do %>
@@ -13,6 +13,30 @@
         <% end %>
       <% end %>
     </div>
-    <p class="mt-1 text-sm text-slate-600"><span class="font-bold text-slate-900"><%= items_count %></span> シェア中</p>
   </div>
+
+  <%# フォローボタンを押したときにフォロー数とボタンの状態を更新 %>
+  <%= turbo_frame_tag "follow" do %>
+    <div class="space-y-3">
+      <p class="flex flex-wrap gap-x-4 text-sm text-slate-600">
+        <span><span class="font-bold text-slate-900"><%= items_count %></span> シェア中</span>
+        <%= link_to following_share_user_path(user), data: { turbo_frame: "_top" }, class: "hover:underline" do %>
+          <span class="font-bold text-slate-900"><%= user.visible_following(current_user).count %></span> フォロー
+        <% end %>
+        <%= link_to followers_share_user_path(user), data: { turbo_frame: "_top" }, class: "hover:underline" do %>
+          <span class="font-bold text-slate-900"><%= user.visible_followers(current_user).count %></span> フォロワー
+        <% end %>
+      </p>
+
+      <% unless editable %>
+        <% if current_user.following?(user) %>
+          <%= button_to "フォロー中", share_user_follow_path(user), method: :delete,
+                        class: "w-full rounded-lg border border-slate-300 bg-white px-5 py-2.5 font-semibold text-slate-700 transition hover:bg-slate-50" %>
+        <% else %>
+          <%= button_to "フォローする", share_user_follow_path(user),
+                        class: "w-full rounded-lg bg-rose-700 px-5 py-2.5 font-semibold text-white transition hover:bg-rose-800" %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
 </section>
