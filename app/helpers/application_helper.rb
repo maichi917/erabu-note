@@ -30,7 +30,13 @@ module ApplicationHelper
     when :reviews then controller_name == "items" && action_name == "reviews"
     when :register then controller_name == "items" && action_name.in?(%w[new create])
     when :items then controller_name == "items" && !action_name.in?(%w[reviews new create edit_review])
+    when :mypage then controller_path == "share/mypages"
     else false
     end
+  end
+
+  # シェアの画面（/share/…）にいるかどうか。ヘッダーとタブの出し分けに使う
+  def share_area?
+    controller_path.start_with?("share/")
   end
 end

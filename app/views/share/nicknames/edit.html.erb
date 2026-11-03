@@ -1,0 +1,20 @@
+<div class="ui-container space-y-5">
+  <h1 class="brand-font text-center text-lg font-bold text-slate-900">ニックネームを変更</h1>
+
+  <%= form_with model: current_user, url: share_nickname_path, method: :patch, class: "ui-card space-y-4" do |form| %>
+    <% if current_user.errors.any? %>
+      <div class="alert-error" role="alert"><%= current_user.errors.full_messages.to_sentence %></div>
+    <% end %>
+
+    <div>
+      <%= form.label :name, "ニックネーム", class: "form-label" %>
+      <%= form.text_field :name, required: true, maxlength: 255, class: "form-input" %>
+      <p class="mt-1 text-xs text-slate-500">ニックネームは公開されます。</p>
+    </div>
+
+    <div class="flex gap-3">
+      <%= link_to "やめる", share_mypage_path, class: "btn-secondary flex-1" %>
+      <%= form.submit "保存する", class: "btn-primary flex-1 cursor-pointer" %>
+    </div>
+  <% end %>
+</div>

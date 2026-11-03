@@ -1,0 +1,25 @@
+<%# シェアの画面の感想カード。他のユーザーに見せてよい項目（画像・ブランド・商品名・星・感想・手放したか）だけを出す %>
+<article class="flex gap-3 rounded-2xl border border-slate-200 bg-white p-3">
+  <div class="shrink-0">
+    <%= render "items/image",
+               item: item,
+               size_class: "h-16 w-16",
+               image_class: "h-16 w-16 rounded-lg object-cover" %>
+  </div>
+
+  <div class="min-w-0 flex-1">
+    <% if item.brand_name.present? %>
+      <p class="truncate text-sm text-emerald-700"><%= item.brand_name %></p>
+    <% end %>
+    <h3 class="brand-font text-base font-bold text-slate-900">
+      <%= item.name %>
+      <% if item.archived? %>
+        <span class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-bold text-slate-500">手放した</span>
+      <% end %>
+    </h3>
+    <p class="mt-0.5 text-sm font-semibold text-yellow-500"><%= star_rating(item.rating) %></p>
+    <% if item.review.present? %>
+      <p class="mt-0.5 whitespace-pre-wrap text-sm text-slate-600"><%= item.review %></p>
+    <% end %>
+  </div>
+</article>

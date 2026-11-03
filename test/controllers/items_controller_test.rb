@@ -510,6 +510,51 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_review_item_path(item)
   end
 
+  test "update_review shares the review when the switch is on" do
+    item = items(:one)
+
+    patch update_review_item_path(item), params: { item: { rating: 4, review: "よかった", shared: "1" } }
+
+    assert item.reload.shared?
+    assert_nil flash[:alert]
+  end
+
+  test "update_review saves the nickname confirmed when sharing for the first time" do
+    item = items(:one)
+
+    patch update_review_item_path(item), params: { item: { rating: 4, shared: "1" }, nickname: " まい " }
+
+    assert_equal "まい", @user.reload.name
+  end
+
+  test "update_review keeps the name when the review is not shared" do
+    item = items(:one)
+
+    patch update_review_item_path(item), params: { item: { rating: "", shared: "1" }, nickname: "まい" }
+
+    assert_equal "テストユーザー1", @user.reload.name
+  end
+
+  test "update_review tells the user that a review without rating cannot be shared" do
+    item = items(:one)
+
+    patch update_review_item_path(item), params: { item: { rating: "", review: "", shared: "1" } }
+
+    assert_not item.reload.shared?
+    assert_equal "星評価をつけるとシェアできます", flash[:alert]
+  end
+
+  test "update_review does not let a guest share a review" do
+    guest = User.create_guest!
+    item = guest.items.create!(name: "ゲストの化粧水")
+    sign_in guest
+
+    patch update_review_item_path(item), params: { item: { rating: 4, shared: "1" } }
+
+    assert_not item.reload.shared?
+    assert_equal "シェアは新規登録すると使えます", flash[:alert]
+  end
+
   test "update_review rejects review without rating" do
     item = items(:one)
 
