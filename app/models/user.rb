@@ -15,6 +15,12 @@ class User < ApplicationRecord
   has_many :items, dependent: :destroy
   has_many :categories, dependent: :destroy
 
+  # フォロー（users どうしを、中間テーブル follows でつなぐ）
+  has_many :active_follows, class_name: "Follow", foreign_key: :follower_id, dependent: :destroy
+  has_many :following, through: :active_follows, source: :followed
+  has_many :passive_follows, class_name: "Follow", foreign_key: :followed_id, dependent: :destroy
+  has_many :followers, through: :passive_follows, source: :follower
+
   # スコープ
   scope :guests, -> { where("email LIKE ?", "%@#{GUEST_EMAIL_DOMAIN}") }
   # シェアの見本ユーザー（ゲストに見せる）
@@ -43,6 +49,18 @@ class User < ApplicationRecord
       name: "ゲスト",
       password: Devise.friendly_token[0, 20]
     )
+  end
+
+  def follow!(user)
+    active_follows.find_or_create_by!(followed: user)
+  end
+
+  def unfollow!(user)
+    active_follows.find_by(followed: user)&.destroy!
+  end
+
+  def following?(user)
+    following.include?(user)
   end
 
   # ゲスト（一時）アカウントかどうか
