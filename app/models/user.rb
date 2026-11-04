@@ -21,6 +21,9 @@ class User < ApplicationRecord
   has_many :passive_follows, class_name: "Follow", foreign_key: :followed_id, dependent: :destroy
   has_many :followers, through: :passive_follows, source: :follower
 
+  has_many :bookmarks, dependent: :destroy
+  has_many :bookmarked_items, through: :bookmarks, source: :item
+
   # スコープ
   scope :guests, -> { where("email LIKE ?", "%@#{GUEST_EMAIL_DOMAIN}") }
   # シェアの見本ユーザー（ゲストに見せる）
@@ -61,6 +64,14 @@ class User < ApplicationRecord
 
   def following?(user)
     following.include?(user)
+  end
+
+  def bookmark!(item)
+    bookmarks.find_or_create_by!(item: item)
+  end
+
+  def unbookmark!(item)
+    bookmarks.find_by(item: item)&.destroy!
   end
 
   # 他のゲストのフォローはカウントしない。

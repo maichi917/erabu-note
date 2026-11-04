@@ -2,7 +2,9 @@
     show_user: true で、書いた人の名前（プロフィールへのリンク）を上に出す %>
 <% show_user = local_assigns.fetch(:show_user, false) %>
 
-<article class="space-y-2.5 rounded-2xl border border-slate-200 bg-white p-3">
+<article class="relative space-y-2.5 rounded-2xl border border-slate-200 bg-white p-3">
+  <%= render "share/bookmark_button", item: item %>
+
   <% if show_user %>
     <%= link_to share_user_path(item.user), class: "flex items-center gap-2 text-sm font-bold text-slate-900 transition hover:text-rose-700" do %>
       <%= render "share/avatar", user: item.user, class: "h-7 w-7", icon_class: "h-4 w-4" %>
@@ -18,7 +20,7 @@
                  image_class: "h-16 w-16 rounded-lg object-cover" %>
     </div>
 
-    <div class="min-w-0 flex-1">
+    <div class="min-w-0 flex-1 pr-7">
       <% if item.brand_name.present? %>
         <p class="truncate text-sm text-emerald-700"><%= item.brand_name %></p>
       <% end %>

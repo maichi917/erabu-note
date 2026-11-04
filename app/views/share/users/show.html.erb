@@ -1,6 +1,6 @@
-<div class="ui-container-wide space-y-6">
-  <%= render "share/profile_header", user: @user, items_count: @items.size %>
+<%= render "share/profile_header", user: @user, items_count: @items.size %>
 
+<div class="ui-container-wide space-y-6">
   <section class="space-y-3">
     <h2 class="brand-font text-lg font-bold text-slate-900">シェア中の感想</h2>
     <% if @items.any? %>

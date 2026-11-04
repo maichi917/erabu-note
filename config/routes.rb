@@ -18,6 +18,10 @@ Rails.application.routes.draw do
     resource :search, only: :show
     resource :mypage, only: :show
     resource :nickname, only: %i[edit update]
+    resources :bookmarks, only: :index
+    resources :items, only: [] do
+      resource :bookmark, only: %i[create destroy]
+    end
     resources :users, only: :show do
       resource :follow, only: %i[create destroy]
       member do

@@ -32,12 +32,16 @@ module ApplicationHelper
     when :items then controller_name == "items" && !action_name.in?(%w[reviews new create edit_review])
     when :timeline then controller_path == "share/timelines"
     when :search then controller_path == "share/searches"
-    when :mypage then controller_path == "share/mypages"
+    when :mypage then controller_path.in?(%w[share/mypages share/bookmarks])
     else false
     end
   end
 
   # シェアの画面（/share/…）にいるかどうか。ヘッダーとタブの出し分けに使う
+  def bookmarked_item_ids
+    @bookmarked_item_ids ||= current_user.bookmarks.pluck(:item_id)
+  end
+
   def share_area?
     controller_path.start_with?("share/")
   end
