@@ -1,0 +1,16 @@
+<%# シェア・フォローの前に、ニックネームが公開されることを確認する窓（share-confirm の中に置く） %>
+<dialog data-share-confirm-target="dialog" class="m-auto w-[min(92vw,22rem)] rounded-2xl p-5 shadow-xl backdrop:bg-slate-900/45">
+  <div class="space-y-4">
+    <h2 class="text-lg font-bold text-slate-900"><%= title %></h2>
+    <div>
+      <%= label_tag :nickname, "ニックネーム", class: "form-label" %>
+      <%= text_field_tag :nickname, current_user.name, required: true, maxlength: 255, class: "form-input",
+                         data: { share_confirm_target: "nickname" } %>
+      <p class="mt-1 text-xs text-slate-500">ニックネームは公開されます。</p>
+    </div>
+    <div class="flex gap-3">
+      <button type="button" class="btn-secondary flex-1" data-action="share-confirm#cancel">やめる</button>
+      <button type="button" class="flex-1 rounded-lg bg-rose-700 px-5 py-2.5 font-semibold text-white transition hover:bg-rose-800" data-action="share-confirm#share"><%= button %></button>
+    </div>
+  </div>
+</dialog>

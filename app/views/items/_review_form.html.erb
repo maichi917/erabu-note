@@ -1,8 +1,8 @@
 <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
   <p class="text-xs font-semibold text-emerald-700">今の感想（いつでも書き換えできます）</p>
 
-  <%# まだ1つもシェアしていない人がシェアするときは、保存の前にニックネームを確認する %>
-  <% nickname_check_needed = !current_user.guest? && current_user.items.shared.none? %>
+  <%# ニックネームが公開される操作をまだしたことがない人がシェアするときは、保存の前にニックネームを確認する %>
+  <% nickname_check_needed = !current_user.nickname_confirmed? %>
 
   <%= form_with model: item, url: update_review_item_path(item), method: :patch, local: true, class: "mt-3 space-y-4",
                 data: { controller: "share-confirm", action: "submit->share-confirm#confirm", share_confirm_needed_value: nickname_check_needed } do |form| %>
@@ -20,7 +20,6 @@
                          placeholder: "使ってみた感想は任意です" %>
     </div>
 
-    <%# ゲストにも出す（押して保存すると、登録すると使えることを伝える） %>
     <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-rose-200 bg-white p-3">
       <span class="min-w-0 flex-1">
         <span class="block text-sm font-bold text-slate-900">シェアする</span>
@@ -31,21 +30,7 @@
     </label>
 
     <% if nickname_check_needed %>
-      <dialog data-share-confirm-target="dialog" class="m-auto w-[min(92vw,22rem)] rounded-2xl p-5 shadow-xl backdrop:bg-slate-900/45">
-        <div class="space-y-4">
-          <h2 class="text-lg font-bold text-slate-900">感想をシェアします</h2>
-          <div>
-            <%= label_tag :nickname, "ニックネーム", class: "form-label" %>
-            <%= text_field_tag :nickname, current_user.name, required: true, maxlength: 255, class: "form-input",
-                               data: { share_confirm_target: "nickname" } %>
-            <p class="mt-1 text-xs text-slate-500">ニックネームは公開されます。</p>
-          </div>
-          <div class="flex gap-3">
-            <button type="button" class="btn-secondary flex-1" data-action="share-confirm#cancel">やめる</button>
-            <button type="button" class="flex-1 rounded-lg bg-rose-700 px-5 py-2.5 font-semibold text-white transition hover:bg-rose-800" data-action="share-confirm#share">シェアする</button>
-          </div>
-        </div>
-      </dialog>
+      <%= render "share/nickname_dialog", title: "感想をシェアします", button: "シェアする" %>
     <% end %>
 
     <%= form.submit "保存する", class: "btn-primary w-full cursor-pointer" %>

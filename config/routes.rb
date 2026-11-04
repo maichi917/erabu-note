@@ -14,10 +14,17 @@ Rails.application.routes.draw do
 
   # シェア用画面
   namespace :share do
+    resource :timeline, only: :show
     resource :search, only: :show
     resource :mypage, only: :show
     resource :nickname, only: %i[edit update]
-    resources :users, only: :show
+    resources :users, only: :show do
+      resource :follow, only: %i[create destroy]
+      member do
+        get :following
+        get :followers
+      end
+    end
   end
 
   resources :items, only: %i[index new create show edit update destroy] do

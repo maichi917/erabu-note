@@ -29,7 +29,15 @@
         <% end %>
       </h3>
       <p class="mt-0.5 text-sm font-semibold text-yellow-500"><%= star_rating(item.rating) %></p>
-      <% if item.review.present? %>
+      <% if item.review.to_s.length > 100 %>
+        <%# 長い感想は、はじめだけ見せて「続きを読む」で開く %>
+        <details class="group mt-0.5 text-sm text-slate-600">
+          <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <span class="group-open:hidden"><%= item.review.first(100) %>… <span class="font-semibold text-rose-700">続きを読む</span></span>
+          </summary>
+          <p class="whitespace-pre-wrap"><%= item.review %></p>
+        </details>
+      <% elsif item.review.present? %>
         <p class="mt-0.5 whitespace-pre-wrap text-sm text-slate-600"><%= item.review %></p>
       <% end %>
     </div>

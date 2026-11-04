@@ -43,8 +43,8 @@ class Item < ApplicationRecord
   scope :highly_rated, -> { where(rating: 4..5) }
   scope :poorly_rated, -> { where(rating: 1..2) }
   scope :shared, -> { where(shared: true) }
-  # シェアの画面で viewer に見せてよい感想（ゲストには見本のユーザーの感想だけ）
-  scope :shared_for, ->(viewer) { shared.where(user: User.visible_to(viewer)) }
+  # user から見える、シェア中の感想
+  scope :shared_for, ->(user) { shared.where(user: User.visible_to(user)) }
   scope :by_name, ->(query) {
     return all if query.blank?
 

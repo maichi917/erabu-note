@@ -173,15 +173,12 @@ class ItemsController < ApplicationController
   # シェアを選んだのにシェアされなかったとき、理由を伝える
   def sharing_alert
     return unless params.dig(:item, :shared) == "1"
-    return "シェアは新規登録すると使えます" if current_user.guest?
 
     "星評価をつけるとシェアできます" unless @item.shared?
   end
 
   def review_params
-    # ゲストはシェアできないので、shared を受け取らない
-    permitted = current_user.guest? ? %i[rating review] : %i[rating review shared]
-    params.require(:item).permit(*permitted)
+    params.require(:item).permit(:rating, :review, :shared)
   end
 
   def assign_category

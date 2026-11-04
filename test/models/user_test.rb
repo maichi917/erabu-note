@@ -62,13 +62,29 @@ class UserTest < ActiveSupport::TestCase
     assert User.samples.all? { |user| user.items.shared.any? }
   end
 
-  test "visible_to shows only sample users to guests and only real users to others" do
+  test "visible_to shows sample users and themselves to guests, and only real users to others" do
     User.ensure_sample_users!
     guest = User.create_guest!
 
-    assert_equal User.samples.to_a.sort_by(&:id), User.visible_to(guest).to_a.sort_by(&:id)
+    assert_equal (User.samples.to_a + [ guest ]).sort_by(&:id), User.visible_to(guest).to_a.sort_by(&:id)
     assert_includes User.visible_to(users(:one)), users(:two)
     assert_not_includes User.visible_to(users(:one)), guest
     assert_empty User.visible_to(users(:one)) & User.samples
+  end
+
+  test "nickname_confirmed? is true for guests and for users who have shared or followed" do
+    user = users(:one)
+    assert_not user.nickname_confirmed?
+
+    user.follow!(users(:two))
+    assert user.nickname_confirmed?
+
+    user.unfollow!(users(:two))
+    assert_not user.nickname_confirmed?
+
+    user.items.create!(name: "シェア中", rating: 4, shared: true)
+    assert user.nickname_confirmed?
+
+    assert User.create_guest!.nickname_confirmed?
   end
 end

@@ -544,15 +544,15 @@ class ItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "星評価をつけるとシェアできます", flash[:alert]
   end
 
-  test "update_review does not let a guest share a review" do
+  test "update_review lets a guest share a review that only the guest can see" do
     guest = User.create_guest!
     item = guest.items.create!(name: "ゲストの化粧水")
     sign_in guest
 
     patch update_review_item_path(item), params: { item: { rating: 4, shared: "1" } }
 
-    assert_not item.reload.shared?
-    assert_equal "シェアは新規登録すると使えます", flash[:alert]
+    assert item.reload.shared?
+    assert_not_includes Item.shared_for(users(:one)), item
   end
 
   test "update_review rejects review without rating" do

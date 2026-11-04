@@ -15,6 +15,12 @@ class User < ApplicationRecord
   has_many :items, dependent: :destroy
   has_many :categories, dependent: :destroy
 
+  # フォロー（users どうしを、中間テーブル follows でつなぐ）
+  has_many :active_follows, class_name: "Follow", foreign_key: :follower_id, dependent: :destroy
+  has_many :following, through: :active_follows, source: :followed
+  has_many :passive_follows, class_name: "Follow", foreign_key: :followed_id, dependent: :destroy
+  has_many :followers, through: :passive_follows, source: :follower
+
   # スコープ
   scope :guests, -> { where("email LIKE ?", "%@#{GUEST_EMAIL_DOMAIN}") }
   # シェアの見本ユーザー（ゲストに見せる）
@@ -45,14 +51,51 @@ class User < ApplicationRecord
     )
   end
 
+  def follow!(user)
+    active_follows.find_or_create_by!(followed: user)
+  end
+
+  def unfollow!(user)
+    active_follows.find_by(followed: user)&.destroy!
+  end
+
+  def following?(user)
+    following.include?(user)
+  end
+
+  # 他のゲストのフォローはカウントしない。
+  def visible_following(user)
+    following.merge(User.visible_to(user))
+  end
+
+  def visible_followers(user)
+    followers.merge(User.visible_to(user))
+  end
+
+  # タイムライン：フォローしている人の、シェア中の感想
+  def timeline_items
+    Item.shared_for(self).where(user: following)
+  end
+
+  # シェアを最後に開いたあと、新しい感想があれば赤い点を出す
+  def new_shares?
+    timeline_items.where("items.shared_at > ?", share_seen_at || Time.zone.at(0)).exists?
+  end
+
+  # ニックネームが他のユーザーに見える操作（シェア・フォロー）を、すでにしたことがあるか。
+  # ゲストの名前は「ゲスト」で固定なので、確認ずみとして扱う
+  def nickname_confirmed?
+    guest? || items.shared.exists? || active_follows.exists?
+  end
+
   # ゲスト（一時）アカウントかどうか
   def guest?
     email.to_s.end_with?("@#{GUEST_EMAIL_DOMAIN}")
   end
 
-  # ゲストが見ていれば見本のユーザー、本物のユーザーが見ていれば本物のユーザーを返す
-  def self.visible_to(viewer)
-    viewer.guest? ? samples : real_users
+  # user から見える人たち。ゲストなら見本のユーザーと自分、本物のユーザーなら本物のユーザー
+  def self.visible_to(user)
+    user.guest? ? samples.or(where(id: user.id)) : real_users
   end
 
   # シェアの見本のユーザーと、そのシェア中の感想を用意する（すでにあれば何もしない）。
