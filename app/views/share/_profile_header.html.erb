@@ -33,8 +33,14 @@
           <%= button_to "フォロー中", share_user_follow_path(user), method: :delete,
                         class: "w-full rounded-lg border border-slate-300 bg-white px-5 py-2.5 font-semibold text-slate-700 transition hover:bg-slate-50" %>
         <% else %>
-          <%= button_to "フォローする", share_user_follow_path(user),
-                        class: "w-full rounded-lg bg-rose-700 px-5 py-2.5 font-semibold text-white transition hover:bg-rose-800" %>
+          <% nickname_check_needed = !current_user.nickname_confirmed? %>
+          <%= form_with url: share_user_follow_path(user),
+                        data: { controller: "share-confirm", action: "submit->share-confirm#confirm", share_confirm_needed_value: nickname_check_needed } do %>
+            <% if nickname_check_needed %>
+              <%= render "share/nickname_dialog", title: "フォローします", button: "フォローする" %>
+            <% end %>
+            <%= button_tag "フォローする", class: "w-full rounded-lg bg-rose-700 px-5 py-2.5 font-semibold text-white transition hover:bg-rose-800" %>
+          <% end %>
         <% end %>
       <% end %>
     </div>

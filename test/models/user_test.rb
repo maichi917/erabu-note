@@ -71,4 +71,20 @@ class UserTest < ActiveSupport::TestCase
     assert_not_includes User.visible_to(users(:one)), guest
     assert_empty User.visible_to(users(:one)) & User.samples
   end
+
+  test "nickname_confirmed? is true for guests and for users who have shared or followed" do
+    user = users(:one)
+    assert_not user.nickname_confirmed?
+
+    user.follow!(users(:two))
+    assert user.nickname_confirmed?
+
+    user.unfollow!(users(:two))
+    assert_not user.nickname_confirmed?
+
+    user.items.create!(name: "シェア中", rating: 4, shared: true)
+    assert user.nickname_confirmed?
+
+    assert User.create_guest!.nickname_confirmed?
+  end
 end

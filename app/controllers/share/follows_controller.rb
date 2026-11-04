@@ -2,6 +2,8 @@ class Share::FollowsController < Share::BaseController
   before_action :set_user
 
   def create
+    nickname = params[:nickname].to_s.strip
+    current_user.update(name: nickname) if nickname.present?
     current_user.follow!(@user)
     redirect_to share_user_path(@user), status: :see_other
   end

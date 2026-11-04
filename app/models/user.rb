@@ -82,6 +82,12 @@ class User < ApplicationRecord
     timeline_items.where("items.shared_at > ?", share_seen_at || Time.zone.at(0)).exists?
   end
 
+  # ニックネームが他のユーザーに見える操作（シェア・フォロー）を、すでにしたことがあるか。
+  # ゲストの名前は「ゲスト」で固定なので、確認ずみとして扱う
+  def nickname_confirmed?
+    guest? || items.shared.exists? || active_follows.exists?
+  end
+
   # ゲスト（一時）アカウントかどうか
   def guest?
     email.to_s.end_with?("@#{GUEST_EMAIL_DOMAIN}")
