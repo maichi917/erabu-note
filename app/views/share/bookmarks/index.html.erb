@@ -1,0 +1,13 @@
+<%= render "share/profile_header", user: current_user, items_count: current_user.items.shared.count, editable: true %>
+<%= render "share/mypage_tabs" %>
+
+<div class="ui-container-wide space-y-4">
+  <% if @items.any? %>
+    <div class="grid grid-cols-1 gap-2.5 pc:grid-cols-2">
+      <%= render partial: "share/review_card", collection: @items, as: :item, locals: { show_user: true } %>
+    </div>
+    <%= paginate @items %>
+  <% else %>
+    <p class="py-10 text-center text-sm text-slate-500">保存した感想はまだありません。気になった感想のしおりを押すと、ここに並びます。</p>
+  <% end %>
+</div>

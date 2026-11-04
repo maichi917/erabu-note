@@ -1,5 +1,10 @@
 class Share::BookmarksController < Share::BaseController
-  before_action :set_item
+  before_action :set_item, only: %i[create destroy]
+
+  def index
+    @items = current_user.bookmarked_items.shared_for(current_user).includes(:user).with_attached_image
+                         .order("bookmarks.created_at DESC").page(params[:page])
+  end
 
   def create
     current_user.bookmark!(@item)
