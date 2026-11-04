@@ -109,7 +109,7 @@ class User < ApplicationRecord
     user.guest? ? samples.or(where(id: user.id)) : real_users
   end
 
-  # シェアの見本のユーザーと、そのシェア中の感想を用意する（すでにあれば何もしない）。
+  # シェアの見本のユーザーと、そのシェア中の感想を用意する（すでにあるものは作らず、足りない画像だけ付ける）。
   # データの中身は config/sample_users.yml に書いている
   def self.ensure_sample_users!
     YAML.load_file(SAMPLE_USERS_PATH)["users"].each do |data|
@@ -117,12 +117,13 @@ class User < ApplicationRecord
         new_user.name = data["name"]
         new_user.password = Devise.friendly_token[0, 20]
       end
-      next if user.items.exists?
 
       data["items"].each do |attributes|
         image = attributes.delete("image")
-        item = user.items.create!(attributes.merge(shared: true))
-        item.image.attach(io: GUEST_SAMPLE_IMAGE_DIR.join(image).open, filename: image) if image.present?
+        item = user.items.find_or_create_by!(name: attributes["name"]) do |new_item|
+          new_item.assign_attributes(attributes.merge(shared: true))
+        end
+        item.image.attach(io: GUEST_SAMPLE_IMAGE_DIR.join(image).open, filename: image) if image.present? && !item.image.attached?
       end
     end
   end
