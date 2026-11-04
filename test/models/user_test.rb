@@ -35,7 +35,7 @@ class UserTest < ActiveSupport::TestCase
     assert_operator visible.highly_rated.count, :>=, 4
     assert_equal 3, visible.poorly_rated.count
     assert_equal 2, guest.items.archived.count
-    assert_equal 2, guest.items.count { |item| item.image.attached? }
+    assert_equal 6, guest.items.count { |item| item.image.attached? }
   end
 
   test "guest? is true for a guest account and false for a regular user" do
@@ -60,6 +60,16 @@ class UserTest < ActiveSupport::TestCase
     end
     assert_equal 3, User.samples.count
     assert User.samples.all? { |user| user.items.shared.any? }
+  end
+
+  test "ensure_sample_users! adds missing images to sample reviews that already exist" do
+    User.ensure_sample_users!
+    item = User.samples.find_by(email: "sample-natsu@sample.invalid").items.find_by(name: "スムースヘアオイル")
+    item.image.purge
+
+    User.ensure_sample_users!
+
+    assert item.reload.image.attached?
   end
 
   test "visible_to shows sample users and themselves to guests, and only real users to others" do

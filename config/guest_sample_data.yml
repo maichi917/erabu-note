@@ -30,6 +30,7 @@ items:
     low_stock_flagged: true
     rating: 4
     review: 泡立ちが良く、香りも好みでした
+    image: shampoo.jpg
   - name: ランドリーソープ
     brand_name: clean days
     category: 日用品
@@ -37,6 +38,7 @@ items:
     capacity: 900
     capacity_unit: g
     low_stock_flagged: true
+    image: detergent.jpg
 
   # レビュー未記入
   - name: クッションファンデーション
@@ -79,6 +81,7 @@ items:
     capacity_unit: g
     rating: 4
     review: べたつかず、職場でも使いやすい
+    image: hand-cream.jpg
   - name: スムースヘアオイル
     brand_name: botanica
     category: ヘアケア
@@ -88,6 +91,7 @@ items:
     favorite: true
     rating: 4
     review: 少量でまとまる。ドライヤーの前に欠かせない
+    image: hair-oil.jpg
 
   # どちらでもない（★3）
   - name: やさしいボディソープ

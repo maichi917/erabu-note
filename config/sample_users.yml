@@ -21,10 +21,12 @@ users:
         brand_name: kinari
         rating: 2
         review: 私にはしっとりしすぎた。夏はべたつく。
+        image: lotion.png
       - name: シルクリペア シャンプー
         brand_name: botanica
         rating: 3
         review: 香りは好き。私の髪には少し重かった。
+        image: shampoo.jpg
   - key: natsu
     name: なつ
     items:
@@ -37,3 +39,4 @@ users:
         brand_name: botanica
         rating: 5
         review: 少量でまとまる。重くならないのがいい。
+        image: hair-oil.jpg
