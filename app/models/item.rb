@@ -27,6 +27,7 @@ class Item < ApplicationRecord
   end
 
   belongs_to :user
+  has_many :bookmarks, dependent: :destroy
   belongs_to :category, optional: true
   has_one_attached :image do |attachable|
     attachable.variant :thumbnail, resize_to_fill: [ 160, 160 ], format: :webp, saver: { quality: 80 }
