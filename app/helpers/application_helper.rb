@@ -38,6 +38,10 @@ module ApplicationHelper
   end
 
   # シェアの画面（/share/…）にいるかどうか。ヘッダーとタブの出し分けに使う
+  def bookmarked_item_ids
+    @bookmarked_item_ids ||= current_user.bookmarks.pluck(:item_id)
+  end
+
   def share_area?
     controller_path.start_with?("share/")
   end
