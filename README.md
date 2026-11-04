@@ -64,10 +64,10 @@ LIPS や @cosme などの口コミサイトは、他の人のレビューを探�
 ### シェアする
 
 <p align="center">
-  <img src="app/assets/images/guide/guide-share-timeline.png" width="700">
+  <img src="app/assets/images/guide/guide-share-mypage.png" width="700">
 </p>
 
-感想をシェアして、フォローした人の感想を参考にできます。
+感想をシェアして、フォローした人の感想を参考にできます。気になった感想は保存して、マイページで見返せます。
 
 ## 画面と機能
 
